@@ -13,12 +13,13 @@ found=0
 for root in "$@"; do
   [[ -e "$root" ]] || { echo "skip (missing): $root"; continue; }
   echo "--- $root ---"
-  find "$root" -type f \( \
-    -iname 'cn_string.db' -o -iname 'cn_string.DB' \
-    -o -iname 'sysmsg-uni.txt' -o -iname 'sysmsg-uni.TXT' \
-    -o -iname '*.pcap' -o -iname '*.pcapng' \
-    -o -iname '*a101*' -o -iname '*1104*' \
-  \) 2>/dev/null | while read -r f; do
+  find "$root" -type f \
+    \( -path '*/.git/*' -o -path '*/node_modules/*' -o -path '*/target/*' \) -prune -o \
+    \( \
+      -iname 'cn_string.db' -o -iname 'cn_string.DB' \
+      -o -iname 'sysmsg-uni.txt' -o -iname 'sysmsg-uni.TXT' \
+      -o -iname '*.pcap' -o -iname '*.pcapng' \
+    \) -print 2>/dev/null | while read -r f; do
     echo "FOUND: $f ($(wc -c <"$f") bytes)"
     found=1
   done
