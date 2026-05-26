@@ -59,6 +59,14 @@ Routing source: `game-chat-native/recv/PacketDispatcher_005f1e10.c` (chat opcode
 | `0x1111` | Area (alt) | `005E57D0` | `handlers/Handler_Chat_Area_1111_005e57d0.c` | `+0x330` / `0059A900` | `vtable/ChatArea_vfn_0x330_0059a900.c` | Chat box (`SysMsg` `0x31`) |
 | `0x1112` | Long text | `005E88D0` | `handlers/Handler_Chat_LongText_1112_005e88d0.c` | `+0x578` / `0059BD00` | `vtable/ChatLongMsg_vfn_0x578_0059bd00.c` | Chat box (`SysMsg`, buf `0x400`) |
 | `0xF101` | Party notify | `005E5880` | `handlers/Handler_Chat_PartyNotify_F101_005e5880.c` | `+0x324` / `0059C380` | `vtable/ChatNormalParty_vfn_0x324_0059c380.c` | Party chat box (`param_1=1`) |
+| `0xF102` | Admin whisper | `005E5920` | `handlers/Handler_Chat_Admin_F102_005e5920.c` | `+0x328` / `0059BDB0` | `vtable/ChatWhisperTradeGuildZoneMega_vfn_0x328_0059bdb0.c` | Pattern **C** · vfn `(dir,1,0,name,len,text)` · SysMsg `0x162` / highlight |
+| `0xF103` | Admin trade/shout | `005E59F0` | `handlers/Handler_Chat_Admin_F103_005e59f0.c` | `+0x328` case `1` | same | Pattern **B** · vfn `(0,1,1,…)` · SysMsg `0x163` |
+| `0xF104` | Admin guild | `005E5AB0` | `handlers/Handler_Chat_Admin_F104_005e5ab0.c` | `+0x328` case `2` | same | Pattern **B** · vfn `(0,1,2,…)` · SysMsg `0x172` |
+| `0xF105` | Admin party | `005E5B70` | `handlers/Handler_Chat_Admin_F105_005e5b70.c` | `+0x324` / `0059C380` | `vtable/ChatNormalParty_vfn_0x324_0059c380.c` | Pattern **A** · vfn `(1,1,id,len,text)` · party SysMsg |
+| `0xF106` | Admin long/sys | `005E5C10` | `handlers/Handler_Chat_Admin_F106_005e5c10.c` | `+0x334` / `0059ABC0` | `vtable/ChatAdminLong_vfn_0x334_0059abc0.c` | `u16le len` · text (max **0x7D0**) · SysMsg `0x164` · optional `EVENTMSG-` prefix |
+| `0xF107` | Whisper target set | `005DE950` | `handlers/Handler_Chat_Admin_F107_005de950.c` | `+0x344` / `0056BCB0` | `vtable/ChatWhisperTarget_vfn_0x344_0056bcb0.c` | `char[21]` only · **vfn stub (no-op)** on client |
+| `0xF109` | Whisper target clear | `005DE9B0` | `handlers/Handler_Chat_Admin_F109_005de9b0.c` | `+0x348` / `0056BCB0` | same (alias slot) | `char[21]` only · **vfn stub (no-op)** on client |
+| `0xF10A` | Admin long | `005E88D0` | `handlers/Handler_Chat_LongText_1112_005e88d0.c` | `+0x578` | `ChatLongMsg_vfn` | Same handler as `0x1112` |
 
 **Shared vtable `+0x328` (`0059BDB0`)** — sub-channel via `param_3`:
 
@@ -70,6 +78,20 @@ Routing source: `game-chat-native/recv/PacketDispatcher_005f1e10.c` (chat opcode
 | `3` | Megaphone | same |
 | `4` | Zone | lookup + `DrawText` `422B90` |
 | `5` | Zone (alt) | same |
+
+**Admin recv wire (`0xF102`–`0xF109`)** — evidence: `game-chat-native/handlers/Handler_Chat_Admin_F*.c`
+
+| Opcode | Mirror | Payload (after opcode) | Handler read sequence |
+|--------|--------|--------------------------|------------------------|
+| `0xF102` | `0x1102` | **C** `u8 dir` · `char[21]` · `u8 len` · `text[len]` | `Scalar×1` · `String 0x15` · `Scalar×1` · `String len` |
+| `0xF103` | `0x1103` | **B** `char[21]` · `u8 len` · `text[len]` | `String 0x15` · `Scalar×1` · `String len` |
+| `0xF104` | `0x1104` | **B** (same) | same |
+| `0xF105` | `0x1105` / `0xF101` | **A** `u32 id` · `u8 len` · `text[len]` | `Scalar×4` · `Scalar×1` · `String len` |
+| `0xF106` | *(unique)* | `u16le len` · `text[len]` (buf **0x7D0**) | `Scalar×2` · `String (len&0xFFFF)` |
+| `0xF107` | server whisper bind | `char[21]` | `String 0x15` only |
+| `0xF109` | server whisper clear | `char[21]` | `String 0x15` only |
+
+`0xF108` — **not routed** in client `PacketDispatcher` @ `0x005F1E10` (server-only relay in `AdminChat_ProcessIncoming`).
 
 ---
 
@@ -85,7 +107,10 @@ Routing source: `game-chat-native/recv/PacketDispatcher_005f1e10.c` (chat opcode
 | `+0x328` | `ChatWhisperTradeGuildZoneMega_vfn` | `0059BDB0` | `vtable/ChatWhisperTradeGuildZoneMega_vfn_0x328_0059bdb0.c` | `0x1102`–`0x1104`, `0x1108`, `0x1109` |
 | `+0x32C` | `ChatShout_vfn` | `0059AA10` | `vtable/ChatShout_vfn_0x32C_0059aa10.c` | `0x1107` |
 | `+0x330` | `ChatArea_vfn` | `0059A900` | `vtable/ChatArea_vfn_0x330_0059a900.c` | `0x1111` |
+| `+0x334` | `ChatAdminLong_vfn` | `0059ABC0` | `vtable/ChatAdminLong_vfn_0x334_0059abc0.c` | `0xF106` |
 | `+0x340` | `ChatError_vfn` | `0059ABA0` | `vtable/ChatError_vfn_0x340_0059aba0.c` | `0x1106` |
+| `+0x344` | `ChatWhisperTarget_vfn` | `0056BCB0` | `vtable/ChatWhisperTarget_vfn_0x344_0056bcb0.c` | `0xF107` *(stub)* |
+| `+0x348` | `ChatWhisperTarget_vfn` *(alias)* | `0056BCB0` | same | `0xF109` *(stub)* |
 | `+0x34C` | `ChatUnion_vfn` | `0059A940` | `vtable/ChatUnion_vfn_0x34C_0059a940.c` | `0x110A` |
 | `+0x350` | `ChatChannel_vfn` | `0059A9D0` | `vtable/ChatChannel_vfn_0x350_0059a9d0.c` | `0x110B` |
 | `+0x578` | `ChatLongMsg_vfn` | `0059BD00` | `vtable/ChatLongMsg_vfn_0x578_0059bd00.c` | `0x1112`, `0xF10A` |
@@ -111,7 +136,7 @@ Routing source: `game-chat-native/recv/PacketDispatcher_005f1e10.c` (chat opcode
 | `ChatWindow_ChannelToMsgId` | `0047A420` | `ui/ChatWindow_ChannelToMsgId_0047a420.c` | Tab → msg id |
 | `ChatWindow_SetActiveChannel` | `0047C1E0` | `ui/ChatWindow_SetActiveChannel_0047c1e0.c` | |
 | `ChatWindow_ApplyChannelPrefix` | `0047C190` | `ui/ChatWindow_ApplyChannelPrefix_0047c190.c` | |
-| `NativeChatSendUI` | `0045BBE0` | `ui/NativeChatSendUI_0045bbe0.c` | Alternate send UI |
+| `NativeChatSendUI` | `0045BBE0` | `ui/NativeChatSendUI_0045bbe0.c` | World FX / 3D effect queue (**not** `PacketSend_*`) |
 
 ---
 
@@ -235,4 +260,46 @@ Used by speech balloon, nameplates, and other overlays.
 
 ## Server
 
-Mirror pipeline in [`psgame-chat-native/`](psgame-chat-native/README.md) · **114** functions · manifest `psgame-chat-native/psgame-chat-functions.manifest`. Wire crypto: [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md).
+Mirror pipeline in [`psgame-chat-native/`](psgame-chat-native/README.md) · manifest `psgame-chat-native/psgame-chat-functions.manifest`. Wire crypto: [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md).
+
+**Outbound `0x1109`–`0x110B` builders** (server → client push only; client sending these → kick @ `Chat_ProcessIncoming` `0x0047FC24`):
+
+Regenerate: `./tools/ghidra/decompile-psgame-chat.sh` (or subset `tools/ghidra/psgame-chat-send-builders.manifest`).
+
+| Opcode | Pattern | Builder entry | `.c` file | Wire (after opcode) | Plain size |
+|--------|---------|---------------|-----------|---------------------|------------|
+| `0x1109` | D | `0x004C6A80` | `send/Chat_PacketBuilder_1109_A_004c6a80.c` | `u8 flag=0` · `u32 charId` · `u8 len` · `text[len]` | `len+8` |
+| `0x1109` | D | `0x004C6F50` | `send/Chat_PacketBuilder_1109_B_004c6f50.c` | `u8 flag=1` · `u32 charId` · `u8 len` · `text[len]` | `len+8` |
+| `0x110A` | E | `0x004C8310` | `send/Chat_PacketBuilder_110A_004c8310.c` | `u32 charId` · `u16 message_id` | **8** |
+| `0x110B` | G | `0x004C8520` *(landmark `0x004C8539`)* | `send/Chat_PacketBuilder_110B_004c8539.c` | `u32 entity` · `char[32] label` | **0x26** |
+
+### Builder call path (S→C)
+
+```
+script/NPC dispatch @ 0x004A2210 ──call──► Chat_PacketBuilder_1109_A @ 0x004C6A80 ──► CParty_BroadcastPacket @ 0x0044E950 | SConnection_Send @ 0x004ED0E0
+script/NPC dispatch @ 0x004A2210 ──call──► Chat_PacketBuilder_1109_B @ 0x004C6F50 ──► cell loop (0x124 stride) ──► SConnection_Send (per viewer in radius)
+script wrapper     @ 0x004CB3D0 ──call──► Chat_PacketBuilder_110A @ 0x004C8310 ──► cell loop ──► SConnection_Send(..., 8)
+script wrapper     @ 0x004CB430 ──call──► Chat_PacketBuilder_110B @ 0x004C8520 ──► cell loop ──► SConnection_Send(..., 0x26)
+         │                              │
+         └─ Zone_FloorWorldToCellIndex @ 0x005250C0
+            Math_DistanceRadiusCompare @ 0x0041B8A0
+            SConnection_EnqueueWrite   @ 0x004EF080 (via SConnection_Send)
+```
+
+### Client recv cross-check
+
+| Opcode | Client handler | Client vtable | Server builder |
+|--------|----------------|---------------|----------------|
+| `0x1109` | `Handler_ChatZone` `0x005E5600` | `+0x328` case `4`/`5` @ `0x0059BDB0` | 1109_A / 1109_B |
+| `0x110A` | `Handler_ChatUnion` `0x005E56F0` | `+0x34C` @ `0x0059A940` (`GetMsg` + `DrawText`) | 110A |
+| `0x110B` | `Handler_Chat_110B` `0x005E5740` | `+0x350` @ `0x0059A9D0` → nameplate `0x0056C650` | 110B |
+
+### Field notes
+
+| Field | Evidence | Notes |
+|-------|----------|-------|
+| `charId` / `entity` | `*(CUser+0x88)` in all four builders | Same offset; 110B uses it as entity id for nameplate |
+| `flag` (1109) | `movb $0x0` @ `0x4C6AEB` · `movb $0x1` @ `0x4C6F59` | **CONFIRMED** — selects party vs spatial path |
+| Text `len` (1109) | `len - 1U < 0x7f` in both builders | **1..0x7F** (stricter than player chat inbound 2..128) |
+| `message_id` (110A) | `local_a = param_2`; caller ORs `0xC00` @ `0x4CB402` | **INFERRED** — string-table index base |
+| `label[32]` (110B) | `_strncpy(..., 0x20)` + NUL; send `0x26` | **CONFIRMED** — fixed 32 B on wire (client reads `0x20`) |

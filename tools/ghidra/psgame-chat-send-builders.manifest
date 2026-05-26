@@ -1,0 +1,5 @@
+# binary=server/ps_game.exe md5=91b212afbe6623382713772489dc82ce imagebase=0x00400000 regen=tools/ghidra/decompile-psgame-chat.sh
+send	Chat_PacketBuilder_1109_A	0x004C6A80
+send	Chat_PacketBuilder_1109_B	0x004C6F50
+send	Chat_PacketBuilder_110A	0x004C8310
+send	Chat_PacketBuilder_110B	0x004C8539

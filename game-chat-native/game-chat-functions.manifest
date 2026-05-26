@@ -67,6 +67,8 @@ vtable	ChatNotify_vfn_0x320	0x005957E0
 vtable	ChatArea_vfn_0x330	0x0059A900
 vtable	ChatChannel_vfn_0x350	0x0059A9D0
 vtable	ChatLongMsg_vfn_0x578	0x0059BD00
+vtable	ChatAdminLong_vfn_0x334	0x0059ABC0
+vtable	ChatWhisperTarget_vfn_0x344	0x0056BCB0
 
 # --- Chat flow: send path (channel + submit + extra PacketSend) ---
 init	SetChatWindowSingleton	0x005DE770

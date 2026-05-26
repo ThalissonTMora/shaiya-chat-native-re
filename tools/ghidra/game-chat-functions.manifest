@@ -27,6 +27,13 @@ handlers	Handler_ChatNotify_E06	0x005E5070
 handlers	Handler_Chat_110B	0x005E5740
 handlers	Handler_Chat_Area_1111	0x005E57D0
 handlers	Handler_Chat_PartyNotify_F101	0x005E5880
+handlers	Handler_Chat_Admin_F102	0x005E5920
+handlers	Handler_Chat_Admin_F103	0x005E59F0
+handlers	Handler_Chat_Admin_F104	0x005E5AB0
+handlers	Handler_Chat_Admin_F105	0x005E5B70
+handlers	Handler_Chat_Admin_F106	0x005E5C10
+handlers	Handler_Chat_Admin_F107	0x005DE950
+handlers	Handler_Chat_Admin_F109	0x005DE9B0
 handlers	Handler_Chat_LongText_1112	0x005E88D0
 
 # --- Frontend UI (Ghidra scan 2026-05-25) ---
@@ -67,6 +74,8 @@ vtable	ChatNotify_vfn_0x320	0x005957E0
 vtable	ChatArea_vfn_0x330	0x0059A900
 vtable	ChatChannel_vfn_0x350	0x0059A9D0
 vtable	ChatLongMsg_vfn_0x578	0x0059BD00
+vtable	ChatAdminLong_vfn_0x334	0x0059ABC0
+vtable	ChatWhisperTarget_vfn_0x344	0x0056BCB0
 
 # --- Chat flow: send path (channel + submit + extra PacketSend) ---
 init	SetChatWindowSingleton	0x005DE770

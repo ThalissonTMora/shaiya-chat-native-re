@@ -32,6 +32,10 @@ broadcast	Chat_BroadcastAdminNormal	0x004D5320
 broadcast	Chat_BroadcastTrade	0x004192F0
 broadcast	Chat_BroadcastZone	0x00427090
 broadcast	Chat_BroadcastGuild	0x00432530
+send	Chat_PacketBuilder_1109_A	0x004C6A80
+send	Chat_PacketBuilder_1109_B	0x004C6F50
+send	Chat_PacketBuilder_110A	0x004C8310
+send	Chat_PacketBuilder_110B	0x004C8539
 broadcast	CParty_BroadcastPacket	0x0044E950
 broadcast	AdminChat_BuildGuildPacket	0x00432770
 broadcast	Guild_SendListIterator	0x0043DC50

@@ -64,7 +64,7 @@ Companion to [`CHAT_CHANNEL_MAP.md`](CHAT_CHANNEL_MAP.md). Layouts inferred from
 
 ```
 +0x00  u16  opcode (0x1102 / 0xF102)
-+0x02  u8   target[21]     // 5×u32 + u8 copied — name semantics (?)
++0x02  u8   target[21]     // CONFIRMED: 5×u32 LE + u8 @ PacketSend_Whisper 0x005ED160 (21 B, not length-prefixed)
 +0x17  u8   msg_len
 +0x18  u8   msg[msg_len]
 ```
@@ -85,6 +85,7 @@ Plaintext size: `msg_len + 0x18` (24).
 | **D** | `1109` | `u8 flag` · `u32 id` · `u8 len` · `bytes[len]` |
 | **E** | `110A` | `u32 id` · `u16 message_id` (no text — `GetMsg`) |
 | **F** | `1106` | `u8 code` (ignored in vtable — fixed SysMsg) |
+| **G** | `110B` | `u32 entity` · `char[32] label` (fixed 32 B on wire) |
 
 ### Per-channel table
 
@@ -100,6 +101,7 @@ Plaintext size: `msg_len + 0x18` (24).
 | `0x1108` | Megaphone | B | `SysMsg` banner `0x1E1` | No |
 | `0x1109` | Zone | D | `DrawText` | No |
 | `0x110A` | Union | E | `DrawText` + `GetMsg` | No |
+| `0x110B` | Channel link | G | Nameplate (`56C650`) | No |
 
 ### `0x0502` — entity spawn / state (not chat)
 
@@ -142,7 +144,7 @@ Client also sends follow-up **`0x00A101`** (131 B) via `NetworkSendKeyFollowUp` 
 |--------|---------|--------|
 | `0x0E05` / `0x0E06` | `u8 flags` · `u32 entity` · `u32 char` · `u16 fx` (11 B) | Entity FX, no chat box |
 | `0x0F02` | `u8 mode` | GM monitor flag or SysMsg |
-| `0x110B` | `u32 entity` · `char[32] label` | Nameplate |
+| `0x110B` | G (`u32 entity` · `char[32] label`) | Nameplate (`56C650`) |
 | `0x1111` | B (name 21 + len + text) | Area SysMsg `0x31` |
 | `0x1112` | `u32 rsv` · `u8 len` · `text` (buf `0x400`) | Long text SysMsg |
 | `0xF101` | A + vfn `(1,0,…)` | Party notify color `0x29` |
@@ -175,7 +177,50 @@ Client also sends follow-up **`0x00A101`** (131 B) via `NetworkSendKeyFollowUp` 
 | `0x1112` Raid leader | `0x1112` charId+text | `CParty_BroadcastPacket` |
 | `0xF101`–`0xF10A` | mirrored admin opcodes | `AdminChat_ProcessIncoming` |
 
-**Not handled on server:** `0x1109`, `0x110A`, `0x110B` → kick.
+**Client inbound (C→S):** `0x1109`, `0x110A`, `0x110B` → **kick** (`Chat_ProcessIncoming` default branch → `SConnection_Close(9,0)` @ `0x0047FC24`). These opcodes are **server push only** on the stock protocol.
+
+### Server push — `0x1109` / `0x110A` / `0x110B` (S→C)
+
+Evidence: `psgame-chat-native/send/Chat_PacketBuilder_*.c` · client recv handlers cross-checked.
+
+| Opcode | Pattern | Plaintext size | Builder VA | Send path |
+|--------|---------|----------------|------------|-----------|
+| `0x1109` | **D** | `len + 8` | `0x004C6A80` (`flag=0`) · `0x004C6F50` (`flag=1`) | `SConnection_Send` @ `0x004ED0E0` or `CParty_BroadcastPacket` @ `0x0044E950` (1109_A, in-party) |
+| `0x110A` | **E** | **8** | `0x004C8310` (`mov 0x110A` @ `0x4C8328`) | Spatial cell iteration → `SConnection_Send(..., 8)` |
+| `0x110B` | **G** | **0x26** (38) | `0x004C8520` (landmark `0x004C8539`, `mov 0x110B` @ `0x4C8542`) | Spatial cell iteration → `SConnection_Send(..., 0x26)` |
+
+**`0x1109` — Pattern D** (CONFIRMED server + client):
+
+```
++0x00  u16  opcode (0x1109)
++0x02  u8   flag       // 0 @ 0x4C6AEB (1109_A); 1 @ 0x4C6F59 (1109_B)
++0x03  u32  charId     // *(CUser+0x88) — stack @ esp+0x13 in builder asm
++0x07  u8   len        // 1..0x7F (builder rejects len==0 or len>0x7F)
++0x08  u8   text[len]  // no null on wire; send size = len + 8
+```
+
+- **1109_A** (`0x004C6A80`): `flag=0`; if sender in party → `CParty_BroadcastPacket`; else direct `SConnection_Send`. Caller @ `0x004A22C6`.
+- **1109_B** (`0x004C6F50`): `flag=1`; radius `param_2` (float); iterates zone cells (`Zone_FloorWorldToCellIndex` @ `0x005250C0`, stride `0x124`) and sends to users within `Math_DistanceRadiusCompare` @ `0x0041B8A0`. Caller @ `0x004A2640`.
+
+**`0x110A` — Pattern E** (CONFIRMED):
+
+```
++0x00  u16  opcode (0x110A)
++0x02  u32  charId     // CUser+0x88
++0x06  u16  message_id // script table id; client resolves via GetMsg @ 0x420DB0
+```
+
+Plaintext **8 B** (`SConnection_Send` size arg @ `0x4C8383`). Spatial broadcast (same cell loop as 1109_B). Caller @ `0x004CB41F` (wrapper @ `0x004CB3D0`).
+
+**`0x110B` — Pattern G** (CONFIRMED):
+
+```
++0x00  u16  opcode (0x110B)
++0x02  u32  entity     // CUser+0x88 (entity id for nameplate target)
++0x06  char label[32] // _strncpy(..., 0x20) + explicit NUL @ 0x4C8551
+```
+
+Plaintext **0x26** (38 B). Client reads `u32` + `PacketRead_String` **0x20** @ `Handler_Chat_110B` `0x005E5740`. Spatial broadcast. Caller @ `0x004CB45E` (wrapper @ `0x004CB430`).
 
 ### Megaphone (item → chat)
 
@@ -223,7 +268,18 @@ Current assessment (May 2026):
 | Initial counter bytes (client) | Derived inside `0x401100` — wire mapping **not mapped** |
 | `0xA101` `field_1` HMAC inner length | **INFERRED** — validate @ `0x404569` |
 | `0xA101` counter bytes `stack+0x38` | **HYPOTHESIS** — 8 B pre-digest source unknown |
-| `char[21]` fixed fields | Charset and padding partially inferred |
+| `char[21]` fixed fields | **CONFIRMED** — see below |
+
+### `char[21]` name fields (CONFIRMED May 2026)
+
+| Direction | Opcodes / pattern | Evidence |
+|-----------|-------------------|----------|
+| Client recv | `1102`–`1104`, `1108`, `1111` (patterns B/C) | `PacketRead_String` @ `0x005F4780` with `count=0x15` in each handler (`Handler_ChatWhisper/Guild/Trade/Megaphone/Area_*.c`) — reads **21 B fixed**, no wire null |
+| Client send | `1102` whisper | `PacketSend_Whisper` @ `0x005ED160`: `param_2[0..4]` + byte at `param_2+5` → 21 B; wire size `msg_len+0x18` |
+| Server out | `1103`,`1104`,`1108`, megaphone `1108`, alliance `0x812` | Null-terminated copy from `CUser+0x184` into `char[21]` stack (`Chat_ProcessIncoming` @ `0x0047F400`, `Chat_BroadcastGuild` @ `0x00432530`); send size `len+0x18` |
+| Client recv **not** 21 B | `1101`,`1105`,`1107` (u32 id); `1109` (pattern D); `110B` (`char[32]` @ read `0x20`) | Handler decomps |
+
+**HYPOTHESIS (emulator):** zero-fill name bytes after `'\0'` through byte 20 on pattern B/C server sends. **Validate:** capture `0x1104` guild broadcast, hexdump name tail. Full gap list: [`CHAT_RE_GAPS.md`](CHAT_RE_GAPS.md).
 
 ---
 
@@ -233,6 +289,7 @@ Current assessment (May 2026):
 |-----|----------|
 | [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md) | AES-CTR cipher, envelope, handshake, megaphone flag |
 | [`CHAT_CHANNEL_MAP.md`](CHAT_CHANNEL_MAP.md) | Handler VA, vtable, `.c` file |
+| [`CHAT_RE_GAPS.md`](CHAT_RE_GAPS.md) | Lacunas P0/P1/P2, balloon gates, admin recv |
 | `game-chat-native/handlers/` | Client recv evidence |
 | `psgame-chat-native/handlers/Chat_ProcessIncoming_0047f400.c` | Server evidence |
 | `tools/ghidra/*.manifest` | Full VA list |
