@@ -98,27 +98,95 @@ Typical slot (`slot[+0x04]=0x10`, `slot[+0x1C]=0x20`): server writes **`field_1=
 | End sentinel | `0x004554B4` | `cmp esi,0x4554B4` @ `0x4065EA` → **16 slots** `(0x554B4−0x54C74)/0x84` |
 | Per-connection back-ref | `conn[+0x18] = slot*` | `mov [esi+0x18],eax` @ `0x404DF1` (`param_1` = conn blob @ `+0x13C`) |
 
-### Slot layout (SendKeyBlob read surface)
+### Slot layout (132 B stride) — CONFIRMED structure
 
-| Slot off | Size | SendKeyBlob use | Typical value |
-|----------|------|-----------------|---------------|
-| `+0x04` | `u32` | `word_count_a`; **`field_1 = (u8)(count×4)`** | `0x10` → 64 B |
-| `+0x08` | `ptr` | **`block_a` source** for `rep movs*` | heap buffer |
-| `+0x1C` | `u32` | `word_count_b`; **`field_2 = (u8)(count×4)`** | `0x20` → 128 B |
-| `+0x20` | `ptr` | **`block_b` source** | heap buffer |
+Each table entry is a **dense array of ~11 GMP-style `bigint` objects** (12 B header each: `capacity`, `limb_count`, `limbs*`). `KeyTable_PreSlotInit` @ `0x00409750` zero-inits them before crypto (`FUN_00421dd0` × 11 @ `+0x00..+0x78`).
 
-Inner fields (`+0x0C`…`+0x54`, bignum/STL sub-objects) are populated by `KeyTable_SlotInit` — not read directly by `SendKeyBlob`.
+| Slot off | Ghidra index | Role in `KeyTable_SlotInit` | `SendKeyBlob` use |
+|----------|--------------|-----------------------------|-------------------|
+| `+0x00` | `in_EAX+0` | **Public exponent `e`** (random odd, trial-div loop vs `N`) | — |
+| `+0x04` | limb count | **`word_count_a`** → `field_1 = (u8)(count×4)` | **CONFIRMED** @ `0x404DE2` |
+| `+0x08` | `limbs*` | **`block_a` bytes** (`rep movsd` source) | **CONFIRMED** @ `0x404DF4` |
+| `+0x0C` | `in_EAX+3` | **Modulus `N = p·q`** (`BigInt_modMul`) | not sent on wire |
+| `+0x18` | `in_EAX+6` | **Wire blob #2** (filled by final `BigInt_modMul(p,q)` @ L78) | — |
+| `+0x1C` | limb count | **`word_count_b`** → `field_2 = (u8)(count×4)` | **CONFIRMED** @ `0x404E1F` |
+| `+0x20` | `limbs*` | **`block_b` bytes** (`rep movsd` source) | **CONFIRMED** @ `0x404E23` |
+| `+0x24` | `in_EAX+9` | Temp prime candidate **`p`** | internal |
+| `+0x30` | `in_EAX+0xC` | Temp prime candidate **`q`** | internal |
+| `+0x3C` | `in_EAX+0xF` | Copy of **`p`** (`BigInt_exportCopy`, `+1`) | internal |
+| `+0x48` | `in_EAX+0x12` | Copy of **`q`** (`BigInt_exportCopy`, `+1`) | internal |
+| `+0x54` | `in_EAX+0x15` | Compared in `BigInt_cmp` vs `p`,`q` | internal |
+
+**CONFIRMED:** `block_a` / `block_b` are **not separate `malloc` buffers** — they are the **limb arrays** (`+0x08`, `+0x20`) of the first and third `bigint` in the slot. `SendKeyBlob` copies `limb_count × 4` bytes little-endian into the stack frame.
+
+**INFERRED wire semantics:** `block_a` ≈ **512-bit public exponent `e`** (16 limbs → 64 B); `block_b` ≈ **1024-bit composite** derived from **`p·q` pipeline** (32 limbs → 128 B). Client treats them as opaque octet strings for HMAC/ack (`CRYPTO_COUNTER.md`).
+
+### `KeyTable_SlotInit` pipeline @ `0x00409AE0`
+
+**Prototype (CONFIRMED disasm @ `0x409AEA`):** `void __fastcall KeyTable_SlotInit(int bit_param, int alt_seed)` — `EAX` = slot pointer; `bit_param` pushed (`0x400` at all call sites); `alt_seed` pushed (`0` in production).
+
+| Step | VA / callee | Action | Tag |
+|------|-------------|--------|-----|
+| 0 | `KeyTable_PreSlotInit` @ `0x409750` | Optional; called before dynamic growth @ `0x40F3A5`, not in `GlobalInit` loop | CONFIRMED |
+| 1 | `BigInt_ctor` @ `0x423430` → `BigInt_poolInit` @ `0x4272F0` | Stack RNG pool `local_14` (32 limbs capacity) | CONFIRMED |
+| 2 | `__time32` @ `0x42D892` + `BigInt_seedTime` @ `0x422730` | Seeds pool with `time()` via `KeyTable_SlotAltInit` (single-limb store) | CONFIRMED |
+| 3 | `bitlen = bit_param >> 1` | `0x400 → 0x200` bits per half-prime | CONFIRMED @ `0x409B09` |
+| 4 | `BigInt_randBits` @ `0x4233D0` + `BigInt_sub` @ `0x4225A0` | Random at `slot+0x24` (`p`): clear bits `bitlen-1`, `bitlen-2`, `0` | CONFIRMED |
+| 5 | `BigInt_assign` @ `0x422910` | Force odd / pass quick prime screen (`BigInt_bitTestMod5` @ `0x424D40`) | INFERRED |
+| 6 | Repeat 4–5 at `slot+0x30` (`q`) | Second prime | CONFIRMED |
+| 7 | `BigInt_exportCopy` @ `0x422100` | `slot+0x3C ← p+1`, `slot+0x48 ← q+1` (add limb `1`) | CONFIRMED |
+| 8 | `BigInt_modMul` @ `0x421EF0` | **`N = p·q` → `slot+0x0C`** | CONFIRMED |
+| 9a | `param_2 == 0` (production) | Random odd at `slot+0` (`e`); trial-div loop: `BigInt_mod` + while `BigInt_isZero(mod,1)≠0` → `e×=2` | CONFIRMED @ `0x409BA4–0x409C68` |
+| 9b | `param_2 != 0` | `KeyTable_SlotAltInit(e, param_2)` — inject seed limb | CONFIRMED |
+| 10 | `BigInt_cmp` @ `0x4236B0` ×2 | Guards before CRT step | CONFIRMED |
+| 11 | `BigInt_powMod` @ `0x421E50` | CRT prep on `slot+0x3C`, `slot+0x48` vs `N` | INFERRED (opaque modexp) |
+| 12 | `BigInt_modMul` @ `0x421EF0` | **`slot+0x18 ← p·q`** (overwrites bigint #2 → **`block_b` limbs**) | CONFIRMED |
+
+**HYPOTHESIS:** Full math is **RSA-like key generation** (512-bit primes, 1024-bit `N`, coprime `e`). Exact semantic of final `powMod` + second `modMul` is **not required for wire replay** — only limb dumps at `+0x08` / `+0x20` matter.
+
+**Dead / unused in this binary:** `KeyTable_SlotSerialize` @ `0x409CE0` — **0** direct `E8` xrefs (orphan). `KeyTable_SlotHelper` @ `0x409D60` — same.
+
+### Callee map (regenerate)
+
+```bash
+./tools/ghidra/decompile-mini.sh pslogin tools/ghidra/keytable-slotinit-callees.manifest
+./tools/ghidra/decompile-mini.sh pslogin tools/ghidra/keytable-slotinit-extra.manifest
+```
+
+| Symbol | VA | Artifact |
+|--------|-----|----------|
+| `KeyTable_SlotInit` | `0x00409AE0` | `crypto/KeyTable_SlotInit_00409ae0.c` |
+| `KeyTable_PreSlotInit` | `0x00409750` | `crypto/KeyTable_PreSlotInit_00409750.c` |
+| `BigInt_randBits` | `0x004233D0` | `crypto/BigInt_randBits_004233d0.c` |
+| `BigInt_randFill` | `0x00426F90` | `crypto/BigInt_randFill_00426f90.c` |
+| `BigInt_modMul` | `0x00421EF0` | `crypto/BigInt_modMul_00421ef0.c` |
+| `BigInt_mod` | `0x004221B0` | `crypto/BigInt_mod_004221b0.c` |
+| `BigInt_powMod` | `0x00421E50` | `crypto/BigInt_powMod_00421e50.c` |
+| `BigInt_bitTestMod5` | `0x00424D40` | `crypto/BigInt_bitTestMod5_00424d40.c` |
+| `KeyTable_GrowSlots` | `0x00406960` | `crypto/KeyTable_GrowSlots_00406960.c` |
+| `KeyTable_AllocOne` | `0x004069D0` | `crypto/KeyTable_AllocOne_004069d0.c` |
 
 ### Who populates the table
 
 | Phase | Function | VA | Action |
 |-------|----------|-----|--------|
-| Process startup | `KeyTable_GlobalInit` | `0x00406380` | After INI/session connect @ `0x406578`; loops `puVar7 = 0x454C74..0x4554B4` |
-| Per slot | `KeyTable_SlotInit` | `0x00409AE0` | `KeyTable_SlotInit(0x400, 0)` — time-seeded bignum/RNG pipeline; writes `+0x04/+0x08/+0x1C/+0x20` |
-| Per send | `SendKeyBlob_A101` | `0x00404DA0` | `KeyDeriv_PRNG` @ `0x42D77E` → `idx = rand() % DAT_454C70`; copies from chosen slot |
-| Per send (state) | same | | `mov byte [conn+0x15],1` @ `0x404DCA` — marks key sent on connection object |
+| Process startup | `KeyTable_GlobalInit` | `0x00406380` | After INI/session connect @ `0x406578`; `EAX=&DAT_00454C74`, loop `+0x84` until `0x4554B4` |
+| Per slot | `KeyTable_SlotInit` | `0x00409AE0` | `KeyTable_SlotInit(0x400, 0)` — fills bigint limbs → **`+0x04/+0x08`**, **`+0x1C/+0x20`** |
+| Dynamic growth | `KeyTable_GrowSlots` / `KeyTable_AllocOne` | `0x406960` / `0x4069D0` | Extra slots @ `parent+0x14`, `KeyTable_PreSlotInit` first @ `0x40F3A5` |
+| Per send | `SendKeyBlob_A101` | `0x00404DA0` | `KeyDeriv_PRNG` @ `0x42D77E` → `idx = rand() % DAT_454C70`; **`rep movs*` limb copy** |
+| Per send (state) | same | | `mov byte [conn+0x15],1` @ `0x404DCA` |
 
-Artifacts: `pslogin-chat-native/keypath/KeyTable_GlobalInit_00406380.c`, `pslogin-chat-native/crypto/KeyTable_SlotInit_00409ae0.c`.
+**SlotInit callers (CONFIRMED E8 scan):** `0x4065D9` (`GlobalInit`), `0x406979`/`0x4069B9`/`0x406A09` (growth), `0x40F3B6` (pre-init path).
+
+### Emulator: must it regenerate blobs?
+
+| Approach | Viable? | Notes |
+|----------|---------|-------|
+| **Replay fixed 16 slots** captured from real `ps_login` | **CONFIRMED yes** | Send path only reads `+0x04/+0x08/+0x1C/+0x20`; no per-connection re-roll |
+| **Reimplement `KeyTable_SlotInit`** | **HYPOTHESIS** | Needs GMP-like layer (`BigInt_*`), `time()`-seeded pool, matching `rand()` if growth path runs |
+| **Arbitrary 64+128 B** | **No** | Client `Crypto_ProcessKeyPacket` derives session keys/HMAC from exact bytes |
+
+See [`SERVER_KEY_BLOB_RE.md`](SERVER_KEY_BLOB_RE.md) — emulator slot reuse note.
 
 ---
 
@@ -158,4 +226,6 @@ Dynamic validation:
 | Slot stride **`0x84`**, **`rand()%count`** index | **CONFIRMED** |
 | Slot init @ startup `KeyTable_GlobalInit` | **CONFIRMED** (`0x40657E`–`0x4065E4`) |
 | `field_1` = HMAC len on **`block_b`** | **CONFIRMED** (`0x401156`/`0x404569`, `0x404F96`) |
-| Exact bignum algorithm inside `KeyTable_SlotInit` | **INFERRED** (STL/bigint helpers; not needed for wire replay) |
+| `block_a`/`block_b` = bigint limb arrays @ `+0x08`/`+0x20` | **CONFIRMED** (`SendKeyBlob` + `KeyTable_PreSlotInit` layout) |
+| RSA-like pipeline (`p`,`q`, `N=p·q`, coprime `e`) | **INFERRED** (callee chain; `powMod` opaque) |
+| Emulator can reuse precomputed 16 slots | **CONFIRMED** (no slot mutation on send) |

@@ -93,7 +93,17 @@ Routing source: `game-chat-native/recv/PacketDispatcher_005f1e10.c` (chat opcode
 
 **Admin whisper bind (server):** `CUser+0x5810` = bound partner `+0x128`. Send chain: [`psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md`](../psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md). C→S: F107 = name to bind; F109 = opcode-only clear. S→C: dual `SConnection_Send` @ `0x004803C7` (F107) / `0x0047F390` (F109). Client whisper UI uses `ChatWindow_SetWhisperTarget` @ `0x0047C690` (`+0x198`) — **not** wired to F107/F109 recv.
 
-`0xF108` — **not routed** in client `PacketDispatcher` @ `0x005F1E10` (server-only relay in `AdminChat_ProcessIncoming`).
+### `0xF108` — bound admin whisper relay (server C→S only)
+
+| Aspect | Detail |
+|--------|--------|
+| Client recv | **Not routed** — `PacketDispatcher` @ `0x005F1E10` jumps `F107` → `F109` (no case) |
+| Client send | **Absent** — zero `mov $0xF108` in `Game.exe` |
+| Server handler | `AdminChat_ProcessIncoming` case @ asm **`0x00480462`** |
+| C→S wire | Pattern **I**: `u16` + `u8 len` + `text[len]` (plain `len+3`) |
+| S→C relay | Dual **`0xF102`** Pattern **C** (`dir=0` partner / `dir=1` admin) — **not** `0xF108` |
+| Prerequisite | `CUser+0x5810` set by C→S **`0xF107`** |
+| Doc | [`docs/ADMIN_F108_WHISPER_RELAY.md`](ADMIN_F108_WHISPER_RELAY.md) |
 
 ---
 

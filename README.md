@@ -8,10 +8,10 @@ Binaries under [`bin/`](bin/) come from [Shaiya-Core](https://github.com/Spelunk
 |--------|--------|------|----------------------|--------------|
 | `Game.exe` | [`game-chat-native/`](game-chat-native/) | Client chat + recv `0xA101` | **160** | **169** |
 | `ps_game.exe` | [`psgame-chat-native/`](psgame-chat-native/) | World server chat `0x11xx` | **136** | **143** |
-| `ps_login.exe` | [`pslogin-chat-native/`](pslogin-chat-native/) | Sends outbound `0xA101` key blob | **17** | **17** |
-| **Total** | — | Chat-related RE corpus | **313** | **329** |
+| `ps_login.exe` | [`pslogin-chat-native/`](pslogin-chat-native/) | Sends outbound `0xA101` key blob | **17** | **46** |
+| **Total** | — | Chat-related RE corpus (manifest) | **313** | **358** |
 
-Counts come from [`tools/ghidra/*-functions.manifest`](tools/ghidra/) (Ghidra decompile targets) and matching `.c` files under each folder. Extra `.c` files (e.g. client crypto helpers, `psgame-chat-native/script/` cluster) are decompiled beyond a single manifest line but still chat-related.
+Counts: manifest rows in [`tools/ghidra/*-functions.manifest`](tools/ghidra/); `.c` includes extra decomps (client crypto, `psgame-chat-native/script/`, `pslogin-chat-native/crypto/BigInt_*` for KeyTable). Milestone: [`docs/CHAT_RE_STATUS.md`](docs/CHAT_RE_STATUS.md).
 
 | Target | Top manifest categories |
 |--------|---------------------------|
@@ -30,6 +30,8 @@ Counts come from [`tools/ghidra/*-functions.manifest`](tools/ghidra/) (Ghidra de
 | Script VM hashes | [`docs/SCRIPT_OPCODE_HASHES.md`](docs/SCRIPT_OPCODE_HASHES.md) |
 | Zone messages (`cn_string.DB`) | [`docs/ZONECHAT_MESSAGE_TABLE.md`](docs/ZONECHAT_MESSAGE_TABLE.md) |
 | Pattern B padding | [`docs/PADDING_SIMULATION.md`](docs/PADDING_SIMULATION.md) |
+| RE milestone / gaps | [`docs/CHAT_RE_STATUS.md`](docs/CHAT_RE_STATUS.md) · [`docs/CHAT_RE_GAPS.md`](docs/CHAT_RE_GAPS.md) |
+| Admin F108 relay | [`docs/ADMIN_F108_WHISPER_RELAY.md`](docs/ADMIN_F108_WHISPER_RELAY.md) |
 | Crypto / handshake | [`docs/WIRE_CRYPTO.md`](docs/WIRE_CRYPTO.md) · [`docs/CRYPTO_COUNTER.md`](docs/CRYPTO_COUNTER.md) · [`docs/LOGIN_A101_BODY_MAP.md`](docs/LOGIN_A101_BODY_MAP.md) |
 | Counter derivation | [`docs/CRYPTO_COUNTER.md`](docs/CRYPTO_COUNTER.md) |
 | Login key blob RE | [`docs/SERVER_KEY_BLOB_RE.md`](docs/SERVER_KEY_BLOB_RE.md) |

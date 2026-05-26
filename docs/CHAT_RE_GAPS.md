@@ -20,6 +20,7 @@ Objetivo deste documento: fechar o que falta para **chat 100%** (wire + server r
 | **P1** | Server push `0x1109`–`0x110B` | **Fechado** — 4× builders em `psgame-chat-native/send/`; layouts D/E/G em `PACKET_SPEC` |
 | **P2** | UI pixel-perfect / hooks render | Parcial — fora do mínimo wire-compat |
 | **P2** | `0xF107`/`0xF109` client effect | **Fechado** — stub vfn; server bind @ `CUser+0x5810`; chain doc |
+| **P1** | `0xF108` bound whisper relay | **Fechado** — C→S Pattern I @ `0x00480462`; S→C dual `0xF102`; doc [`ADMIN_F108_WHISPER_RELAY.md`](ADMIN_F108_WHISPER_RELAY.md) |
 | **P1** | `DAT_022aa816` faction global | **CONFIRMED** — single write @ `0x0048BFEA` from local `entity+0xBF4` |
 
 ---
@@ -138,6 +139,23 @@ Chain: [`psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md`](../psgam
 
 ---
 
+### 6. Admin bound whisper relay `0xF108` — CONFIRMED (May 2026)
+
+| Claim | Tag | Evidence |
+|-------|-----|----------|
+| Handler only in `AdminChat_ProcessIncoming`, not `Chat_ProcessIncoming` | **CONFIRMED** | case @ L272; jump table index 7 → asm `0x00480462` |
+| C→S wire: opcode + `u8 len` + text (plain `len+3`) | **CONFIRMED** | L287–290; asm `0x004804CA`–`0x004804E4` |
+| Requires `CUser+0x5810 != 0` from F107 bind | **CONFIRMED** | asm `0x00480462`–`0x0048046A` |
+| Partner lookup `World_FindUserById` @ `0x00414D10` | **CONFIRMED** | asm `0x00480486` |
+| S→C relay as **`0xF102`** Pattern C (dual send), never `0xF108` | **CONFIRMED** | `mov $0xF102` @ `0x00480497`; sizes `len+0x19` |
+| No bind / offline → `0x1106` size 3 | **CONFIRMED** | asm `0x00480587` |
+| Client: no dispatcher case, no send site | **CONFIRMED** | `PacketDispatcher` L1350–1353; `objdump` zero `mov $0xF108` |
+| GM tool send path for C→S F108 | **HYPOTHESIS** | absent from stock `Game.exe`; capture needed |
+
+Chain: [`docs/ADMIN_F108_WHISPER_RELAY.md`](ADMIN_F108_WHISPER_RELAY.md).
+
+---
+
 ### 3. `NativeChatSendUI` @ `0x0045BBE0` vs `ChatWindow_SubmitChatInput` @ `0x0047A4B0`
 
 | | `ChatWindow_SubmitChatInput` | `NativeChatSendUI` |
@@ -199,6 +217,7 @@ Ver [`PACKET_SPEC.md`](PACKET_SPEC.md) — patches nesta rodada na seção `char
 | `docs/WIRE_CAPTURE_GUIDE.md` | Captura `0x1104` padding + push `0x1109`–`0x110B` |
 | `game-chat-native/vtable/ChatNormalParty_vfn_0x324_0059c380.c` | Balloon trigger |
 | `psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md` | Admin bind F107/F109 S→C + CUser+0x5810 |
+| `docs/ADMIN_F108_WHISPER_RELAY.md` | Bound whisper relay F108 C→S → S→C F102 |
 
 ---
 
@@ -237,8 +256,7 @@ Ver [`PACKET_SPEC.md`](PACKET_SPEC.md) — patches nesta rodada na seção `char
 - Decompilações Ghidra 11.2; nomes `FUN_*` onde PDB ausente.
 - `Chat_BroadcastNamed` @ `0x4D55B0` é stub para `World_BroadcastTradeCore` @ `0x419240` (fila mode **3**, view **7**); não é o mesmo entry que `Chat_BroadcastViewMode7` @ `0x4D56D0` (spatial imediato, arg **5**).
 - Admin `F107`/`F109`: handlers leem `char[21]`; vfn @ `0x0056BCB0` stub; semântica server fechada em `Chat_AdminWhisper_F107_F109_chain.md`.
-- `DAT_022aa816`: write único @ `0x0048BFEA`; remotes usam `entity+0x2B7` (offset diferente do local `+0xBF4` — mesmo enum de facção, **INFERRED**).
-- `0xF108` ausente no client dispatcher; relay só no server.
+- **`0xF108`:** C→S relay fechado @ `0x00480462`; S→C como dual `0xF102`; ver `ADMIN_F108_WHISPER_RELAY.md`. Origem do send C→S (GM tool) ainda **HYPOTHESIS**.
 - Balloon: símbolo `ChatString_Sanitize` @ `0x4126D0` é **create balloon**, não sanitização de string.
 
 ---
@@ -258,6 +276,7 @@ Ver [`PACKET_SPEC.md`](PACKET_SPEC.md) — patches nesta rodada na seção `char
 3. **Script callers:** xref `0x004A2210` / `0x004CB3D0` — mapa quest→opcode (fora do mínimo estático).
 4. ~~**Balloon UI+0x1D0:** breakpoint em writes a `DAT_007c0838+0x1D0`.~~ **Fechado** — `cinematic_overlay_suppress`; writers `UIShell_CinematicEnter` / `UIShell_CinematicEnterAlt`; ver `CHAT_CHANNEL_MAP` §8.
 5. ~~**F107/F109:** confirmar se algum campo global muda apesar do stub vfn.~~ **Fechado** — nenhum efeito cliente; ver §5 em Findings.
+6. **F108 C→S capture:** GM session pós-F107 bind — validar plain `len+3` e dual S→C `0xF102` (receita em `ADMIN_F108_WHISPER_RELAY.md` § Reproduce).
 
 ---
 

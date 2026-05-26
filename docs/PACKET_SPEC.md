@@ -192,7 +192,28 @@ Full call chain: [`psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md`
 
 **Client UI:** recv handlers @ `0x005DE950` / `0x005DE9B0` read `char[21]` then call vfn `+0x344` / `+0x348` @ **`0x0056BCB0`** (`ret 4` stub). **`ChatWindow_SetWhisperTarget` @ `0x0047C690` (`+0x198`) is not invoked** — stock client does not apply server bind to whisper UI.
 
-**Related:** admin relay whisper text uses **`0xF108`** (server-only; not in client `PacketDispatcher`).
+**Related — bound whisper relay (`0xF108`):** full chain in [`ADMIN_F108_WHISPER_RELAY.md`](ADMIN_F108_WHISPER_RELAY.md). Requires prior F107 bind (`CUser+0x5810`). C→S Pattern **I**; server relays S→C as **`0xF102`** Pattern **C** (never emits `0xF108` downstream).
+
+### Admin bound whisper relay — `0xF108` (CONFIRMED May 2026)
+
+**C→S only** — handler `AdminChat_ProcessIncoming` case @ asm **`0x00480462`**. Stock `Game.exe` has no send/recv site.
+
+**Pattern I** (short admin text — no target on wire):
+
+```
++0x00  u16  opcode (0xF108)
++0x02  u8   msg_len        // 2..0x80; len≤1 drop; len>0x80 kick
++0x03  u8   text[msg_len]
+```
+
+| Direction | Opcode | Plain size | Notes |
+|-----------|--------|------------|-------|
+| C→S relay | `0xF108` | **`len + 3`** | Requires `CUser+0x5810 != 0` (F107 bind); `World_FindUserById` @ `0x00414D10` |
+| S→C to partner | **`0xF102`** | **`len + 0x19`** | Pattern **C** `dir=0` · admin name @ `+0x184` |
+| S→C echo admin | **`0xF102`** | **`len + 0x19`** | Pattern **C** `dir=1` · partner name |
+| Error (no bind / offline) | `0x1106` | **3** | Same as F102/F107 miss |
+
+Contrast **`0xF102`** C→S: includes `target[21]` + text (whisper-by-name, no bind required). Contrast **`0x1102`**: normal whisper via `Chat_ProcessIncoming`, S→C `0x1102`.
 
 ---
 
@@ -222,6 +243,7 @@ Full call chain: [`psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md`
 | `0x1112` Raid leader | `0x1112` charId+text | `CParty_BroadcastPacket` |
 | `0xF101`–`0xF10A` | mirrored admin opcodes | `AdminChat_ProcessIncoming` |
 | `0xF107` bind | S→C **×2** (`0xF107` + `char[21]`) | `AdminChat_ProcessIncoming` @ `0x004803C7` · sets `CUser+0x5810` |
+| `0xF108` bound whisper | S→C **×2** (`0xF102` Pattern **C**) | `AdminChat_ProcessIncoming` @ `0x00480462` · requires `+0x5810` · see [`ADMIN_F108_WHISPER_RELAY.md`](ADMIN_F108_WHISPER_RELAY.md) |
 | `0xF109` clear | S→C **×2** (`0xF109` + `char[21]`) | `Chat_AdminWhisperHelper` @ `0x0047F350` · clears `CUser+0x5810` |
 
 **Client inbound (C→S):** `0x1109`, `0x110A`, `0x110B` → **kick** (`Chat_ProcessIncoming` default branch → `SConnection_Close(9,0)` @ `0x0047FC24`). These opcodes are **server push only** on the stock protocol.
@@ -332,6 +354,7 @@ Full site list: [`CHAR21_SITES.md`](CHAR21_SITES.md). Offsets = **plaintext afte
 | **B** | S→C `1103`,`1104`,`1108`,`1111`; admin `F103`,`F104` | `+0x02 name[21]` · `+0x17 u8 len` · `+0x18 text[len]` | `len + 0x18` (24) |
 | **C** | S→C `1102`; admin `F102` | `+0x02 u8 dir` · `+0x03 name[21]` · `+0x18 u8 len` · `+0x19 text[len]` | `len + 0x19` (25) |
 | **H** | S→C `F107`,`F109`; C→S `F107` | `+0x02 name[21]` | **0x17** (23) |
+| **I** | C→S `F108` (bound whisper text) | `+0x02 u8 len` · `+0x03 text[len]` | **`len + 3`** — no name field; partner from `CUser+0x5810` |
 | **C→S whisper** | `1102` / `F102` | `+0x02 target[21]` (5×`u32` LE + `u8`) · `+0x17 u8 len` · `+0x18 text[len]` | `len + 0x18` (24) |
 | **Alliance** | S→C `0x812` | pattern **B** + `+0x18+len u32 guildId` | `len + 0x1C` (28) |
 

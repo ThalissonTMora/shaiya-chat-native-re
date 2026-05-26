@@ -53,7 +53,18 @@ Pre-send PRNG index: `KeyDeriv_PRNG` @ `0x0042D77E` (`call` @ `0x00404DBE`).
 | **Init** | `KeyTable_GlobalInit` @ `0x00406380` → `KeyTable_SlotInit(0x400,0)` @ `0x00409AE0` |
 | **Send index** | `rand() % DAT_454C70` @ `0x404DC4` |
 
-Slot fields used at send: **`+0x04/+0x08`** (block_a count/ptr), **`+0x1C/+0x20`** (block_b count/ptr). See [`LOGIN_A101_BODY_MAP.md`](LOGIN_A101_BODY_MAP.md).
+Slot fields used at send: **`+0x04/+0x08`** (block_a limb count / limbs*), **`+0x1C/+0x20`** (block_b). Populated once by **`KeyTable_SlotInit(0x400,0)`** (GMP-style RSA-like generation — see [`LOGIN_A101_BODY_MAP.md`](LOGIN_A101_BODY_MAP.md) § KeyTable pipeline).
+
+### Emulator note — precomputed slots (May 2026 RE)
+
+| Claim | Tag |
+|-------|-----|
+| **`SendKeyBlob` does not regenerate key material** — only `rand()%DAT_454C70` picks an existing slot | **CONFIRMED** @ `0x404DC4` |
+| **Login emulator may ship a static table** of 16×(`64+128` B limb dumps) captured from one `ps_login` run | **CONFIRMED** sufficient for wire-compatible `0xA101` |
+| **Reimplementing `KeyTable_SlotInit` is optional** — requires `time()` seed + full `BigInt_*` layer (`tools/ghidra/keytable-slotinit-*.manifest`) | **INFERRED** |
+| **Random 64/128 B without capture** will fail client HMAC/derive | **CONFIRMED** (client binds to octets) |
+
+Capture recipe: break @ `0x404E3E`, for each slot index dump `[slot+0x08]` for `*(slot+0x04)*4` bytes and `[slot+0x20]` for `*(slot+0x1C)*4` bytes after startup loop @ `0x4065D9`.
 
 ### Ghidra decomp exports (2026-05-26)
 

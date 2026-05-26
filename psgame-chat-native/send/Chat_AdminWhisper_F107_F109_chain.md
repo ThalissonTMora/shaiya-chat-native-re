@@ -78,6 +78,10 @@ build F109 + bound name  → SConnection_Send(admin, 0x17)
 
 Evidence: `psgame-chat-native/handlers/Chat_AdminWhisperHelper_0047f350.c` · asm `0x0047F350`–`0x0047F3F7`.
 
+### `0xF108` — bound whisper text (C→S, after bind)
+
+After F107 sets `admin+0x5810`, admin sends **`0xF108`** + `u8 len` + text (plain **`len+3`**). Server relays dual S→C **`0xF102`** Pattern C — **not** `0xF108`. Handler @ asm **`0x00480462`**. Full spec: [`docs/ADMIN_F108_WHISPER_RELAY.md`](../../docs/ADMIN_F108_WHISPER_RELAY.md).
+
 ---
 
 ## Client recv — CONFIRMED no side effects beyond packet consume

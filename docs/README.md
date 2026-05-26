@@ -7,6 +7,7 @@ All project markdown lives in **`docs/`**. The repo root [`README.md`](../README
 | Doc | Contents |
 |-----|----------|
 | [`CHAT_CHANNEL_MAP.md`](CHAT_CHANNEL_MAP.md) | Opcodes, handlers, vtables, VAs, `.c` paths (client + server) |
+| [`CHAT_RE_STATUS.md`](CHAT_RE_STATUS.md) | Milestone estático + itens só runtime |
 | [`CHAT_RE_GAPS.md`](CHAT_RE_GAPS.md) | Lacunas chat 100%, roadmap P0/P1/P2 |
 | [`PACKET_SPEC.md`](PACKET_SPEC.md) | Wire layouts (send/recv), validation, TCP envelope |
 | [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md) | AES-CTR, handshake `0xA101`/`0xA102`, encrypted pipeline |
@@ -36,7 +37,11 @@ All project markdown lives in **`docs/`**. The repo root [`README.md`](../README
 | [`../tools/padding/`](../tools/padding/) | Pattern B packet builders / send-site scan |
 | [`../tools/zonechat/parse_cn_string_db.py`](../tools/zonechat/parse_cn_string_db.py) | Parser `data/cn_string.DB` (when available) |
 | [`../tools/crypto/validate_a101_counter.py`](../tools/crypto/validate_a101_counter.py) | Offline `0xA101` digest/counter check |
+| [`../tools/wire/extract_plaintext_opcodes.py`](../tools/wire/extract_plaintext_opcodes.py) | Scan plaintext dumps for chat opcodes |
+| [`../test/fixtures/cn_string_sample.db`](../test/fixtures/cn_string_sample.db) | Synthetic `cn_string.DB` (parser test) |
+| [`ADMIN_F108_WHISPER_RELAY.md`](ADMIN_F108_WHISPER_RELAY.md) | Server-only bound whisper relay |
 | [`../psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md`](../psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md) | Admin whisper bind/clear wire |
+| [`ADMIN_F108_WHISPER_RELAY.md`](ADMIN_F108_WHISPER_RELAY.md) | Bound admin whisper relay `0xF108` C→S → S→C `0xF102` |
 
 ## Decompiled corpora (`.c` only)
 

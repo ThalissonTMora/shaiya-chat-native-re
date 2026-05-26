@@ -1,0 +1,23 @@
+# KeyTable_SlotInit callees — ps_login.exe (regen: decompile-mini.sh pslogin this file)
+# binary=server/ps_login.exe md5=de5b348cca36e0585f06be93f013fa6d imagebase=0x00400000
+
+crypto	KeyTable_SlotInit	0x00409AE0
+crypto	KeyTable_SlotSerialize	0x00409CE0
+crypto	KeyTable_SlotHelper	0x00409D60
+crypto	BigInt_ctor	0x00423430
+crypto	BigInt_seedTime	0x00422730
+crypto	BigInt_randBits	0x004233D0
+crypto	BigInt_sub	0x004225A0
+crypto	BigInt_assign	0x00422910
+crypto	BigInt_exportCopy	0x00422100
+crypto	BigInt_modMul	0x00421EF0
+crypto	BigInt_trialInit	0x00421DD0
+crypto	BigInt_mod	0x004221B0
+crypto	BigInt_isZero	0x00421E00
+crypto	BigInt_mulSmall	0x00423460
+crypto	BigInt_dtor	0x00422750
+crypto	KeyTable_SlotAltInit	0x00423440
+crypto	BigInt_cmp	0x004236B0
+crypto	BigInt_powMod	0x00421E50
+crypto	BigInt_modInv	0x004229B0
+crypto	BigInt_gcd	0x00422950

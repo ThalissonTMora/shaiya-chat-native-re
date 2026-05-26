@@ -1,0 +1,13 @@
+# KeyTable helpers + bigint RNG — ps_login.exe
+# binary=server/ps_login.exe md5=de5b348cca36e0585f06be93f013fa6d imagebase=0x00400000
+
+crypto	BigInt_bitTestMod5	0x00424D40
+crypto	BigInt_randFill	0x00426F90
+crypto	BigInt_poolInit	0x004272F0
+crypto	BigInt_powModCore	0x00423850
+crypto	BigInt_copy	0x004239E0
+crypto	KeyTable_GrowSlots	0x00406960
+crypto	KeyTable_SlotEnsure	0x00406990
+crypto	KeyTable_AllocOne	0x004069D0
+crypto	KeyTable_PreSlotInit	0x00409750
+pipeline	KeyTable_Realloc	0x00411050

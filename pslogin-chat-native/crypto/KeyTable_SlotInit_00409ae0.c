@@ -7,6 +7,8 @@
  * ImageBase: 0x00400000
  * Category: crypto
  * Regenerate: tools/ghidra/decompile-pslogin-crypto.sh
+ * Callees: tools/ghidra/keytable-slotinit-callees.manifest
+ * Pipeline: docs/LOGIN_A101_BODY_MAP.md § KeyTable
  */
 
 
