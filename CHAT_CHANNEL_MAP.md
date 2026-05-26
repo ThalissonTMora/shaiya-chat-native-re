@@ -1,12 +1,15 @@
-# Referência do chat nativo — `Game.exe`
+# Referência do chat nativo — `Game.exe` + `ps_game.exe`
 
-Tabelas de endereços e arquivos decompilados. Base: `0x00400000` · MD5 `c1edd96639ad81835624b9c4516ac781`.
+Tabelas de endereços e arquivos decompilados. Base: `0x00400000` · MD5 cliente `c1edd96639ad81835624b9c4516ac781`.
+
+**Convenção:** caminhos `.c` do cliente são `game-chat-native/{pasta}/…` · servidor em `psgame-chat-native/`.
 
 ## Estrutura deste repositório
 
 | Pasta / arquivo | Conteúdo |
 |-----------------|----------|
-| **`game-chat-native/`** (esta pasta) | **131** `.c` + este `CHAT_CHANNEL_MAP.md` + `game-chat-functions.manifest` |
+| **`CHAT_CHANNEL_MAP.md`** *(raiz)* | Este documento — índice client + server |
+| **`game-chat-native/`** | **131** `.c` + `game-chat-functions.manifest` |
 | **`psgame-chat-native/`** | **114** `.c` servidor + `psgame-chat-functions.manifest` + `README.md` |
 | **`tools/ghidra/`** | Manifests canônicos + scripts para regenerar exports |
 
@@ -15,8 +18,8 @@ Tabelas de endereços e arquivos decompilados. Base: `0x00400000` · MD5 `c1edd9
 | Singleton chat | `DAT_022fa2f0` |
 | Vtable (`.rdata`) | `0x00746744` |
 | Regenerar `.c` | `./tools/ghidra/decompile-game-chat.sh` *(binários em `bin/`)* |
-| Manifesto (cliente) | `game-chat-functions.manifest` *(nesta pasta)* |
-| Manifesto (servidor) | `../psgame-chat-native/psgame-chat-functions.manifest` |
+| Manifesto (cliente) | `game-chat-native/game-chat-functions.manifest` |
+| Manifesto (servidor) | `psgame-chat-native/psgame-chat-functions.manifest` |
 
 ---
 
@@ -32,7 +35,7 @@ Tabelas de endereços e arquivos decompilados. Base: `0x00400000` · MD5 `c1edd9
 
 ## 2. Pacotes recebidos (`0x11xx` e afins)
 
-Fonte do roteamento: `recv/PacketDispatcher_005f1e10.c` (~L917).
+Fonte do roteamento: `game-chat-native/recv/PacketDispatcher_005f1e10.c` (~L917).
 
 | Opcode | Canal | Handler `0x…` | Arquivo handler | VTable `+off` / `0x…` | Arquivo vtable | Efeito principal |
 |--------|-------|---------------|-----------------|----------------------|----------------|------------------|
@@ -226,6 +229,4 @@ Usado pelo balão de fala, nameplates e outros overlays.
 
 ## Servidor
 
-Pipeline espelho em [`../psgame-chat-native/`](../psgame-chat-native/) · **114** funções · manifesto `psgame-chat-functions.manifest` na pasta do servidor.
-
-Genesis (opcodes `0x930x` / `0x130x`): [`../genesis-chat-v1/README.md`](../genesis-chat-v1/README.md).
+Pipeline espelho em [`psgame-chat-native/`](psgame-chat-native/README.md) · **114** funções · manifesto `psgame-chat-native/psgame-chat-functions.manifest`.
