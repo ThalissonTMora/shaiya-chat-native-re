@@ -1,55 +1,70 @@
-# Documentation index
+# Index de Documentação — Shaiya Chat Native RE
 
-All project markdown lives in **`docs/`**. The repo root [`README.md`](../README.md) is a short entry point.
+Todos os documentos de engenharia reversa do chat nativo de Shaiya Core V9 estão localizados na pasta **`docs/`**. O arquivo [`README.md`](../README.md) na raiz do repositório é apenas o ponto de entrada rápido.
 
-## Specs (start here)
+---
 
-| Doc | Contents |
-|-----|----------|
-| [`CHAT_CHANNEL_MAP.md`](CHAT_CHANNEL_MAP.md) | Opcodes, handlers, vtables, VAs, `.c` paths (client + server) |
-| [`CHAT_RE_STATUS.md`](CHAT_RE_STATUS.md) | Milestone estático + itens só runtime |
-| [`MISSING_ARTIFACTS_SEARCH.md`](MISSING_ARTIFACTS_SEARCH.md) | Busca D1–D5 no monorepo/WSL (resultados) |
-| [`CHAT_RE_GAPS.md`](CHAT_RE_GAPS.md) | Lacunas chat 100%, roadmap P0/P1/P2 |
-| [`PACKET_SPEC.md`](PACKET_SPEC.md) | Wire layouts (send/recv), validation, TCP envelope |
-| [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md) | AES-CTR, handshake `0xA101`/`0xA102`, encrypted pipeline |
-| [`WIRE_CAPTURE_GUIDE.md`](WIRE_CAPTURE_GUIDE.md) | Receitas Wireshark/x64dbg: `char[21]` padding, push `0x1109`–`0x110B` |
-| [`CHAR21_SITES.md`](CHAR21_SITES.md) | Inventário estático de todos os sites `char[21]` (send/recv/admin) |
-| [`SCRIPT_OPCODE_HASHES.md`](SCRIPT_OPCODE_HASHES.md) | `Script_OpcodeDispatch` hashes → builders `0x1109`–`0x110B` |
-| [`ZONECHAT_MESSAGE_TABLE.md`](ZONECHAT_MESSAGE_TABLE.md) | `cn_string.DB` → `std::map` · resolver `0x1109`/`0x110A` |
-| [`PADDING_SIMULATION.md`](PADDING_SIMULATION.md) | Pattern B tail + `tools/padding/*.py` |
+## 1. Especificações do Wire & Protocolo (Comece aqui)
 
-## Deep-dive RE
+| Documento | Conteúdo |
+|:---|:---|
+| [`CHAT_CHANNEL_MAP.md`](CHAT_CHANNEL_MAP.md) | Opcodes, handlers, vtables, endereços virtuais (VAs) e caminhos `.c` (cliente + servidor). |
+| [`PACKET_SPEC.md`](PACKET_SPEC.md) | Layouts do wire (send/recv), validações e estrutura do envelope TCP. |
+| [`CHAR21_SITES.md`](CHAR21_SITES.md) | Inventário de todos os pontos onde o layout `char[21]` (nome do jogador) é lido ou gravado no wire. |
+| [`PADDING_SIMULATION.md`](PADDING_SIMULATION.md) | Simulação do preenchimento Pattern B (cauda não-zerada da stack) e ferramentas de teste. |
+| [`GM_NOTICE_COMMANDS.md`](GM_NOTICE_COMMANDS.md) | Mapeamento completo dos comandos de notice GM (`/gmnotice`, `/wnotice`, `/bnotice`, etc.), estruturas de pacote e jump table do servidor. |
 
-| Doc | Contents |
-|-----|----------|
-| [`CRYPTO_COUNTER.md`](CRYPTO_COUNTER.md) | Client `0xA101` body → HMAC → `ctx+0xF4` counter |
-| [`LOGIN_A101_BODY_MAP.md`](LOGIN_A101_BODY_MAP.md) | Server `SendKeyBlob` ↔ client handler byte map |
-| [`SERVER_KEY_BLOB_RE.md`](SERVER_KEY_BLOB_RE.md) | Outbound `0xA101` on `ps_login.exe` (not `ps_game.exe`) |
-| [`LOGIN_A101_BODY_MAP.md`](LOGIN_A101_BODY_MAP.md) | Byte-a-byte `0xA101` body: `SendKeyBlob` ↔ client handler |
-| [`CHAT_RE_GAPS.md`](CHAT_RE_GAPS.md) | Lacunas chat + roadmap P0/P1/P2 (atualizado) |
+---
 
-## Tooling
+## 2. Handshake & Criptografia (Deep-Dive)
 
-| Doc | Contents |
-|-----|----------|
-| [`GHIDRA.md`](GHIDRA.md) | Decompile scripts, manifests, prerequisites |
-| [`BINARIES.md`](BINARIES.md) | Shaiya Core V9 executables in `bin/` (MD5 table) |
-| [`../bin/README.md`](../bin/README.md) | Same — versioned `bin/*.exe` |
-| [`../tools/padding/`](../tools/padding/) | Pattern B packet builders / send-site scan |
-| [`../tools/zonechat/parse_cn_string_db.py`](../tools/zonechat/parse_cn_string_db.py) | Parser `data/cn_string.DB` (when available) |
-| [`../tools/crypto/validate_a101_counter.py`](../tools/crypto/validate_a101_counter.py) | Offline `0xA101` digest/counter check |
-| [`../tools/wire/extract_plaintext_opcodes.py`](../tools/wire/extract_plaintext_opcodes.py) | Scan plaintext dumps for chat opcodes |
-| [`../test/fixtures/cn_string_sample.db`](../test/fixtures/cn_string_sample.db) | Synthetic `cn_string.DB` (parser test) |
-| [`ADMIN_F108_WHISPER_RELAY.md`](ADMIN_F108_WHISPER_RELAY.md) | Server-only bound whisper relay |
-| [`../psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md`](../psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md) | Admin whisper bind/clear wire |
-| [`ADMIN_F108_WHISPER_RELAY.md`](ADMIN_F108_WHISPER_RELAY.md) | Bound admin whisper relay `0xF108` C→S → S→C `0xF102` |
+| Documento | Conteúdo |
+|:---|:---|
+| [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md) | Pipeline de criptografia AES-CTR, handshake `0xA101`/`0xA102` e fluxo seguro do socket. |
+| [`CRYPTO_COUNTER.md`](CRYPTO_COUNTER.md) | Derivação do counter do AES-CTR usando HMAC-SHA256 e carregamento da chave. |
+| [`LOGIN_A101_BODY_MAP.md`](LOGIN_A101_BODY_MAP.md) | Mapeamento byte-a-byte do pacote `0xA101` entre o remetente e o receptor do cliente. |
+| [`SERVER_KEY_BLOB_RE.md`](SERVER_KEY_BLOB_RE.md) | Emissão do `0xA101` a partir do `ps_login.exe` (não do `ps_game.exe`). |
 
-## Decompiled corpora (`.c` only)
+---
 
-| Folder | Binary |
-|--------|--------|
-| [`../game-chat-native/`](../game-chat-native/) | `Game.exe` — client chat + crypto |
-| [`../psgame-chat-native/`](../psgame-chat-native/) | `ps_game.exe` — world server |
-| [`../pslogin-chat-native/`](../pslogin-chat-native/) | `ps_login.exe` — login key handshake |
+## 3. Scripts, Mensagens & Dados
 
-Each corpus folder has a minimal README pointing back here.
+| Documento | Conteúdo |
+|:---|:---|
+| [`SCRIPT_OPCODE_HASHES.md`](SCRIPT_OPCODE_HASHES.md) | Mapeamento dos hashes da VM de script do servidor que disparam os builders `0x1109`–`0x110B`. |
+| [`ZONECHAT_MESSAGE_TABLE.md`](ZONECHAT_MESSAGE_TABLE.md) | Estrutura de dados e parser do banco `data/cn_string.DB` para mensagens de zona controladas por scripts. |
+| [`ADMIN_F108_WHISPER_RELAY.md`](ADMIN_F108_WHISPER_RELAY.md) | Pipeline de redirecionamento de whisper administrativo C→S `0xF108` para S→C `0xF102`. |
+
+---
+
+## 4. Estado da Pesquisa & Validação
+
+| Documento | Conteúdo |
+|:---|:---|
+| [`CHAT_RE_STATUS.md`](CHAT_RE_STATUS.md) | Snapshot do progresso estático e artefatos de runtime. |
+| [`CHAT_RE_GAPS.md`](CHAT_RE_GAPS.md) | Lacunas identificadas para alcançar 100% de compatibilidade (Prioridades P0/P1/P2). |
+| [`MISSING_ARTIFACTS_SEARCH.md`](MISSING_ARTIFACTS_SEARCH.md) | Resultados da varredura automatizada de PCAPs e arquivos no ambiente. |
+| [`MISSING_CONTENT_INVENTORY.md`](MISSING_CONTENT_INVENTORY.md) | Inventário completo consolidado do que foi fechado e do que resta de importante para emuladores. |
+| [`LIVE_CAPTURE_WINDOWS.md`](LIVE_CAPTURE_WINDOWS.md) | Receitas detalhadas para captura live no Windows usando Wireshark e x64dbg. |
+| [`WIRE_CAPTURE_GUIDE.md`](WIRE_CAPTURE_GUIDE.md) | Guia de captura passo a passo para triggers de diálogos NPC e notices. |
+
+---
+
+## 5. Corpora de Código Descompilado
+
+| Caminho da Pasta | Executável de Origem | Papel no Pipeline |
+|:---|:---|:---|
+| [`../game-chat-native/`](../game-chat-native/) | `Game.exe` | Cliente do jogo (Handlers de renderização e rede). |
+| [`../psgame-chat-native/`](../psgame-chat-native/) | `ps_game.exe` | Servidor de zona / mundo (Processamento e broadcast). |
+| [`../pslogin-chat-native/`](../pslogin-chat-native/) | `ps_login.exe` | Servidor de autenticação (Handshake de criptografia). |
+
+---
+
+## 6. Ferramentas Integradas (Offline)
+
+- [`tools/padding/build_pattern_b_packet.py`](../tools/padding/build_pattern_b_packet.py): Construtor de pacotes simulated Pattern B.
+- [`tools/padding/scan_pattern_b_sends.py`](../tools/padding/scan_pattern_b_sends.py): Varre binários em busca de `memset(21)` antes do envio.
+- [`tools/zonechat/parse_cn_string_db.py`](../tools/zonechat/parse_cn_string_db.py): Parser offline para bases `cn_string.DB`.
+- [`tools/crypto/validate_a101_counter.py`](../tools/crypto/validate_a101_counter.py): Validador offline de HMAC-SHA256 e counter do socket.
+- [`tools/wire/emit_session_capture.py`](../tools/wire/emit_session_capture.py): Emissor de sessões de captura baseadas na análise estática.
+- [`tools/wire/validate_d1_padding.py`](../tools/wire/validate_d1_padding.py): Validador de preenchimento de stack no wire.

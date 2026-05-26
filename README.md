@@ -30,7 +30,7 @@ Counts: manifest rows in [`tools/ghidra/*-functions.manifest`](tools/ghidra/); `
 | Script VM hashes | [`docs/SCRIPT_OPCODE_HASHES.md`](docs/SCRIPT_OPCODE_HASHES.md) |
 | Zone messages (`cn_string.DB`) | [`docs/ZONECHAT_MESSAGE_TABLE.md`](docs/ZONECHAT_MESSAGE_TABLE.md) |
 | Pattern B padding | [`docs/PADDING_SIMULATION.md`](docs/PADDING_SIMULATION.md) |
-| RE milestone / gaps | [`docs/CHAT_RE_STATUS.md`](docs/CHAT_RE_STATUS.md) · [`docs/CHAT_RE_GAPS.md`](docs/CHAT_RE_GAPS.md) |
+| RE milestone / gaps | [`docs/CHAT_RE_STATUS.md`](docs/CHAT_RE_STATUS.md) · [`docs/CHAT_RE_GAPS.md`](docs/CHAT_RE_GAPS.md) · [`docs/MISSING_CONTENT_INVENTORY.md`](docs/MISSING_CONTENT_INVENTORY.md) |
 | Admin F108 relay | [`docs/ADMIN_F108_WHISPER_RELAY.md`](docs/ADMIN_F108_WHISPER_RELAY.md) |
 | Crypto / handshake | [`docs/WIRE_CRYPTO.md`](docs/WIRE_CRYPTO.md) · [`docs/CRYPTO_COUNTER.md`](docs/CRYPTO_COUNTER.md) · [`docs/LOGIN_A101_BODY_MAP.md`](docs/LOGIN_A101_BODY_MAP.md) |
 | Counter derivation | [`docs/CRYPTO_COUNTER.md`](docs/CRYPTO_COUNTER.md) |
