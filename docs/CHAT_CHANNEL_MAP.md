@@ -177,7 +177,7 @@ Wire crypto: see [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md) and `game-chat-native/crypto
 | `ChatUIFont_Acquire` | `00565430` | `ui/ChatUIFont_Acquire_00565430.c` |
 | `ChatUIFont_ImeCompose` | `00565350` | `ui/ChatUIFont_ImeCompose_00565350.c` |
 
-**Hide-native (Paradise)** — mid-function landmarks:
+**Hide-native UI hooks** — mid-function landmarks:
 
 | Site | VA | File |
 |------|-----|------|
