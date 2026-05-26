@@ -11,6 +11,8 @@ Mapeamento do fluxo de chat stock **cliente ↔ servidor**: código decompilado 
 
 **[`CHAT_CHANNEL_MAP.md`](CHAT_CHANNEL_MAP.md)** — opcodes, handlers, vtables, VAs e caminhos dos `.c`.
 
+**[`PACKET_SPEC.md`](PACKET_SPEC.md)** — layouts wire (send/recv), validação server, envelope TCP.
+
 ## Pastas
 
 | Pasta | Conteúdo |
