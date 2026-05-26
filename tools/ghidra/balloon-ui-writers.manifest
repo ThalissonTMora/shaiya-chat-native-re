@@ -1,0 +1,8 @@
+# binary=Game.exe md5=c1edd96639ad81835624b9c4516ac781 imagebase=0x00400000 regen=tools/ghidra/decompile-game-chat.sh
+init	OptionsIni_LoadVideoWater	0x00406A40
+init	UIShell_ctor	0x0056F470
+ui	UIShell_CinematicPrecheck	0x005705A0
+ui	UIShell_CinematicEnter	0x00570FF0
+ui	UIShell_CinematicEnterAlt	0x00571730
+ui	UIShell_CinematicSceneHandler	0x00571C00
+ui	UIShell_RenderOverlayBranch	0x0056F850

@@ -7,6 +7,10 @@
  * ImageBase: 0x00400000
  * Category: crypto
  * Regenerate: tools/ghidra/decompile.sh
+ *
+ * Recv counter (field_0==0, CONFIRMED @ 0x401174–0x40118B):
+ *   auStack_b0[0..3] @ stack+0x38 = HMAC digest[0..15] → Crypto_CounterLoad ×2
+ *   uStack_a0..uStack_94 @ stack+0x48 = HMAC digest[16..31] → key-seed globals
  */
 
 

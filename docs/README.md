@@ -32,6 +32,7 @@ All project markdown lives in **`docs/`**. The repo root [`README.md`](../README
 | [`BINARIES.md`](BINARIES.md) | Shaiya Core V9 executables in `bin/` (MD5 table) |
 | [`../bin/README.md`](../bin/README.md) | Same — versioned `bin/*.exe` |
 | [`../tools/padding/`](../tools/padding/) | Pattern B packet builders / send-site scan |
+| [`../tools/zonechat/parse_cn_string_db.py`](../tools/zonechat/parse_cn_string_db.py) | Parser `data/cn_string.DB` (when available) |
 | [`../psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md`](../psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md) | Admin whisper bind/clear wire |
 
 ## Decompiled corpora (`.c` only)

@@ -6,10 +6,10 @@ Binaries under [`bin/`](bin/) come from [Shaiya-Core](https://github.com/Spelunk
 
 | Target | Folder | Role | Functions (manifest) | `.c` in repo |
 |--------|--------|------|----------------------|--------------|
-| `Game.exe` | [`game-chat-native/`](game-chat-native/) | Client chat + recv `0xA101` | **153** | **162** |
-| `ps_game.exe` | [`psgame-chat-native/`](psgame-chat-native/) | World server chat `0x11xx` | **133** | **134** |
+| `Game.exe` | [`game-chat-native/`](game-chat-native/) | Client chat + recv `0xA101` | **160** | **167** |
+| `ps_game.exe` | [`psgame-chat-native/`](psgame-chat-native/) | World server chat `0x11xx` | **136** | **143** |
 | `ps_login.exe` | [`pslogin-chat-native/`](pslogin-chat-native/) | Sends outbound `0xA101` key blob | **15** | **15** |
-| **Total** | — | Chat-related RE corpus | **301** | **311** |
+| **Total** | — | Chat-related RE corpus | **311** | **325** |
 
 Counts come from [`tools/ghidra/*-functions.manifest`](tools/ghidra/) (Ghidra decompile targets) and matching `.c` files under each folder. Extra `.c` files (e.g. client crypto helpers, `psgame-chat-native/script/` cluster) are decompiled beyond a single manifest line but still chat-related.
 
@@ -30,7 +30,7 @@ Counts come from [`tools/ghidra/*-functions.manifest`](tools/ghidra/) (Ghidra de
 | Script VM hashes | [`docs/SCRIPT_OPCODE_HASHES.md`](docs/SCRIPT_OPCODE_HASHES.md) |
 | Zone messages (`cn_string.DB`) | [`docs/ZONECHAT_MESSAGE_TABLE.md`](docs/ZONECHAT_MESSAGE_TABLE.md) |
 | Pattern B padding | [`docs/PADDING_SIMULATION.md`](docs/PADDING_SIMULATION.md) |
-| Crypto / handshake | [`docs/WIRE_CRYPTO.md`](docs/WIRE_CRYPTO.md) |
+| Crypto / handshake | [`docs/WIRE_CRYPTO.md`](docs/WIRE_CRYPTO.md) · [`docs/CRYPTO_COUNTER.md`](docs/CRYPTO_COUNTER.md) |
 | Counter derivation | [`docs/CRYPTO_COUNTER.md`](docs/CRYPTO_COUNTER.md) |
 | Login key blob RE | [`docs/SERVER_KEY_BLOB_RE.md`](docs/SERVER_KEY_BLOB_RE.md) |
 | Ghidra & `bin/` | [`docs/GHIDRA.md`](docs/GHIDRA.md) · [`docs/BINARIES.md`](docs/BINARIES.md) · [`bin/README.md`](bin/README.md) (Shaiya Core V9) |

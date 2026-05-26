@@ -1,0 +1,6 @@
+# binary=server/ps_game.exe md5=91b212afbe6623382713772489dc82ce imagebase=0x00400000 regen=tools/ghidra/decompile-psgame-chat.sh
+# One-off: cn_string.DB loader chain only
+
+lookup	ZoneChat_MapInit	0x00407E40
+lookup	ZoneChat_MapInsert	0x0040DCE0
+lookup	ZoneChat_TableLoader	0x00408C70

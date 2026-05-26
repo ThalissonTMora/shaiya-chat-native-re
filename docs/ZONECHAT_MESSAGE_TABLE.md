@@ -22,7 +22,9 @@ Maps **script / wire `message_id`** → **NUL-terminated display text** for Patt
 | Lookup (server) | `ZoneChat_MessageResolver` @ `0x004C6970` | **CONFIRMED** |
 | BST lower_bound (server) | `ZoneChat_MessageLookup` / inner @ `0x004C7250` | **CONFIRMED** |
 | Load source file | `data/cn_string.DB` | **CONFIRMED** |
-| Loader | `FUN_00408C70` | **CONFIRMED** |
+| Map init | `ZoneChat_MapInit` @ `0x00407E40` (entry `0x00407E20`, SEH) | **CONFIRMED** |
+| Map insert | `ZoneChat_MapInsert` @ `0x0040DCE0` | **CONFIRMED** |
+| Loader | `ZoneChat_TableLoader` @ `0x00408C70` | **CONFIRMED** |
 | Client lookup | `GetMsg` → `FUN_004163C0` @ `0x004163C0` | **CONFIRMED** |
 | Script index bias | `message_id \| 0xC00` before `0x110A` send | **CONFIRMED** |
 
@@ -68,14 +70,14 @@ struct ZoneChat_MapNode {
 | `DAT_00587c5c` | `0x00587c5c` | BSS | Map object → pointer to **sentinel node** |
 | `DAT_00587c60` | `0x00587c60` | BSS | `map.size()` mirror; inc @ `0x0040DE9E`, dec @ `0x004085A6` |
 
-**Init (CONFIRMED)** @ `0x00407E40`:
+**Init (CONFIRMED)** — `ZoneChat_MapInit` @ `0x00407E40` (function entry `0x00407E20`, SEH prologue):
 
-1. Alloc stub → `DAT_00587c44`
-2. Alloc sentinel node (`FUN_004085E0`, 24 B) → `DAT_00587c5c`
-3. Sentinel self-links @ `+0x00/+0x04/+0x08`; `_Isnil=1` @ `+0x15`
+1. `operator_new(4)` → `DAT_00587c44`; `*DAT_00587c44 = &DAT_00587c44` (allocator stub)
+2. `FUN_004085E0()` → alloc sentinel node (24 B) → `DAT_00587c5c`
+3. Sentinel `_Isnil=1` @ `+0x15`; self-links @ `+0x00/+0x04/+0x08`
 4. `DAT_00587c60 = 0`
 
-**Not a static `.rdata` table** — the PE has empty BSS at these VAs; entries appear only after `FUN_00408C70` runs.
+**Not a static `.rdata` table** — the PE has empty BSS at these VAs; entries appear only after `ZoneChat_TableLoader` runs.
 
 ---
 
@@ -122,27 +124,75 @@ Same pattern on client @ `Game.exe` `0x004163C0` (map root `DAT_007c3b4c`).
 
 ## 5. Data source — `data/cn_string.DB`
 
-**Loader:** `FUN_00408C70` @ `0x00408C70`
+**Loader:** `ZoneChat_TableLoader` @ `0x00408C70`  
+**Return (CONFIRMED asm):** `false` (`al=0`) if `fopen` fails; `true` (`al=1`) after `fclose` on successful read loop.
 
-| Step | API / detail | VA |
-|------|----------------|-----|
-| Open | `fopen("data/cn_string.DB", "rt")` | strings @ `0x0056F410`, `0x0056F40C` |
-| Read id | `fscanf(fp, "%d\n", &message_id)` | format @ `0x0056F424` |
-| Read text | `fgets(buf, 0x400, fp)` | skip empty lines |
-| Temp pair | `malloc(0x84)` → `[+0]=id`, `[+4..]=text` (max 0x80, zero-filled) | `0x00408D1B` |
-| Insert | `FUN_0040DCE0` → `std::map` emplace | `0x00408D74` |
+| Step | API / detail | VA / string |
+|------|----------------|-------------|
+| Open | `fopen("data/cn_string.DB", "rt")` | path `@ 0x0056F410`, mode `@ 0x0056F40C` |
+| Read id | `fscanf(fp, "%d\n", &message_id)` | format `@ 0x0056F424` |
+| Zero buf | `memset(line_buf, 0, 0x400)` | stack buffer before each text read |
+| Read text | `fgets(line_buf, 0x400, fp)` | max line **0x400** (1024) bytes incl. NUL |
+| Skip empty | `strlen(line_buf) == 0` → next id | no insert for blank text lines |
+| Temp pair | `operator_new(0x84)` → `[+0]=id`, `[+4..]=text` | `memset(+4, 0, 0x80)` then byte-copy from `line_buf` |
+| Insert | `ZoneChat_MapInsert(out_iter, &pair)` | `@ 0x00408D74`; pair = `{message_id, temp_ptr}` |
+| Close | `fclose(fp)` | `@ 0x00408D7F` |
 
-**File format (CONFIRMED from loader loop):**
+**Loader loop (CONFIRMED — Ghidra @ `0x00408C70`):**
+
+```c
+// Pseudocode from decompilation + asm
+bool ZoneChat_TableLoader(void) {
+    FILE *fp = fopen("data/cn_string.DB", "rt");
+    if (!fp) return false;
+    for (;;) {
+        u32 message_id;
+        if (fscanf(fp, "%d\n", &message_id) == EOF) break;
+        char line[0x400];
+        memset(line, 0, sizeof(line));
+        fgets(line, 0x400, fp);
+        if (strlen(line) == 0) continue;          // empty fgets row
+        auto *rec = (u32*)operator_new(0x84);
+        memset(rec + 1, 0, 0x80);                 // text field cap
+        *rec = message_id;
+        strcpy((char*)(rec + 1), line);           // bounded by prior fgets + 0x80 zero-fill
+        ZoneChat_MapInsert(&iter, &pair{message_id, rec});
+        // temp heap block not freed in loader (copied into std::string @ insert)
+    }
+    fclose(fp);
+    return true;
+}
+```
+
+**File format on disk (CONFIRMED — matches `fscanf`/`fgets` sequence above):**
 
 ```text
 <message_id_decimal>
-<text line, single fgets row, may contain GetMsg tags like <p>...</>
+<text line — single fgets row, max 0x400 read; stored max 0x80 bytes>
 <message_id_decimal>
 <text line>
 ...
 ```
 
-**Callers (CONFIRMED xrefs to `0x00408C00` / `0x00408C70`):** `0x00409EE0`, `0x0040D45E`, `0x00474590`, `0x004818DC`, `0x00481977`, `0x00481A64`, `0x00553780` (server init chain).
+Rules:
+
+| Rule | Detail | Tag |
+|------|--------|-----|
+| Id line | Decimal ASCII, consumed by `fscanf("%d\n")` (newline after number required) | **CONFIRMED** |
+| Text line | One `fgets` per id; trailing `\n`/`\r\n` kept then stripped by copy | **CONFIRMED** |
+| Empty text | Skipped — no map insert | **CONFIRMED** |
+| Stored text max | **0x80** bytes (`memset` before copy @ `0x00408D31`) | **CONFIRMED** |
+| Read buffer max | **0x400** bytes per `fgets` @ `0x00408CE2` | **CONFIRMED** |
+| Encoding | Not verified in binary — treat as 8-bit extended ASCII / locale bytes | **HYPOTHESIS** |
+
+**Parse tool (when file available):**
+
+```bash
+python3 tools/zonechat/parse_cn_string_db.py /path/to/data/cn_string.DB
+python3 tools/zonechat/parse_cn_string_db.py /path/to/data/cn_string.DB --format json --limit 20
+```
+
+**Callers (CONFIRMED xrefs to `0x00408C70`):** `0x00409EE0`, `0x0040D45E`, `0x00474590`, `0x004818DC`, `0x00481977`, `0x00481A64`, `0x00553780` (server init chain).
 
 ---
 
@@ -193,16 +243,35 @@ head -n 40 /path/to/server/data/cn_string.DB
 
 | Path | Contents |
 |------|----------|
+| `psgame-chat-native/lookup/ZoneChat_MapInit_00407e40.c` | Ghidra export — `std::map` sentinel init |
+| `psgame-chat-native/lookup/ZoneChat_MapInsert_0040dce0.c` | Ghidra export — RB-tree emplace |
+| `psgame-chat-native/lookup/ZoneChat_TableLoader_00408c70.c` | Ghidra export — `cn_string.DB` loader |
 | `psgame-chat-native/lookup/ZoneChat_MessageResolver_004c6970.c` | Ghidra export |
 | `psgame-chat-native/lookup/ZoneChat_MessageLookup_004c71d0.c` | Ghidra export |
 | `game-chat-native/util/GetMsg_00420db0.c` | Client resolution + tag expansion |
 | `psgame-chat-native/send/Chat_PacketBuilder_1109_A_004c6a80.c` | Resolver consumer (text path) |
+| `tools/zonechat/parse_cn_string_db.py` | Offline parser for `cn_string.DB` |
+| `tools/ghidra/psgame-chat-lookup-loader.manifest` | Mini manifest (loader chain only) |
+
+**Reproduce decompilation:**
+
+```bash
+tools/ghidra/decompile-psgame-chat.sh
+# or loader chain only:
+"$GHIDRA_HOME/support/analyzeHeadless" tools/ghidra/project-psgame PsGameChatLookup \
+  -scriptPath tools/ghidra/scripts -import bin/ps_game.exe \
+  -processor x86:LE:32:default -overwrite -deleteProject \
+  -postScript ExportDecompileByAddress.java psgame-chat-native \
+  tools/ghidra/psgame-chat-lookup-loader.manifest
+```
 
 **Reproduce disassembly:**
 
 ```bash
-objdump -d -M intel --start-address=0x4c6970 --stop-address=0x4c7290 bin/ps_game.exe
 objdump -d -M intel --start-address=0x408c70 --stop-address=0x408da0 bin/ps_game.exe
+objdump -d -M intel --start-address=0x407e20 --stop-address=0x407ea8 bin/ps_game.exe
+objdump -d -M intel --start-address=0x40dce0 --stop-address=0x40ddd0 bin/ps_game.exe
+objdump -d -M intel --start-address=0x4c6970 --stop-address=0x4c7290 bin/ps_game.exe
 strings -a bin/ps_game.exe | grep cn_string
 ```
 

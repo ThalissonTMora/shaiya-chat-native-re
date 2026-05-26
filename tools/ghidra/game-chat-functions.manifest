@@ -186,3 +186,10 @@ balloon	ChatBalloon_AssignPointer_Site	0x00412753
 render	Entity_Render_BalloonTick_CallSite	0x00453ED0
 render	WorldToScreen_ProjectPoint	0x00573FF0
 ui	OptionsMenu_WriteTalkBalloonStrings	0x0051B220
+init	OptionsIni_LoadVideoWater	0x00406A40
+init	UIShell_ctor	0x0056F470
+ui	UIShell_CinematicPrecheck	0x005705A0
+ui	UIShell_CinematicEnter	0x00570FF0
+ui	UIShell_CinematicEnterAlt	0x00571730
+ui	UIShell_CinematicSceneHandler	0x00571C00
+ui	UIShell_RenderOverlayBranch	0x0056F850

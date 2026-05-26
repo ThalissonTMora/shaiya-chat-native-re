@@ -12,7 +12,7 @@ Objetivo deste documento: fechar o que falta para **chat 100%** (wire + server r
 |------------|------|-------------------------|
 | **P0** | `char[21]` recv/send + padding wire | **INFERRED ~99%** tail = lixo de stack (não zeros); captura 1× guild fecha P0-1 — ver `PADDING_SIMULATION.md` |
 | **P0** | Admin recv `0xF102`–`0xF109` | **Fechado** — 7× `.c` + vtable `+0x334` / stubs `+0x344`/`+0x348` |
-| **P1** | Balloon gates `DAT_*` → map §8 | **Fechado** — tabela em `CHAT_CHANNEL_MAP.md` §8 |
+| **P1** | Balloon gates `DAT_*` → map §8 | **Fechado** — `+0x1D0` = cinematic suppress CONFIRMED; `DAT_007c0d8c` = `[VIDEO] WATER` |
 | **P1** | `Chat_BroadcastNamed` / megaphone `0x1108` | **Fechado** — stub → `World_BroadcastTradeCore` queue mode **3** view **7** |
 | **P1** | Whisper server patch `+0x0B` | **Fechado** — byte **`0x16`** cleared; Pattern C `dir` 0/1 CONFIRMED |
 | **P1** | Balloon `0x1101`/`0x1107` recv path | **CONFIRMED** cadeia vtable → balloon create @ `0x4126D0` → tick `0x412780` |
@@ -95,7 +95,16 @@ Entity_Render @ 0x00453ED0 (when DAT_007c0e60 != 0)
 
 #### `Entity_ChatBalloon_Tick` @ `0x00412780` — **Fechado (P1-2)**
 
-Tabela completa: [`CHAT_CHANNEL_MAP.md`](CHAT_CHANNEL_MAP.md) §8 (globals `DAT_007c0e7c`, `DAT_007c0d8c`, `DAT_007c0838+0x1D0`, recv faction `DAT_022aa816`).
+Tabela completa: [`CHAT_CHANNEL_MAP.md`](CHAT_CHANNEL_MAP.md) §8.
+
+**P1 addendum — `+0x1D0` (maio 2026):**
+
+| Claim | Tag | Evidence |
+|-------|-----|----------|
+| `+0x1D0` = `cinematic_overlay_suppress` on UI shell (`DAT_007c0838`) | **CONFIRMED** | Writers `0x570FFA`/`0x57107A` (`UIShell_CinematicEnter`), `0x571766`/`0x571BC5` (`UIShell_CinematicEnterAlt`); init `0x56F515` (`UIShell_ctor`) |
+| Gate: skip balloon when `+0x1D0==1` and `[VIDEO] WATER` enabled | **CONFIRMED** | `Entity_ChatBalloon_Tick` asm `0x412781`–`0x412799`; paired OR with `DAT_007c0d8c` |
+| `DAT_007c0d8c` = `[VIDEO] WATER`, **not** `[SOUND] VOICE_NPC` | **CONFIRMED** | INI load @ `0x406A59`/`0x406A95` (`.rdata` `"WATER"`/`"VIDEO"`); VOICE_NPC → `DAT_007c0e34` @ options case 2 |
+| Cinematic entry guarded when `+0x1D0!=0` | **CONFIRMED** | `UIShell_CinematicSceneHandler` @ `0x571C24`, `0x57227C` |
 
 #### `ChatNormalParty_vfn` — quando chama balloon (INFERRED gates)
 
@@ -183,6 +192,9 @@ Ver [`PACKET_SPEC.md`](PACKET_SPEC.md) — patches nesta rodada na seção `char
 | `game-chat-native/handlers/Handler_Chat*_*.c` | Leituras `0x15` |
 | `psgame-chat-native/broadcast/Chat_BroadcastGuild_00432530.c` | Null-term name |
 | `game-chat-native/balloon/Entity_ChatBalloon_Tick_00412780.c` | Gates balloon |
+| `game-chat-native/ui/UIShell_CinematicEnter_00570ff0.c` | `+0x1D0` writer (cinematic suppress) |
+| `game-chat-native/init/UIShell_ctor_0056f470.c` | UI shell alloc; `+0x1D0` init |
+| `game-chat-native/init/OptionsIni_LoadVideoWater_00406a40.c` | `DAT_007c0d8c` INI load |
 | `psgame-chat-native/broadcast/Chat_BroadcastNamed_chain.md` | Megaphone `0x1108` queue path |
 | `docs/WIRE_CAPTURE_GUIDE.md` | Captura `0x1104` padding + push `0x1109`–`0x110B` |
 | `game-chat-native/vtable/ChatNormalParty_vfn_0x324_0059c380.c` | Balloon trigger |
@@ -233,7 +245,7 @@ Ver [`PACKET_SPEC.md`](PACKET_SPEC.md) — patches nesta rodada na seção `char
 
 ## Out-of-Scope Observations
 
-- Crypto 100%: server outbound `0xA101`, counter wire — ver `WIRE_CRYPTO.md` / `CRYPTO_COUNTER.md` (não chat).
+- Crypto recv counter: **fechado estaticamente** em `CRYPTO_COUNTER.md` (`digest[0..15]` → `CounterLoad`); captura 1× sessão recomendada. Server outbound `0xA101` ainda em `SERVER_KEY_BLOB_RE.md`.
 - `Chat_BroadcastTrade` delega para `World_BroadcastTradeCore` — spatial mode `4`, não monta pacote inline no `.c` exportado.
 - `Handler_ChatZone` usa pattern D (`u8` + `u32`), não `char[21]`.
 
@@ -244,7 +256,7 @@ Ver [`PACKET_SPEC.md`](PACKET_SPEC.md) — patches nesta rodada na seção `char
 1. **P0-1 Wire padding:** captura `0x1104` guild — hexdump 21 B do nome após `'\0'` (receita: [`WIRE_CAPTURE_GUIDE.md`](WIRE_CAPTURE_GUIDE.md) §3).
 2. **NPC push wire:** hook `SConnection_Send` @ `0x004ED0E0` durante script — validar `0x1109`/`0x110A`/`0x110B` (§4 do guia).
 3. **Script callers:** xref `0x004A2210` / `0x004CB3D0` — mapa quest→opcode (fora do mínimo estático).
-4. **Balloon UI+0x1D0:** breakpoint em writes a `DAT_007c0838+0x1D0` — confirmar semântica (HYPOTHESIS).
+4. ~~**Balloon UI+0x1D0:** breakpoint em writes a `DAT_007c0838+0x1D0`.~~ **Fechado** — `cinematic_overlay_suppress`; writers `UIShell_CinematicEnter` / `UIShell_CinematicEnterAlt`; ver `CHAT_CHANNEL_MAP` §8.
 5. ~~**F107/F109:** confirmar se algum campo global muda apesar do stub vfn.~~ **Fechado** — nenhum efeito cliente; ver §5 em Findings.
 
 ---

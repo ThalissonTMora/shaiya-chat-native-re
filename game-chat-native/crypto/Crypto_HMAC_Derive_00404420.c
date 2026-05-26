@@ -7,6 +7,17 @@
  * ImageBase: 0x00400000
  * Category: crypto
  * Regenerate: tools/ghidra/decompile.sh
+ *
+ * Calling convention (CONFIRMED @ 0x40115C–0x401162 caller):
+ *   ECX = block_b pointer
+ *   EBX = digest output (32 B) — caller lea ebx,[esp+0x40] → stack+0x38 after arg pops
+ *   Stack [esp+0x11c] = PRNG buffer pointer (128 B at caller stack+0x58)
+ *   Stack [esp+0x120] = zero-extended field_2 (inner HMAC message length)
+ *
+ * Pipeline (CONFIRMED disasm):
+ *   key0 = SHA256(prng, 128)                    @ 0x404434–0x404496
+ *   digest = HMAC_SHA256(key0, block_b, field_2) @ 0x404506–0x404579 (len @ 0x404569)
+ *   outer finalize reuses EBX buffer             @ 0x40457E–0x4045E8
  */
 
 

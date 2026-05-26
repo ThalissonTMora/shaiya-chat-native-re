@@ -243,7 +243,7 @@ Used by speech balloon, nameplates, and other overlays.
 Draw/fade runs only when **all** hold:
 
 ```text
-( (DAT_007c0d8c == 0) OR (DAT_007c0838 + 0x1D0 == 0) )
+( (DAT_007c0d8c == 0) OR (*(DAT_007c0838 + 0x1D0) == 0) )
 AND DAT_007c0e7c != 0
 AND entity+0x288 != 0
 ```
@@ -251,17 +251,32 @@ AND entity+0x288 != 0
 | Global / field | VA / offset | Written by | INI / option source | Role |
 |----------------|-------------|------------|---------------------|------|
 | `DAT_007c0e7c` | `0x007C0E7C` | `OptionsMenu_WriteTalkBalloonStrings` @ `0x0051B220` case **3** L83 | `[USER] TALK_BALLOON` ← `param+0x10DC3` | Master **talk balloon** enable |
-| `DAT_007c0d8c` | `0x007C0D8C` | same @ L229 (case **default**) | `[SOUND] VOICE_NPC` ← `param+0xC1CB` | NPC voice option; when **1**, UI flag `+0x1D0` must be **0** to allow balloon |
-| `DAT_007c0838` | `0x007C0838` | `ChatObject_alloc_site` @ `0x0040AD5D` L173 (`operator_new(0x308)` → `FUN_0056F470`) | — | Main UI shell object |
-| `*(DAT_007c0838 + 0x1D0)` | UI object `+0x1D0` | *(runtime)* | **HYPOTHESIS:** cinematic / interface suppress | Secondary gate paired with `VOICE_NPC` |
+| `DAT_007c0d8c` | `0x007C0D8C` | `OptionsIni_LoadVideoWater` @ `0x00406A95`; options save @ `0x0051B2CE` | `[VIDEO] WATER` ← `param+0xC1CB` (video tab) | Water FX option; when **1**, `+0x1D0` must be **0** to allow balloon/nameplate |
+| `DAT_007c0838` | `0x007C0838` | `ChatObject_alloc_site` @ `0x0040AD5D` L173 → `UIShell_ctor` @ `0x0056F470` | — | Main UI shell singleton (`operator_new(0x308)`) |
+| `*(DAT_007c0838 + 0x1D0)` | UI shell `+0x1D0` | **CONFIRMED** see writers below | — | **`cinematic_overlay_suppress`** — `1` hides balloons/nameplates during camera transition |
 | `DAT_007c0e58` | `0x007C0E58` | options case 3 L72 | `[USER] USE_FILTER` | Text wrap path in `ChatNormalParty_vfn` (not tick gate) |
 | `DAT_022aa816` | `0x022AA816` | **`0x0048BFEA`** ← `entity+0xBF4` on zone/char entry | — | **Local player faction byte** — compared to remote `entity+0x2B7` for recv balloon (`ChatNormalParty_vfn` @ `0x0059C463`, `ChatShout_vfn` @ `0x0059AA10`) |
 
-**Render call site:** `Entity_Render` @ `0x00453ED0` L122 — same `(DAT_007c0d8c == 0) \|\| (UI+0x1D0 == 0)` test before nameplate branch.
+#### `+0x1D0` writers / readers (P1 **CONFIRMED**)
+
+| Op | VA | Function | Semantics |
+|----|-----|----------|-----------|
+| **init 0** | `0x0056F515` | `UIShell_ctor` | Zero at alloc |
+| **write 1** | `0x00570FFA` | `UIShell_CinematicEnter` | Start cinematic camera path |
+| **write 0** | `0x00571011` / `0x0057107A` | `UIShell_CinematicEnter` | Precheck fail / normal exit |
+| **write 1** | `0x00571766` | `UIShell_CinematicEnterAlt` | Alt cinematic path |
+| **write 0** | `0x0057177D` / `0x00571BC5` | `UIShell_CinematicEnterAlt` | Precheck fail / normal exit |
+| **read gate** | `0x00412792` | `Entity_ChatBalloon_Tick` | Skip draw if `+0x1D0 != 0` (when `DAT_007c0d8c != 0`) |
+| **read gate** | `0x0045376B` | `Entity_Render` nameplate branch | Same paired test |
+| **read guard** | `0x00571C24` / `0x0057227C` | `UIShell_CinematicSceneHandler` | No re-entry while `+0x1D0 != 0` |
+
+**Call chain (cinematic → suppress):** `UIShell_CinematicSceneHandler` @ `0x00571C00` → `UIShell_CinematicEnter` @ `0x00570FF0` / `UIShell_CinematicEnterAlt` @ `0x00571730` (call sites `0x00571C71`, `0x005722BE`, `0x005722FD`).
+
+**Render call site:** `Entity_Render` @ `0x00453ED0` L122 — same `(DAT_007c0d8c == 0) \|\| (*(DAT_007c0838 + 0x1D0) == 0)` test before nameplate branch.
 
 **Recv → balloon create (not a tick gate):** `Handler_ChatNormal` / `ChatShout` → vtable → `ChatString_Sanitize` @ `0x004126D0` → `ChatBalloon_CreateStaticText` @ `0x0041FCC0`.
 
-Evidence: `game-chat-native/balloon/Entity_ChatBalloon_Tick_00412780.c`, `ui/OptionsMenu_WriteTalkBalloonStrings_0051b220.c`.
+Evidence: `game-chat-native/balloon/Entity_ChatBalloon_Tick_00412780.c`, `init/UIShell_ctor_0056f470.c`, `ui/UIShell_CinematicEnter_00570ff0.c`, `init/OptionsIni_LoadVideoWater_00406a40.c`.
 
 ---
 
@@ -316,7 +331,9 @@ Regenerate: `./tools/ghidra/decompile-psgame-chat.sh` · subsets `tools/ghidra/p
 | `Script_InstrResolver` | `0x004A5720` | `script/Script_InstrResolver_004a5720.c` | Resolves current script PC → instruction object |
 | `ZoneChat_MessageResolver` | `0x004C6970` | `lookup/ZoneChat_MessageResolver_004c6970.c` | `__stdcall(u32 id)` → `std::string*` @ node `+0x10`; text bytes @ `string+0x04` (1109 builder) |
 | `ZoneChat_MessageLookup` | `0x004C71D0` | `lookup/ZoneChat_MessageLookup_004c71d0.c` | BST `lower_bound`; inner walk @ `0x004C7250` |
-| `ZoneChat_TableLoader` | `0x00408C70` | *(asm only)* | Loads `data/cn_string.DB` → `std::map` @ `DAT_00587c5c` |
+| `ZoneChat_TableLoader` | `0x00408C70` | `lookup/ZoneChat_TableLoader_00408c70.c` | Loads `data/cn_string.DB` → `std::map` @ `DAT_00587c5c` |
+| `ZoneChat_MapInit` | `0x00407E40` | `lookup/ZoneChat_MapInit_00407e40.c` | Sentinel RB-tree init @ `DAT_00587c5c` |
+| `ZoneChat_MapInsert` | `0x0040DCE0` | `lookup/ZoneChat_MapInsert_0040dce0.c` | `map::insert` emplace path |
 | `Chat_ScriptWrapper_110A` | `0x004CB3D0` | `script/Chat_ScriptWrapper_110A_004cb3d0.c` | Builtin: union chat (`0x110A`) |
 | `Chat_ScriptWrapper_110B` | `0x004CB430` | `script/Chat_ScriptWrapper_110B_004cb430.c` | Builtin: channel label (`0x110B`) |
 
