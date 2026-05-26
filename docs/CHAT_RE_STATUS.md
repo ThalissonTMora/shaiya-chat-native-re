@@ -51,12 +51,12 @@ Synthetic fixture (parser test only): [`test/fixtures/cn_string_sample.db`](../t
 
 ## Still requires runtime / external files
 
-**Repo search (May 2026):** see [`MISSING_ARTIFACTS_SEARCH.md`](MISSING_ARTIFACTS_SEARCH.md) — **D1/D3/D4/D5 not on disk**; **D2 `cn_string.DB` not found**; related **`sysmsg-uni.txt`** exists under `.features/Shaiya-Core-V7/` (UTF-16, not `cn_string.DB`).
+**Repo search (May 2026):** see [`MISSING_ARTIFACTS_SEARCH.md`](MISSING_ARTIFACTS_SEARCH.md) — **D2 found** @ `/mnt/c/ShaiyaServer/.../cn_string.DB` (31 entries, vendored in `test/fixtures/`); **D1/D3/D4/D5** still need capture.
 
 | ID | Item | How to close |
 |----|------|----------------|
 | **D1** | `char[21]` wire tail CONFIRMED | 1× guild `0x1104` capture — [`WIRE_CAPTURE_GUIDE.md`](WIRE_CAPTURE_GUIDE.md) §3 |
-| **D2** | `cn_string.DB` content | Copy from stock server `data/` → `parse_cn_string_db.py` |
+| **D2** | `cn_string.DB` content | **Done** — `test/fixtures/cn_string_stock.db` (from ShaiyaServer mount) |
 | **D3** | `0xA101` counter end-to-end | tcpdump login + `--prng-hex` in `validate_a101_counter.py` |
 | **D4** | NPC script push wire | `SConnection_Send` @ `0x004ED0E0` during script |
 | **D5** | F108 C→S sender binary | GM tool outside `Game.exe` |

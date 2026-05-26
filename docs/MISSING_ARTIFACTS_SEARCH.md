@@ -10,13 +10,15 @@ Scope: `/home/Thalisson/shaiya-paradise`, `/home/Thalisson` (depth 6), `/mnt/c/U
 | ID | Item | Found in repo / WSL? | Notes |
 |----|------|----------------------|-------|
 | **D1** | Guild `0x1104` wire capture (padding) | **No** | No `.pcap` / hex dumps. Static + [`PADDING_SIMULATION.md`](PADDING_SIMULATION.md) only. |
-| **D2** | `data/cn_string.DB` (zone script text) | **No** | Only [`test/fixtures/cn_string_sample.db`](../test/fixtures/cn_string_sample.db) (synthetic). |
+| **D2** | `data/cn_string.DB` (zone script text) | **Yes** (Windows mount) | `/mnt/c/ShaiyaServer/PSM_Client/Bin/Data/cn_string.DB` (31 entries); vendored [`test/fixtures/cn_string_stock.db`](../test/fixtures/cn_string_stock.db) |
 | **D2′** | Related: `sysmsg-uni.txt` (client sys messages) | **Yes** (outside RE repo) | [`.features/Shaiya-Core-V7/sysmsg-uni.txt`](../../.features/Shaiya-Core-V7/sysmsg-uni.txt) — **UTF-16**, tab format; **not** `cn_string.DB`. |
 | **D3** | Login `0xA101` pcap + PRNG capture | **No** | No tcpdump/pcap in tree. |
 | **D4** | NPC script `0x1109` wire capture | **No** | |
 | **D5** | Binary that sends C→S `0xF108` | **No** in scanned PEs | `Game.exe` / `ps_game.exe` / `ps_login.exe`: **0** `mov $0xF108` send sites. Handler only on server. |
 
-**Conclusion:** Nothing on disk closes D1/D3/D4/D5. D2 needs a **live server `data/` tree** (or vendor the file). D2′ is a **partial** client string table, different file/format.
+**Update:** Background scan of `/mnt/c` + `/mnt/d` found **`cn_string.DB`** (D2 closed for this machine). D1/D3/D4/D5 still missing.
+
+**Conclusion:** D2 available from ShaiyaServer install paths; remaining items need in-game capture or GM tooling. D2′ is a **partial** client string table, different file/format.
 
 ---
 

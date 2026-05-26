@@ -210,7 +210,16 @@ python3 tools/zonechat/parse_cn_string_db.py /path/to/data/cn_string.DB --format
 
 ## 7. Sample entries
 
-**No sample rows extracted from this repo** — `data/cn_string.DB` is not vendored and the map BSS is empty in the static PE.
+**Stock sample (May 2026)** — from `/mnt/c/ShaiyaServer/PSM_Client/Bin/Data/cn_string.DB` (31 entries, Nov 2023). Vendored: [`test/fixtures/cn_string_stock.db`](../test/fixtures/cn_string_stock.db) · parse: [`test/fixtures/cn_string_stock_parsed.tsv`](../test/fixtures/cn_string_stock_parsed.tsv).
+
+| message_id | text (truncated) |
+|------------|------------------|
+| 1 | Pullback to Heretics! |
+| 2 | Li laka Amon-Ra |
+| 3 | I'll remove your flesh and bones!! |
+| … | *(28 more — see TSV)* |
+
+**Note:** IDs start at **1**, not `0xC00`; script wrappers still OR `0xC00` before wire `0x110A` — map keys may be raw script indices for this build.
 
 | Claim | Tag |
 |-------|-----|
