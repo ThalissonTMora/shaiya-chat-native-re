@@ -21,7 +21,7 @@ Stock chat flow mapping **client ↔ world server ↔ login handshake**: Ghidra 
 | Login key blob RE | [`docs/SERVER_KEY_BLOB_RE.md`](docs/SERVER_KEY_BLOB_RE.md) |
 | Ghidra & `bin/` | [`docs/GHIDRA.md`](docs/GHIDRA.md) · [`docs/BINARIES.md`](docs/BINARIES.md) |
 
-## Reimplementation confidence
+## Reimplementation confidence - AI Vision:
 
 | Goal | Confidence |
 |------|------------|
