@@ -1,0 +1,15 @@
+# Binários (não versionar — coloque em bin/ para regenerar)
+bin/*.exe
+*.exe
+*.rar
+*.lock
+
+# Projetos Ghidra locais
+tools/ghidra/project-game/
+tools/ghidra/project-psgame/
+
+# IDE / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

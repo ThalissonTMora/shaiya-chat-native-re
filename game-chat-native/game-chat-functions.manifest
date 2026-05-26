@@ -1,0 +1,164 @@
+# binary=Game.exe md5=c1edd96639ad81835624b9c4516ac781 imagebase=0x00400000 regen=tools/ghidra/decompile-game-chat.sh
+# Cliente — chat Game.exe (ImageBase 0x00400000)
+
+send	NetworkSend	0x005EA9A0
+send	PacketSend_Chat	0x005ED060
+send	PacketSend_Whisper	0x005ED160
+send	PacketSend_Zone	0x005ED340
+
+recv	PacketDispatcher	0x005F1E10
+recv	PacketDispatcher_Fallback	0x005F3A3B
+
+ui	NativeChatSendUI	0x0045BBE0
+
+handlers	Handler_ChatNormal	0x005E50E0
+handlers	Handler_ChatWhisper	0x005E5180
+handlers	Handler_ChatTrade	0x005E5250
+handlers	Handler_ChatGuild	0x005E5310
+handlers	Handler_ChatParty	0x005E53D0
+handlers	Handler_ChatError	0x005E5470
+handlers	Handler_ChatShout	0x005E54A0
+handlers	Handler_ChatMegaphone	0x005E5540
+handlers	Handler_ChatZone	0x005E5600
+handlers	Handler_ChatUnion	0x005E56F0
+handlers	Handler_AdminChatMonitor	0x005E4E30
+handlers	Handler_ChatNotify_E05	0x005E5000
+handlers	Handler_ChatNotify_E06	0x005E5070
+handlers	Handler_Chat_110B	0x005E5740
+handlers	Handler_Chat_Area_1111	0x005E57D0
+handlers	Handler_Chat_PartyNotify_F101	0x005E5880
+handlers	Handler_Chat_LongText_1112	0x005E88D0
+
+# --- Frontend UI (Ghidra scan 2026-05-25) ---
+ui	ChatWindow_Render	0x0047DB70
+ui	DrawText_ChatBox_Core	0x00422B90
+ui	DrawText_ChatBox_Wrapper	0x004231A0
+ui	SysMsgToChatBox	0x00423150
+buffer	ChatBox_AddLine	0x00422630
+ui	ChatWindow_SendMessage	0x0047A5F0
+ui	ChatWindow_InputCapture	0x0047E8B0
+gui	CGui_DrawRect	0x005388E0
+ui	SStaticText_Create	0x0057C280
+ui	SFloatingStaticText_Draw	0x0057CA20
+ui	NativeText_Draw	0x00573C00
+ui	MeasureTextWidth	0x00575740
+util	GetMsg	0x00420DB0
+
+# --- Recv helpers (called by all 0x11xx handlers) ---
+recv	PacketRead_Scalar	0x005F4700
+recv	PacketRead_String	0x005F4780
+
+# --- Command / staff dispatch ---
+command	StaffCommand_Dispatch	0x004867A1
+command	GmCommand_Dispatch	0x0047FFD0
+command	GmOverlay_AppendText	0x0047F8B0
+
+# --- Chat object init + vtable methods (DAT_022fa2f0 → vtable .rdata 0x746744) ---
+init	ChatObject_ctor	0x0040A840
+init	ChatObject_alloc_site	0x0040AD5D
+vtable	AdminChatMonitor_vfn_0x308	0x00595570
+vtable	ChatNormalParty_vfn_0x324	0x0059C380
+vtable	ChatWhisperTradeGuildZoneMega_vfn_0x328	0x0059BDB0
+vtable	ChatShout_vfn_0x32C	0x0059AA10
+vtable	ChatError_vfn_0x340	0x0059ABA0
+vtable	ChatUnion_vfn_0x34C	0x0059A940
+vtable	ChatNotify_vfn_0x31C	0x00595690
+vtable	ChatNotify_vfn_0x320	0x005957E0
+vtable	ChatArea_vfn_0x330	0x0059A900
+vtable	ChatChannel_vfn_0x350	0x0059A9D0
+vtable	ChatLongMsg_vfn_0x578	0x0059BD00
+
+# --- Chat flow: send path (channel + submit + extra PacketSend) ---
+init	SetChatWindowSingleton	0x005DE770
+send	PacketSend_Guild	0x005ED220
+send	PacketSend_Party	0x005ED2B0
+ui	ChatWindow_SubmitChatInput	0x0047A4B0
+ui	ChatWindow_ChannelToMsgId	0x0047A420
+ui	ChatWindow_SetActiveChannel	0x0047C1E0
+ui	ChatWindow_ApplyChannelPrefix	0x0047C190
+ui	ChatWindow_MouseWheelScroll	0x0047BEA0
+ui	ChatWindow_WhisperHighlight	0x0047F970
+
+# --- Chat flow: buffer / format (handler vtable → DrawText) ---
+buffer	ChatBox_GetBufferIndex	0x00420BF0
+buffer	ChatBox_AppendSuffix	0x00420C10
+buffer	ChatBox_GetTabCount	0x00420BE0
+buffer	ChatBox_GetTabViewport	0x00420C70
+buffer	ChatBox_LineTouch	0x004207F0
+buffer	ChatBox_GetLineStyle	0x00420750
+buffer	ChatBox_ListInsert	0x00450D10
+buffer	ChatBox_FormatLineText	0x00421750
+buffer	ChatBox_WrapLineText	0x00422310
+util	ChatString_Sanitize	0x004126D0
+lookup	CharNameFromId	0x00452B10
+lookup	CharNameFromIdAlt	0x00452B90
+lookup	PartyMemberName	0x004ED790
+
+# --- Chat flow: recv pump → PacketDispatcher ---
+recv	NetworkRecv_SocketPump	0x005F438E
+recv	PacketRecv_AttachBuffer	0x005F4680
+recv	PacketRecv_OnCompleteReset	0x005F46E0
+vtable	ChatObject_GenericPacketHandler_vfn684	0x00599C30
+vtable	ChatObject_PacketUnderflow_vfn680	0x00598DC0
+
+# --- Chat flow: socket WndProc + decrypt (Ghidra multi-agent 2026-05-26) ---
+recv	Network_GameSocketWndProc	0x005F1810
+recv	PacketPayload_Decrypt	0x00401080
+init	Network_ConnectAndBindWndMsg	0x005DE780
+recv	Network_SocketNotifyDispatch	0x005DE810
+recv	Network_OnSocketDisconnect	0x005DE820
+handlers	Handler_Packet_0502	0x005E0CF0
+
+# --- Chat flow: GUI hub + whisper target + toggle ---
+ui	ChatWindow_MainGuiHandler	0x0047FE20
+ui	ChatWindow_SetWhisperTarget	0x0047C690
+ui	ChatWindow_ToggleOpenLayout	0x0047D203
+
+# --- Chat flow: render text pipeline (Render → DrawText) ---
+ui	ChatWindow_DrawColoredText	0x00573E20
+ui	ChatWindow_DrawTextStyled	0x00573D70
+ui	ChatWindow_FormatDrawBuffer	0x00575610
+ui	ChatWindow_DrawShadedLine	0x00577860
+ui	ChatWindow_MeasureString	0x0057BD90
+ui	ChatWindow_DrawTabChrome	0x0057B990
+ui	ChatUIFont_Acquire	0x00565430
+ui	ChatUIFont_ImeCompose	0x00565350
+send	ChatWindow_FormatOutgoing	0x005663B0
+ui	ChatWindow_BeginSubmit	0x00564B60
+gui	CGui_DrawRectEdge	0x00538C60
+gui	CGui_DrawIcon	0x00551B40
+gui	CGui_DrawSprite	0x00555690
+
+# --- Chat flow: buffer display + color codes ---
+buffer	ChatBox_BuildDisplaySegment	0x00420A70
+buffer	ChatBox_ListDetachHead	0x00420D50
+buffer	ChatBox_SetLineDrawMode	0x00437F40
+buffer	ChatBox_ParseColorCode	0x00407F70
+util	ChatString_Reset	0x00405590
+util	ChatText_ParseInlineColor	0x0040FDE0
+ui	SStaticText_HeapAlloc	0x0057D4C0
+
+# --- Hide-native hook landmarks (mid-function; Ghidra exports parent) ---
+hooks	ChatWindow_Render_GateSite	0x0047DB8D
+hooks	ChatWindow_Render_Continue	0x0047DB99
+hooks	ChatWindow_Render_Epilogue	0x0047E871
+hooks	ChatWindow_DrawRect_CallSite_A	0x0047DBEE
+hooks	ChatWindow_DrawRect_CallSite_B	0x0047DC11
+hooks	ChatWindow_DrawRect_CallSite_C	0x0047E5E3
+hooks	ChatWindow_DrawRect_CallSite_D	0x0047E7A1
+ui	ChatWindow_DrawChannelLabel	0x00575E90
+
+# --- Speech balloon above character head (native Game.exe, validated 2026-05-26) ---
+# create: util/ChatString_Sanitize @ 0x004126D0 (entity+0x288)
+balloon	Entity_ChatBalloon_Tick	0x00412780
+balloon	ChatBalloon_CreateStaticText	0x0041FCC0
+balloon	ChatBalloon_FormatTextBuffer	0x0041FCF0
+balloon	ChatBalloon_DrawProjected	0x00420010
+balloon	ChatBalloon_DrawStaticText	0x0041FFF9
+balloon	ChatBalloon_HeightScale_Site	0x0041275F
+balloon	ChatBalloon_Create_CallSite	0x00412744
+balloon	ChatBalloon_TimerInit_Site	0x0041274D
+balloon	ChatBalloon_AssignPointer_Site	0x00412753
+render	Entity_Render_BalloonTick_CallSite	0x00453ED0
+render	WorldToScreen_ProjectPoint	0x00573FF0
+ui	OptionsMenu_WriteTalkBalloonStrings	0x0051B220

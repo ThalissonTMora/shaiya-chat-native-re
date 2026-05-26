@@ -1,0 +1,132 @@
+# binary=server/ps_game.exe md5=91b212afbe6623382713772489dc82ce imagebase=0x00400000 regen=tools/ghidra/decompile-psgame-chat.sh
+# Servidor — chat ps_game.exe (ImageBase 0x00400000)
+
+pipeline	Recv_Wrapper	0x004748E0
+pipeline	Recv_PacketDecrypt	0x004E4180
+pipeline	Recv_PreDispatchGuard	0x004EC930
+pipeline	Recv_PostDispatchCleanup	0x004F33A0
+pipeline	CUser_DispatchPacket_Main	0x00474940
+pipeline	Handler_Packet1201_ZoneEnter	0x0047FCC0
+
+handlers	Chat_ProcessIncoming	0x0047F400
+handlers	AdminChat_ProcessIncoming	0x0047FD10
+handlers	Chat_BuildOutgoing_F502	0x0047F260
+handlers	Chat_AdminWhisperHelper	0x0047F350
+handlers	Chat_LogGameLogA	0x0047F0E0
+handlers	Chat_LogGameLogB	0x0047F190
+
+broadcast	Chat_BroadcastNormal	0x004D5710
+broadcast	Chat_BroadcastShout	0x004D5600
+broadcast	Chat_BroadcastShoutWide	0x004D5640
+broadcast	Chat_BroadcastNamed	0x004D55B0
+broadcast	Chat_BroadcastAdminNormal	0x004D5320
+broadcast	Chat_BroadcastTrade	0x004192F0
+broadcast	Chat_BroadcastZone	0x00427090
+broadcast	Chat_BroadcastGuild	0x00432530
+broadcast	CParty_BroadcastPacket	0x0044E950
+broadcast	AdminChat_BuildGuildPacket	0x00432770
+broadcast	Guild_SendListIterator	0x0043DC50
+broadcast	SSyncMap_Begin	0x0043A7A0
+broadcast	SSyncMap_IterNext	0x0043A800
+
+spatial	Zone_PSendViewCells	0x00427CF0
+spatial	Zone_PSendViewCellsWide	0x00427E30
+spatial	Zone_PSendViewCellsAlt	0x00427550
+spatial	Zone_PSendViewCellsOuter	0x00427680
+spatial	Cell_SendRadiusInner	0x0042B0F0
+spatial	Cell_SendRadiusOuter	0x0042B210
+spatial	Cell_SendRadiusNoDist	0x0042ADA0
+spatial	Math_DistanceRadiusCompare	0x0041B8A0
+
+queue	World_BroadcastAll	0x00419120
+queue	World_BroadcastTradeCore	0x00419240
+queue	CUser_SendQueueEnqueue	0x00426DD0
+queue	CUser_SendQueueFlush	0x00426EC0
+queue	CWorld_InstanceSendEnqueue	0x00413350
+queue	World_InstanceQueueFlush	0x00413410
+queue	SendQueue_Mode1_ZoneAll	0x00427420
+queue	SendQueue_Mode2_ZoneCountry	0x00427140
+queue	SendQueue_Mode3_ZoneGroup	0x00427B20
+queue	SendQueue_Mode4_ZoneCountryAlt	0x004278F0
+queue	SendQueue_Mode5_NpcTable	0x00427F80
+queue	CWorld_MainTick	0x00403B40
+
+lookup	World_FindUserById	0x00415480
+lookup	World_FindUserByName	0x00414D40
+lookup	World_FindUserByIdInWorld	0x00414D10
+
+network	SConnection_Send	0x004ED0E0
+network	SConnection_SendEx	0x004ED0B0
+network	SConnection_Close	0x004EC760
+network	CUser_SendBackpressure	0x004F6F00
+
+megaphone	ItemUseNSend	0x004728E0
+megaphone	ItemUse_UIInventoryHandler	0x004654C0
+
+party	CParty_AcquireLock	0x0044E110
+
+util	Chat_StringCopy	0x0051D7C0
+
+# --- Genesis dispatch hooks + faction gate (Ghidra scan 2026-05-25) ---
+hooks	Dispatch_ParadiseHook_ZoneEnter	0x00474EB2
+hooks	Dispatch_ParadiseHook_ZoneLeave	0x00474AE5
+pipeline	Dispatch_ChatProcessIncoming_Jump	0x00474AFC
+pipeline	Dispatch_Epilogue	0x00474ED1
+handlers	Chat_FactionCheck_Site	0x00427938
+
+# --- Chat flow: dispatch routing + wire out chain ---
+pipeline	Dispatch_AdminChatProcessIncoming_Jump	0x00474B5B
+handlers	Dispatch_Packet10B_ChatQuickSlots	0x0047ACE0
+pipeline	Recv_PreDispatchInner	0x004EF120
+network	SConnection_EnqueueWrite	0x004EF080
+network	SConnection_AllocSendBuffer	0x004F3DC0
+network	SConnection_SendIfConnReady	0x004ED210
+network	SConnection_SendIfGlobalReady	0x004ED2D0
+guild	CGuild_AcquireLockForChat	0x00431EB0
+guild	CGuild_MemberIteratorSeek	0x0043A700
+party	CParty_ReleaseLock	0x0044E230
+megaphone	ItemUse_ValidateChatItem	0x00467F60
+megaphone	ItemUse_PostSendRefresh	0x00411710
+megaphone	ItemUse_ApplyMegaphoneToUser	0x004670A0
+megaphone	ItemUse_TriggerMegaphoneSend	0x00465290
+megaphone	ItemUse_PreMegaphoneSend	0x004652F0
+
+# --- Chat flow: queue ticks + wire buffers (Ghidra multi-agent 2026-05-26) ---
+handlers	Server_LogWhereConnectVfmt	0x004EFDC0
+spatial	Zone_FloorWorldToCellIndex	0x005250C0
+spatial	Math_FastSqrt	0x00521E80
+spatial	Zone_IterCellUserSendPacket	0x0042AE60
+spatial	Zone_PSendViewCellsNear	0x00427C10
+guild	CGuild_SyncMapFindNode	0x0043BC90
+network	SConnection_DrainWriteQueue	0x004F1CA0
+network	SendBuffer_NewChunk128	0x004F3AB0
+network	SendBuffer_NewChunk256	0x004F3B50
+network	SendBuffer_NewChunk512	0x004F3BF0
+network	CUser_SendBufRefFromPool	0x004F6E20
+network	SConnection_CloseIfBound	0x004EC830
+queue	World_InstanceQueueIterFirst	0x004155E0
+queue	SendQueue_ReleaseIdleSlot	0x004F4150
+queue	SendQueue_GrowSlotTable	0x004F4200
+queue	CWorld_TickFlushBroadcastSends	0x004273A0
+queue	CWorld_PendingDequeHead	0x00404E80
+queue	CWorld_TickRecvDispatchDrain	0x00428100
+queue	CWorld_TickPerUserSend100ms	0x00428400
+queue	CWorld_TickShoutBroadcast500ms	0x00428DE0
+queue	CWorld_TickWideBroadcast3s	0x00428E50
+queue	CWorld_TickLinkedBroadcast1s	0x00429090
+queue	SendQueue_Mode5_CanNpcHear	0x004245A0
+queue	CWorld_TickPartyChat5s	0x00428B80
+queue	CWorld_TickGuildChat3s	0x00428C50
+queue	CWorld_TickDeferredFlush	0x004042A0
+pipeline	Dispatch_Packet0201_ZoneRequired	0x00456910
+pipeline	Dispatch_ConnectState1_0100Router	0x0047A220
+util	Chat_LoginFieldTrim	0x0047A180
+util	Chat_TwoCharValidate	0x0047A200
+handlers	Dispatch_Packet0500_Handler	0x00478490
+handlers	Dispatch_Packet0200_Handler	0x00476070
+broadcast	Chat_BroadcastViewMode4	0x004D5690
+broadcast	Chat_BroadcastViewMode7	0x004D56D0
+broadcast	Chat_BroadcastShoutWideRotate	0x004D5750
+broadcast	Chat_BroadcastViewAltOuterRotate	0x004D57E0
+megaphone	ItemUse_MegaphoneSlotNotify	0x0047AAE0
+handlers	AdminChat_DefaultKick	0x004805A6
