@@ -6,7 +6,7 @@
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
  * Category: crypto
- * Regenerate: tools/ghidra/decompile-crypto.sh
+ * Regenerate: tools/ghidra/decompile.sh
  */
 
 

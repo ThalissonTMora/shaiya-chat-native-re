@@ -4,8 +4,8 @@ Stock chat flow mapping **client ↔ server**: Ghidra-decompiled code, address m
 
 | Target | Functions |
 |--------|-----------|
-| `Game.exe` | 131 + 7 crypto |
-| `ps_game.exe` | 114 + 6 crypto |
+| `Game.exe` | 132 + 11 crypto |
+| `ps_game.exe` | 114 + 7 crypto |
 
 ## Start here
 

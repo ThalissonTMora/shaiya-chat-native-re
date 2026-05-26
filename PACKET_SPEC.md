@@ -101,13 +101,29 @@ Plaintext size: `msg_len + 0x18` (24).
 | `0x1109` | Zone | D | `DrawText` | No |
 | `0x110A` | Union | E | `DrawText` + `GetMsg` | No |
 
+### `0x0502` — entity spawn / state (not chat)
+
+Handler: `Handler_Packet_0502` @ `0x005E0CF0` → vtable `+0xF0` → `ChatEntitySpawn_vfn` @ **`0x00593970`**.
+
+```
++0x00  u8   kind          // entity type / spawn mode
++0x01  u32  field_a
++0x05  u32  field_b
++0x09  u16  field_c
++0x0B  u16  field_d
++0x0D  u16  field_e       // total body = 15 bytes after opcode
+```
+
+Effect: resolves entity via world mgr (`0x7C4A68`); may attach FX (`0x459D30`), update `entity+0x1EC..0x1F4`, call `EntityStateRefresh` @ `0x4153C0`. **No chat box.**
+
+Evidence: `game-chat-native/vtable/ChatEntitySpawn_vfn_0xF0_00593970.c`
+
 ### Other recv opcodes (client)
 
 | Opcode | Payload | Effect |
 |--------|---------|--------|
 | `0x0E05` / `0x0E06` | `u8 flags` · `u32 entity` · `u32 char` · `u16 fx` (11 B) | Entity FX, no chat box |
 | `0x0F02` | `u8 mode` | GM monitor flag or SysMsg |
-| `0x0502` | 15 B (6 fixed fields) | Generic vfn `+0xF0` (not exported) |
 | `0x110B` | `u32 entity` · `char[32] label` | Nameplate |
 | `0x1111` | B (name 21 + len + text) | Area SysMsg `0x31` |
 | `0x1112` | `u32 rsv` · `u8 len` · `text` (buf `0x400`) | Long text SysMsg |
@@ -176,9 +192,9 @@ u16 0x812 · u8 name[21] · u8 len · bytes[len] · u32 guildId   // size = len 
 | Hook send/recv with correct opcodes | **High (~90%)** | Main send + recv layouts |
 | Server compatible with stock client | **High (~80%)** | Len validation, broadcasts, megaphone |
 | Pixel-perfect UI clone | **Medium (~65%)** | Out of scope — see vtables/UI |
-| End-to-end cryptography | **Medium (~75%)** | [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md) — AES-CTR, ctx struct, send/recv paths |
+| End-to-end cryptography | **Medium-high (~80%)** | [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md) — handshake paths, `0xA102` ack, counter init |
 
-**Open gaps:** post-login key packet opcode; initial IV/counter; vfn `+0xF0` (`0x0502`); charset/padding on fixed fields.
+**Open gaps:** inbound server key-blob opcode (login socket); charset/padding on fixed `char[21]` fields.
 
 ---
 

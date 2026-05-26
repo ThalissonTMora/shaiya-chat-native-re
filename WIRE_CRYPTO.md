@@ -136,26 +136,80 @@ if (len > 0):
 
 ---
 
-## Step 4 — Handshake / key derivation (client)
+## Step 4 — Handshake / key derivation
 
-Observed post-login sequence:
+### Client flow (two paths)
+
+```
+Path A — server delivers key blob (connection state machine)
+  recv (login socket, NOT chat PacketDispatcher)
+    → connection state vtbl @ 0x746988, entry [4] = Connection_OnKeyMaterial @ 0x5A4D50
+         → Crypto_ProcessKeyPacket @ 0x401100
+              writes 16 B seed → 0x23027C0..CC (+ alt slots 0x23027D0..DC)
+              Crypto_CounterLoad @ 0x404680 → ctx 0x23037F0 / 0x2303940
+         → Connection_SendKeyAck follow-up @ 0x5EC5A0
+         → Crypto_EnableGameCipher @ 0x401310
+         → conn+0x224 = 1
+
+Path B — post-login validation (game socket already up)
+  login tick @ 0x50C767: if conn+0x224 ∉ {0xFC,0xFD,0xFE,0xFF}
+    → Crypto_DeriveSessionKeys @ 0x401320  (SHA256 @ 0x404390 over 0x23027C0)
+    → credential check @ 0x5DE670
+    → Crypto_EnableGameCipher @ 0x401310
+    → conn+0x224 = 0
+```
 
 | VA | Name | Action |
 |----|------|--------|
+| `0x00401100` | `Crypto_ProcessKeyPacket` | Parse server key blob; populate `0x23027C0`; init AES ctx via `0x404680` |
+| `0x00401320` | `Crypto_DeriveSessionKeys` | SHA256-like (`0x40404390`) over `0x23027C0`; expand keys into recv/send ctx |
 | `0x00401310` | `Crypto_EnableGameCipher` | `DAT_023037e9 = 1`, `DAT_023037ea = 1` |
-| `0x00401320` | `Crypto_DeriveSessionKeys` | SHA256-like (`0x00404390`) over buffer `0x23027C0`; fills round keys in `0x23037F0` / `0x2303A58` and send ctx `0x2303908` |
-| `0x004012BC`… | (login callers) | Invoke expand + counter init before first game packet |
+| `0x00404680` | `Crypto_CounterLoad` | Byte-swap 16 B nonce into `ctx+0xF4`; set `ctx+0xF0 = 10` (AES-128 rounds) |
+| `0x005A4D50` | `Connection_OnKeyMaterial` | State-machine handler; calls `401100` + enable |
+| `0x005A4D30` | `Connection_SendKeyAck` | Sends client ack packet (see below) |
+| `0x004D2B50` | `Login_OnSubmitCredentials` | Copies creds to `conn+0x27C` / `+0x29F`; calls `5A4D30`; sets `conn+0x224 = 0x11` |
 
-Client global contexts:
+### Client → server key ack (`Connection_SendKeyAck`)
+
+Built by `NetworkSendKeyBlob` @ `0x005EC610`:
+
+| Offset | Size | Field |
+|--------|------|-------|
+| `+0` | 2 | **`opcode = 0x00A102`** (LE) |
+| `+2` | 2 | `0x0032` (50) — sub-field / length marker |
+| `+4` | 34 | Payload copied from `conn+0x27C` (18 B) + `conn+0x29F` (16 B) |
+
+Still encrypted with **login XOR** until `Crypto_EnableGameCipher` runs.
+
+### Server mirror (`ps_game.exe`)
+
+| VA | Name | Action |
+|----|------|--------|
+| `0x00464E60` | `Connection_InitStreamCrypto` | `AES_KeyExpand` on 16 B key; copy 16 B counter → `conn+0x118` ctx; set `conn+0x230=1`, `conn+0x231=1` |
+| `0x00464F00` | `Connection_EnableSendCipher` | `conn+0x231 = 1`, clear login XOR send (`+0x232`) |
+| `0x00413CB5` | (zone-enter pipeline) | Calls `464E60` after copying 8×`u32` key material from login packet |
+
+Called during **`CUser` zone-enter** (`Handler_Packet1201` @ `0x47FCC0` path), not from chat handlers.
+
+### Initial counter (IV)
+
+| Evidence | Detail |
+|----------|--------|
+| `Crypto_CounterLoad` @ `0x404680` | Loads **16 bytes** from key-material struct with **byte-pair swap** (BSwap32-like per dword) into `ctx+0xF4` |
+| Server `Connection_InitStreamCrypto` | Copies `[esi+0x10..0x1C]` (4×`u32`) → `ctx+0xF4..0x100`; `partial = 0` |
+| Confidence | **Medium-high** — layout matches CTR; exact server-side source offset needs one wire capture |
+
+### Client global contexts
 
 | Address | Use |
 |---------|-----|
 | `0x023037F0` | Main recv (`StreamCrypt_XOR`) |
 | `0x02303908` | Alt send (`StreamCrypt_AltCtx`) |
 | `0x02303A58` | Secondary recv |
+| `0x023027C0` | Key seed buffer (cleared after derive) |
 | `0x023027E0` | Login XOR table |
 
-**Open gap:** exact opcode of the packet that delivers key material (likely login/zone-enter ~ `0x0201`) — derivation requires wire capture + breakpoint at `0x401320`.
+**Remaining gap:** opcode of the **inbound** server packet that feeds `Crypto_ProcessKeyPacket` — delivered via login connection state machine (`0x746988`), **not** routed through chat `PacketDispatcher`. Capture on login port + breakpoint @ `0x401100`.
 
 ---
 
@@ -201,6 +255,10 @@ Confirmed flow: **megaphone item → set flag → client sends Normal → server
 | `AES_BlockKeystream` | `0x00404830` | One AES block → 16 B keystream |
 | `Crypto_EnableGameCipher` | `0x00401310` | Enable flags post-login |
 | `Crypto_DeriveSessionKeys` | `0x00401320` | Derive session keys |
+| `Crypto_ProcessKeyPacket` | `0x00401100` | Parse inbound key blob |
+| `Crypto_CounterLoad` | `0x00404680` | Load 16 B counter into ctx |
+| `Connection_OnKeyMaterial` | `0x005A4D50` | State-machine key handler |
+| `Connection_SendKeyAck` | `0x005A4D30` | Send `0xA102` ack |
 
 ### Server (`psgame-chat-native/crypto/`)
 
@@ -212,6 +270,7 @@ Confirmed flow: **megaphone item → set flag → client sends Normal → server
 | `Crypto_CounterInit` | `0x004E4000` | Init 16 B counter |
 | `Connection_EncryptOutbound` | `0x00464F20` | Encrypt buffer before socket |
 | `Connection_DecryptInbound` | `0x00464FA0` | Decrypt after recv |
+| `Connection_InitStreamCrypto` | `0x00464E60` | Expand key + init counter on connect |
 | `Recv_PacketDecrypt` | `0x004E4180` | Historical alias (= `PacketStream_XOR`) |
 
 ---
@@ -223,9 +282,9 @@ Confirmed flow: **megaphone item → set flag → client sends Normal → server
 | Hook chat send/recv (correct plaintext) | ~90% | **~95%** — envelope + opcodes |
 | Wire-compatible proxy (no custom cipher) | ~40% | **~75%** — algorithm + ctx struct |
 | Server emulator with stock client | ~80% | **~85%** |
-| Cipher clone without handshake capture | ~40% | **~55%** — key packet missing |
+| Cipher clone without handshake capture | ~40% | **~65%** — ack opcode + ctx init known; inbound key opcode open |
 
-**Still TODO:** opcode/handshake that fills `0x23027C0`; validate initial counter (IV/nonce); export vfn `+0xF0` (`0x0502`).
+**Still TODO:** inbound server opcode for key blob (login socket); one wire capture to confirm counter bytes.
 
 ---
 

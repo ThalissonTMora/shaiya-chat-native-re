@@ -8,3 +8,7 @@ crypto	StreamCrypt_AltCtx	0x00401640
 crypto	AES_BlockKeystream	0x00404830
 crypto	Crypto_EnableGameCipher	0x00401310
 crypto	Crypto_DeriveSessionKeys	0x00401320
+crypto	Crypto_ProcessKeyPacket	0x00401100
+crypto	Crypto_CounterLoad	0x00404680
+crypto	Connection_OnKeyMaterial	0x005A4D50
+crypto	Connection_SendKeyAck	0x005A4D30

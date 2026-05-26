@@ -108,6 +108,7 @@ init	Network_ConnectAndBindWndMsg	0x005DE780
 recv	Network_SocketNotifyDispatch	0x005DE810
 recv	Network_OnSocketDisconnect	0x005DE820
 handlers	Handler_Packet_0502	0x005E0CF0
+vtable	ChatEntitySpawn_vfn_0xF0	0x00593970
 
 # --- Chat flow: GUI hub + whisper target + toggle ---
 ui	ChatWindow_MainGuiHandler	0x0047FE20

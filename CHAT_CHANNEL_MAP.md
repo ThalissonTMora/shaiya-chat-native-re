@@ -9,8 +9,8 @@ Address tables and decompiled files. Base: `0x00400000` · client MD5 `c1edd9663
 | Folder / file | Contents |
 |---------------|----------|
 | **`CHAT_CHANNEL_MAP.md`** *(root)* | This document — client + server index |
-| **`game-chat-native/`** | **131** `.c` + `game-chat-functions.manifest` (+ 7 crypto) |
-| **`psgame-chat-native/`** | **114** server `.c` + `psgame-chat-functions.manifest` + `README.md` (+ 6 crypto) |
+| **`game-chat-native/`** | **132** `.c` + `game-chat-functions.manifest` (+ 11 crypto) |
+| **`psgame-chat-native/`** | **114** server `.c` + `psgame-chat-functions.manifest` + `README.md` (+ 7 crypto) |
 | **`tools/ghidra/`** | Canonical manifests + scripts to regenerate exports |
 
 | Global | VA / value |
@@ -42,7 +42,7 @@ Routing source: `game-chat-native/recv/PacketDispatcher_005f1e10.c` (~L917).
 | `0x0E05` | Notify A | `005E5000` | `handlers/Handler_ChatNotify_E05_005e5000.c` | `+0x31C` / `00595690` | `vtable/ChatNotify_vfn_0x31C_00595690.c` | Entity FX / position (no chat box) |
 | `0x0E06` | Notify B | `005E5070` | `handlers/Handler_ChatNotify_E06_005e5070.c` | `+0x320` / `005957E0` | `vtable/ChatNotify_vfn_0x320_005957e0.c` | Entity FX / position (no chat box) |
 | `0x0F02` | Admin monitor | `005E4E30` | `handlers/Handler_AdminChatMonitor_005e4e30.c` | `+0x308` / `00595570` | `vtable/AdminChatMonitor_vfn_0x308_00595570.c` | Monitor flag or `SysMsg` |
-| `0x0502` | Misc | `005E0CF0` | `handlers/Handler_Packet_0502_005e0cf0.c` | — | — | Generic packet (case `0x502` in dispatcher) |
+| `0x0502` | Entity spawn | `005E0CF0` | `handlers/Handler_Packet_0502_005e0cf0.c` | `+0xF0` / `00593970` | `vtable/ChatEntitySpawn_vfn_0xF0_00593970.c` | World entity update (no chat box) |
 | `0x1101` | Normal | `005E50E0` | `handlers/Handler_ChatNormal_005e50e0.c` | `+0x324` / `0059C380` | `vtable/ChatNormalParty_vfn_0x324_0059c380.c` | Chat box + 3D balloon |
 | `0x1102` | Whisper | `005E5180` | `handlers/Handler_ChatWhisper_005e5180.c` | `+0x328` case `0` / `0059BDB0` | `vtable/ChatWhisperTradeGuildZoneMega_vfn_0x328_0059bdb0.c` | Chat box + whisper highlight |
 | `0x1103` | Trade | `005E5250` | `handlers/Handler_ChatTrade_005e5250.c` | `+0x328` case `1` | same | Chat box (`SysMsg`) |
@@ -76,6 +76,7 @@ Routing source: `game-chat-native/recv/PacketDispatcher_005f1e10.c` (~L917).
 | Offset | Symbol | VA | File | Used by (recv) |
 |--------|--------|-----|------|----------------|
 | `+0x308` | `AdminChatMonitor_vfn` | `00595570` | `vtable/AdminChatMonitor_vfn_0x308_00595570.c` | `0x0F02` |
+| `+0xF0` | `ChatEntitySpawn_vfn` | `00593970` | `vtable/ChatEntitySpawn_vfn_0xF0_00593970.c` | `0x0502` |
 | `+0x31C` | `ChatNotify_vfn` | `00595690` | `vtable/ChatNotify_vfn_0x31C_00595690.c` | `0x0E05` |
 | `+0x320` | `ChatNotify_vfn` | `005957E0` | `vtable/ChatNotify_vfn_0x320_005957e0.c` | `0x0E06` |
 | `+0x324` | `ChatNormalParty_vfn` | `0059C380` | `vtable/ChatNormalParty_vfn_0x324_0059c380.c` | `0x1101`, `0x1105`, `0xF101` |

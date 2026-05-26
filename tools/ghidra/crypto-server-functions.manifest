@@ -7,3 +7,4 @@ crypto	Crypto_CounterInit	0x004E4000
 crypto	PacketStream_XOR	0x004E4180
 crypto	Connection_EncryptOutbound	0x00464F20
 crypto	Connection_DecryptInbound	0x00464FA0
+crypto	Connection_InitStreamCrypto	0x00464E60
