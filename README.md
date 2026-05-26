@@ -1,24 +1,24 @@
-# Shaiya — Chat nativo (RE)
+# Shaiya — Native Chat (RE)
 
-Mapeamento do fluxo de chat stock **cliente ↔ servidor**: código decompilado (Ghidra), manifestos de endereços e tabela de opcodes.
+Stock chat flow mapping **client ↔ server**: decompiled code (Ghidra), address manifests, and opcode table.
 
-| Alvo | Funções |
+| Target | Functions |
 |------|---------|
 | `Game.exe` | 131 |
 | `ps_game.exe` | 114 |
 
-## Comece aqui
+## Start here
 
-**[`CHAT_CHANNEL_MAP.md`](CHAT_CHANNEL_MAP.md)** — opcodes, handlers, vtables, VAs e caminhos dos `.c`.
+**[`CHAT_CHANNEL_MAP.md`](CHAT_CHANNEL_MAP.md)** — opcodes, handlers, vtables, VAs, and `.c` paths.
 
-**[`PACKET_SPEC.md`](PACKET_SPEC.md)** — layouts wire (send/recv), validação server, envelope TCP.
+**[`PACKET_SPEC.md`](PACKET_SPEC.md)** — wire layouts (send/recv), server validation, TCP envelope.
 
-## Pastas
+## Folders
 
-| Pasta | Conteúdo |
+| Folder | Contents |
 |-------|----------|
-| [`game-chat-native/`](game-chat-native/) | Cliente — `.c` decompilados + README |
-| `psgame-chat-native/` | Servidor — `.c` decompilados |
-| `tools/ghidra/` | Manifests + scripts para regenerar exports |
+| [`game-chat-native/`](game-chat-native/) | Client — decompiled `.c` files + README |
+| `psgame-chat-native/` | Server — decompiled `.c` files |
+| `tools/ghidra/` | Manifests + scripts to regenerate exports |
 
-Contribuições e validações são bem-vindas.
+Contributions and validations are welcome.
