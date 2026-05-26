@@ -1,5 +1,5 @@
 /*
- * server/ps_game.exe — Dispatch_ParadiseHook_ZoneEnter
+ * server/ps_game.exe — Dispatch_Hook_ZoneEnter
  * Requested VA: 0x00474EB2
  * Entry Ghidra:  00474940
  * Ghidra name:   FUN_00474940

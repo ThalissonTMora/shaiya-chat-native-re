@@ -72,8 +72,8 @@ party	CParty_AcquireLock	0x0044E110
 util	Chat_StringCopy	0x0051D7C0
 
 # --- Genesis dispatch hooks + faction gate (Ghidra scan 2026-05-25) ---
-hooks	Dispatch_ParadiseHook_ZoneEnter	0x00474EB2
-hooks	Dispatch_ParadiseHook_ZoneLeave	0x00474AE5
+hooks	Dispatch_Hook_ZoneEnter	0x00474EB2
+hooks	Dispatch_Hook_ZoneLeave	0x00474AE5
 pipeline	Dispatch_ChatProcessIncoming_Jump	0x00474AFC
 pipeline	Dispatch_Epilogue	0x00474ED1
 handlers	Chat_FactionCheck_Site	0x00427938
