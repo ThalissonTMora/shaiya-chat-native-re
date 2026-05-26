@@ -36,25 +36,59 @@ If a **length-prefixed** outer frame exists (check `SConnection_EnqueueWrite` @ 
 
 ---
 
-## 3. `char[21]` padding (`0x1104` guild) — P0-1
+## 3. `char[21]` padding — breakpoints & wire offsets (P0)
 
-**Goal:** CONFIRM or reject HYPOTHESIS in `CHAT_RE_GAPS.md` (bytes after first `NUL` in name field).
+Tap **plaintext** at `SConnection_Send` @ `0x004ED0E0` (`ps_game.exe`) or after `PacketPayload_Decrypt` @ `0x00401080` (`Game.exe`) on recv. Offsets below = **bytes after `u16` LE opcode** at `payload[0]`.
 
-**Steps:**
+### 3.1 x64dbg — `SConnection_Send` @ `0x004ED0E0`
 
-1. Two accounts in same guild; sender posts one message with a **short name** (e.g. 3 chars) so `strlen(name) << 21`.
-2. Capture **server → client** `0x1104` (Pattern B: `opcode` · `name[21]` · `u8 len` · `text`).
-3. Hexdump offset `+2` for **21 bytes**; label bytes `[strlen..20]`.
+```text
+bp 004ED0E0
+```
 
-| Outcome | Label |
-|---------|--------|
-| All zeros after `NUL` | CONFIRMED zero-fill |
-| Stack garbage / non-zero | CONFIRMED junk — emulator must zero-fill on send |
-| Mixed across sessions | Document per build |
+On hit (stdcall, 32-bit): `[ESP+4]` = `SConnection*`, `[ESP+8]` = **`payload`**, `[ESP+0xC]` = **`size`**.
 
-**Server build evidence (static):** `Chat_BroadcastGuild` @ `0x00432530` null-terminates into stack `char[21]`; does not memset tail — padding on wire is **HYPOTHESIS** until capture.
+Log for pattern match:
 
-**Client read:** `PacketRead_String` @ `0x005F4780` always reads **21** bytes (`0x15`) — trailing garbage affects UI if not stripped in vtable.
+```text
+?po payload
+?po size
+?by payload l min(size,40)
+```
+
+### 3.2 Fixed field offsets (CONFIRMED from builders/handlers)
+
+| Opcode | Dir | `size` formula | Name region `[start..end]` | Len byte | Text start |
+|--------|-----|----------------|----------------------------|----------|------------|
+| `0x1104` guild | S→C | `len+0x18` | `payload+2` … `payload+22` (21 B) | `payload+23` (`0x17`) | `payload+24` (`0x18`) |
+| `0x1103` trade | S→C | `len+0x18` | `payload+2` … `payload+22` | `payload+23` | `payload+24` |
+| `0x1108` megaphone | S→C | `len+0x18` | `payload+2` … `payload+22` | `payload+23` | `payload+24` |
+| `0x1111` area | S→C | `len+0x18` | `payload+2` … `payload+22` | `payload+23` | `payload+24` |
+| `0x1102` whisper | S→C | `len+0x19` | `payload+3` … `payload+23` (21 B) | `payload+24` (`0x18`) | `payload+25` (`0x19`) |
+| `0x1102` whisper | C→S | `len+0x18` | `payload+2` … `payload+22` (`target[21]`) | `payload+23` (`0x17`) | `payload+24` (`0x18`) |
+| `0x0812` alliance | S→C | `len+0x1C` | `payload+2` … `payload+22` | `payload+23` | `payload+24`; `guildId` @ `payload+24+len` |
+
+**Guild P0 capture:** break when `*(u16*)payload == 0x1104` and `size == 0x18 + *(payload+23)` (short message, e.g. `len=4` → `size=28`).
+
+**Name-tail HW breakpoint (guild):** `bphws payload+3+strlen(name)`, 1, r (adjust `strlen` at runtime) — fires if anything reads first byte after `NUL` on wire.
+
+**Whisper C→S patch check:** on server `Chat_ProcessIncoming` @ `0x0047F608`, byte `payload+22` (`0x16`) forced to `0` before forward.
+
+### 3.3 Capture validation (P0-1) — padding HYPOTHESIS
+
+1. Two guild chars; short display name (`strlen` 3–5).
+2. S→C `0x1104`; hexdump **`payload+2` for 21 bytes**.
+3. Classify bytes at indices `strlen(name)+1` … `20`:
+
+| Outcome | Tag |
+|---------|-----|
+| All `0x00` | **CONFIRMED** zero-fill on wire |
+| Non-zero stable garbage | **CONFIRMED** stack junk — zero-fill in emulator |
+| Varies per send | **HYPOTHESIS** — log multiple sends |
+
+**Static (CONFIRMED):** `Chat_BroadcastGuild` @ `0x00432530` — null-term copy only; **no** tail `memset` before `call 0x004ED0E0` (`objdump` `0x004325B0`–`0x00432615`). See [`CHAR21_SITES.md`](CHAR21_SITES.md).
+
+**Client read:** `PacketRead_String` @ `0x005F4780` — always **`push 0x15`** in handlers; UI vfn @ `0x0059BDB0` treats name as C-string (stops at first `NUL` in buffer, not on wire).
 
 ---
 
@@ -112,14 +146,14 @@ Log: `opcode = *(u16*)payload`, `size`, first `min(size,64)` bytes.
 
 ## 5. Whisper C→S vs S→C (`0x1102`)
 
-| Direction | Layout | Notes |
-|-----------|--------|-------|
-| C→S | `u16` · `target[21]` @ `+0x02` · `u8 len` @ `+0x17` · text | `PacketSend_Whisper` @ `0x005ED160` |
-| S→C | Pattern **C**: `u8 dir` · `char[21]` · `u8 len` · text | Server patch + dual `SConnection_Send` @ `0x0047F400` |
+| Direction | Layout (after opcode) | `size` | Notes |
+|-----------|----------------------|--------|-------|
+| C→S | `target[21]` @ `+0x02` · `len` @ `+0x17` · `text` @ `+0x18` | `len+0x18` | `PacketSend_Whisper` @ `0x005ED160` |
+| S→C | `dir` @ `+0x02` · `name[21]` @ `+0x03` · `len` @ `+0x18` · `text` @ `+0x19` | `len+0x19` | Dual send @ `0x0047F400` (`0x0047F685`, `0x0047F6F9`) |
 
-Server clears **wire offset `0x16`** before forward (Ghidra: `*(unaff_EBX+0xb)=0` as `u16*` index → byte **22** / **`0x16`**). See `CHAT_RE_GAPS.md` § whisper.
+**CONFIRMED:** server clears **`payload+0x16`** (last byte of C→S `target[21]`) @ `0x0047F608` before `World_FindUserByName`. C→S text starts @ **`payload+0x18`** (asm `lea 0x18(%ebx)` @ `0x0047F661`).
 
-Capture: one whisper A→B; expect **two** S→C `0x1102` (target `dir=0`, sender echo `dir=1`).
+Capture: one whisper A→B; expect **two** S→C `0x1102` (`dir=0` to target, `dir=1` echo).
 
 ---
 

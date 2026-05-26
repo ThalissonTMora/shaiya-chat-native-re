@@ -71,8 +71,8 @@ Tamanho wire name+text: **`len + 0x18`** (24 = 2 opcode + 21 name + 1 len) — C
 #### Padding / charset no wire
 
 - **CONFIRMED:** leitura cliente sempre **21 bytes fixos** (não lê até null).
-- **CONFIRMED:** servidor preenche nome via cópia até `'\0'` em buffer stack `[21]`.
-- **HYPOTHESIS:** bytes após o primeiro `'\0'` no wire vão como lixo de stack ou zeros; emulador deve **zero-fill** os 21 B após null ao enviar pattern B.
+- **CONFIRMED:** servidor preenche nome via cópia até `'\0'` em buffer stack `[21]`; **sem** `memset` da cauda antes de `SConnection_Send` (`Chat_BroadcastGuild` asm `0x004325B0`–`0x00432615`).
+- **HYPOTHESIS:** bytes `[strlen..20]` no wire = lixo de stack (captura `0x1104` obrigatória). **INFERRED:** emulador deve `memset(name,0,21)` antes do copy — ver [`CHAR21_SITES.md`](CHAR21_SITES.md), [`PACKET_SPEC.md`](PACKET_SPEC.md) § `char[21]`.
 - **Validação:** captura Wireshark em guild/megaphone; comparar bytes `name[ strlen..20 ]`.
 
 ---

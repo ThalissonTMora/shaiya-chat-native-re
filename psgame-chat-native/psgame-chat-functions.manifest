@@ -148,3 +148,9 @@ lookup	ZoneChat_MessageResolver	0x004C6970
 lookup	ZoneChat_MessageLookup	0x004C71D0
 script	Chat_ScriptWrapper_110A	0x004CB3D0
 script	Chat_ScriptWrapper_110B	0x004CB430
+script	Script_SpatialEntityPush	0x004C5D90
+script	Script_FlagSetter_2FC	0x004C69F0
+script	Script_ZoneTableBroadcast	0x004C6A20
+script	Script_SpatialRadiusEffect	0x004C6BA0
+script	Script_QuestDialogPush	0x004C5FD0
+script	Script_ZonePush_0610	0x004C6EC0

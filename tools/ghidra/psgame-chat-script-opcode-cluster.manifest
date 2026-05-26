@@ -1,0 +1,8 @@
+# binary=server/ps_game.exe md5=91b212afbe6623382713772489dc82ce imagebase=0x00400000
+# Script_OpcodeDispatch @ 0x004A2210 — 0x004C6xxx cluster callees (non-1109 subset)
+script	Script_SpatialEntityPush	0x004C5D90
+script	Script_FlagSetter_2FC	0x004C69F0
+script	Script_ZoneTableBroadcast	0x004C6A20
+script	Script_SpatialRadiusEffect	0x004C6BA0
+script	Script_QuestDialogPush	0x004C5FD0
+script	Script_ZonePush_0610	0x004C6EC0

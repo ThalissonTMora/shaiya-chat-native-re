@@ -4,11 +4,20 @@ Stock chat flow mapping **client ↔ world server ↔ login handshake**: Ghidra 
 
 Binaries under [`bin/`](bin/) come from [Shaiya-Core](https://github.com/Spelunkern/Shaiya-Core/) (V9).
 
-| Target | Folder | Role |
-|--------|--------|------|
-| `Game.exe` | [`game-chat-native/`](game-chat-native/) | Client chat + recv `0xA101` |
-| `ps_game.exe` | [`psgame-chat-native/`](psgame-chat-native/) | World server chat `0x11xx` |
-| `ps_login.exe` | [`pslogin-chat-native/`](pslogin-chat-native/) | Sends outbound `0xA101` key blob |
+| Target | Folder | Role | Functions (manifest) | `.c` in repo |
+|--------|--------|------|----------------------|--------------|
+| `Game.exe` | [`game-chat-native/`](game-chat-native/) | Client chat + recv `0xA101` | **153** | **162** |
+| `ps_game.exe` | [`psgame-chat-native/`](psgame-chat-native/) | World server chat `0x11xx` | **133** | **134** |
+| `ps_login.exe` | [`pslogin-chat-native/`](pslogin-chat-native/) | Sends outbound `0xA101` key blob | **15** | **15** |
+| **Total** | — | Chat-related RE corpus | **301** | **311** |
+
+Counts come from [`tools/ghidra/*-functions.manifest`](tools/ghidra/) (Ghidra decompile targets) and matching `.c` files under each folder. Extra `.c` files (e.g. client crypto helpers, `psgame-chat-native/script/` cluster) are decompiled beyond a single manifest line but still chat-related.
+
+| Target | Top manifest categories |
+|--------|---------------------------|
+| `Game.exe` | `ui` 32 · `handlers` 27 · `vtable` 16 · `buffer` 14 · `recv` 11 |
+| `ps_game.exe` | `queue` 26 · `broadcast` 17 · `network` 14 · `pipeline` 12 · `handlers` 12 |
+| `ps_login.exe` | `keypath` 6 · `pipeline` 4 · `crypto` 2 · `network` 2 |
 
 ## Documentation
 
@@ -17,7 +26,8 @@ Binaries under [`bin/`](bin/) come from [Shaiya-Core](https://github.com/Spelunk
 | | |
 |--|--|
 | Opcodes & handlers | [`docs/CHAT_CHANNEL_MAP.md`](docs/CHAT_CHANNEL_MAP.md) |
-| Wire layouts | [`docs/PACKET_SPEC.md`](docs/PACKET_SPEC.md) |
+| Wire layouts | [`docs/PACKET_SPEC.md`](docs/PACKET_SPEC.md) · [`docs/CHAR21_SITES.md`](docs/CHAR21_SITES.md) |
+| Script VM hashes | [`docs/SCRIPT_OPCODE_HASHES.md`](docs/SCRIPT_OPCODE_HASHES.md) |
 | Crypto / handshake | [`docs/WIRE_CRYPTO.md`](docs/WIRE_CRYPTO.md) |
 | Counter derivation | [`docs/CRYPTO_COUNTER.md`](docs/CRYPTO_COUNTER.md) |
 | Login key blob RE | [`docs/SERVER_KEY_BLOB_RE.md`](docs/SERVER_KEY_BLOB_RE.md) |

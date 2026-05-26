@@ -11,6 +11,8 @@ All project markdown lives in **`docs/`**. The repo root [`README.md`](../README
 | [`PACKET_SPEC.md`](PACKET_SPEC.md) | Wire layouts (send/recv), validation, TCP envelope |
 | [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md) | AES-CTR, handshake `0xA101`/`0xA102`, encrypted pipeline |
 | [`WIRE_CAPTURE_GUIDE.md`](WIRE_CAPTURE_GUIDE.md) | Receitas Wireshark/x64dbg: `char[21]` padding, push `0x1109`–`0x110B` |
+| [`CHAR21_SITES.md`](CHAR21_SITES.md) | Inventário estático de todos os sites `char[21]` (send/recv/admin) |
+| [`SCRIPT_OPCODE_HASHES.md`](SCRIPT_OPCODE_HASHES.md) | `Script_OpcodeDispatch` hashes → builders `0x1109`–`0x110B` |
 
 ## Deep-dive RE
 

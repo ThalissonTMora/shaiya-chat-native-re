@@ -8,3 +8,5 @@ lookup	ZoneChat_MessageResolver	0x004C6970
 lookup	ZoneChat_MessageLookup	0x004C71D0
 script	Chat_ScriptWrapper_110A	0x004CB3D0
 script	Chat_ScriptWrapper_110B	0x004CB430
+send	Chat_PacketBuilder_1109_A	0x004C6A80
+send	Chat_PacketBuilder_1109_B	0x004C6F50

@@ -288,16 +288,42 @@ Current assessment (May 2026):
 | `0xA101` counter bytes `stack+0x38` | **HYPOTHESIS** — 8 B pre-digest source unknown |
 | `char[21]` fixed fields | **CONFIRMED** — see below |
 
-### `char[21]` name fields (CONFIRMED May 2026)
+### `char[21]` name fields (P0 — May 2026)
 
-| Direction | Opcodes / pattern | Evidence |
-|-----------|-------------------|----------|
-| Client recv | `1102`–`1104`, `1108`, `1111` (patterns B/C) | `PacketRead_String` @ `0x005F4780` with `count=0x15` in each handler (`Handler_ChatWhisper/Guild/Trade/Megaphone/Area_*.c`) — reads **21 B fixed**, no wire null |
-| Client send | `1102` whisper | `PacketSend_Whisper` @ `0x005ED160`: `param_2[0..4]` + byte at `param_2+5` → 21 B; wire size `msg_len+0x18` |
-| Server out | `1103`,`1104`,`1108`, megaphone `1108`, alliance `0x812` | Null-terminated copy from `CUser+0x184` into `char[21]` stack (`Chat_ProcessIncoming` @ `0x0047F400`, `Chat_BroadcastGuild` @ `0x00432530`); send size `len+0x18` |
-| Client recv **not** 21 B | `1101`,`1105`,`1107` (u32 id); `1109` (pattern D); `110B` (`char[32]` @ read `0x20`) | Handler decomps |
+Full site list: [`CHAR21_SITES.md`](CHAR21_SITES.md). Offsets = **plaintext after `u16` opcode**.
 
-**HYPOTHESIS (emulator):** zero-fill name bytes after `'\0'` through byte 20 on pattern B/C server sends. **Validate:** capture `0x1104` guild broadcast, hexdump name tail. Full gap list: [`CHAT_RE_GAPS.md`](CHAT_RE_GAPS.md).
+#### Wire layouts (fixed 21-byte name region)
+
+| Pattern | Opcodes | Layout (offsets after opcode) | Plaintext size |
+|---------|---------|-------------------------------|----------------|
+| **B** | S→C `1103`,`1104`,`1108`,`1111`; admin `F103`,`F104` | `+0x02 name[21]` · `+0x17 u8 len` · `+0x18 text[len]` | `len + 0x18` (24) |
+| **C** | S→C `1102`; admin `F102` | `+0x02 u8 dir` · `+0x03 name[21]` · `+0x18 u8 len` · `+0x19 text[len]` | `len + 0x19` (25) |
+| **C→S whisper** | `1102` / `F102` | `+0x02 target[21]` (5×`u32` LE + `u8`) · `+0x17 u8 len` · `+0x18 text[len]` | `len + 0x18` (24) |
+| **Alliance** | S→C `0x812` | pattern **B** + `+0x18+len u32 guildId` | `len + 0x1C` (28) |
+
+**CONFIRMED:** `PacketRead_String` @ `0x005F4780` always consumes **21** bytes on recv (no length prefix, no wire NUL). Underflow path zero-fills the **destination** buffer only (`PacketRead_String_005f4780.c` L22–24).
+
+**CONFIRMED — client send:** only whisper places 21 bytes on wire (`PacketSend_Whisper` @ `0x005ED160`; asm copies `param_2[0..4]` + byte @ `param_2+5`). `PacketSend_Chat` / `Guild` / `Party` / `Zone` send **`opcode + u8 len + text`** only (`msg_len+3`) — server injects name from `CUser+0x184` on broadcast.
+
+**CONFIRMED — server send:** name copied with null-terminated `do/while` into stack `char[21]` from `CUser+0x184` (`Chat_BroadcastGuild` @ `0x00432530`, `Chat_ProcessIncoming` @ `0x0047F400`). `SConnection_Send` size args use full 21-byte region (`len+0x18` guild @ `0x00432607`, whisper `len+0x19` @ `0x0047F676`).
+
+**CONFIRMED — server whisper patch:** before forward, `*(packet+0x16)=0` @ `0x0047F608` (clears last byte of C→S `target[21]`). S→C repack uses Pattern **C**; text copied from `packet+0x18` (asm `0x0047F661`, not decompiler `+0xc`).
+
+**CONFIRMED — client recv handlers (`push 0x15` → `0x005F4780`):** `1102`,`1103`,`1104`,`1108`,`1111`,`F102`,`F103`,`F104`,`F107`,`F109` — see [`CHAR21_SITES.md`](CHAR21_SITES.md). `F107`/`F109` vfn @ `0x0056BCB0` is a stub (no UI).
+
+**CONFIRMED — client recv without 21 B:** `1101`,`1105`,`1107` (u32 id); `1109` (pattern D); `110A`; `110B` (`0x20` label); `F105` (u32); `F106`/`1112` (variable).
+
+#### Padding after `'\0'` on the wire
+
+| Claim | Tag | Evidence |
+|-------|-----|----------|
+| Send size includes all 21 name bytes | **CONFIRMED** | `len+0x18` / `len+0x19` everywhere |
+| Server does **not** `memset` name tail before `SConnection_Send` | **CONFIRMED** | `Chat_BroadcastGuild` asm: copy loop @ `0x004325B0` → `call 0x004ED0E0` @ `0x00432615`, no `rep stos` between |
+| Bytes `[strlen(name)..20]` on wire are zero | **HYPOTHESIS** | Needs S→C capture — recipe [`WIRE_CAPTURE_GUIDE.md`](WIRE_CAPTURE_GUIDE.md) §3 |
+| Bytes `[strlen..20]` are stack garbage | **HYPOTHESIS** | Static strongly suggests uninitialized tail; not wire-verified |
+| Stock client UI breaks on non-zero tail | **INFERRED** | `ChatWhisperTradeGuildZoneMega_vfn` uses C-string ops on name ptr; wire tail can poison if no early `NUL` |
+
+**Emulator guidance (INFERRED):** `memset(name,0,21)` then copy ASCII/null-terminated name before pattern B/C S→C sends. **Validate:** one guild `0x1104` hexdump @ `payload+2`, length 21.
 
 ---
 

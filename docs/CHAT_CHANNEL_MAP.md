@@ -300,7 +300,9 @@ Regenerate: `./tools/ghidra/decompile-psgame-chat.sh` (or subset `tools/ghidra/p
 
 ### Script → chat push (S→C)
 
-Evidence: `objdump -d` xrefs on `bin/ps_game.exe` (MD5 `91b212af…`) + Ghidra exports under `psgame-chat-native/script/` and `lookup/`. Regenerate subset: `./tools/ghidra/decompile-psgame-chat.sh` with `tools/ghidra/psgame-chat-script-chain.manifest`.
+Full hash inventory: [`SCRIPT_OPCODE_HASHES.md`](SCRIPT_OPCODE_HASHES.md). Evidence: `objdump -d` xrefs on `bin/ps_game.exe` (MD5 `91b212af…`) + Ghidra exports under `psgame-chat-native/script/` and `lookup/`.
+
+Regenerate: `./tools/ghidra/decompile-psgame-chat.sh` · subsets `tools/ghidra/psgame-chat-script-chain.manifest` + `psgame-chat-script-opcode-cluster.manifest`.
 
 #### Entry points and vtables
 
@@ -314,6 +316,22 @@ Evidence: `objdump -d` xrefs on `bin/ps_game.exe` (MD5 `91b212af…`) + Ghidra e
 | `ZoneChat_MessageLookup` | `0x004C71D0` | `lookup/ZoneChat_MessageLookup_004c71d0.c` | Hash/table probe helper (called from resolver) |
 | `Chat_ScriptWrapper_110A` | `0x004CB3D0` | `script/Chat_ScriptWrapper_110A_004cb3d0.c` | Builtin: union chat (`0x110A`) |
 | `Chat_ScriptWrapper_110B` | `0x004CB430` | `script/Chat_ScriptWrapper_110B_004cb430.c` | Builtin: channel label (`0x110B`) |
+
+#### Hashed opcodes → chat builders (**CONFIRMED** — only two)
+
+| Script hash | Call site | Builder | Wire opcode | Args |
+|-------------|-----------|---------|-------------|------|
+| `0x0B8820F2` | `0x004A22C6` | `Chat_PacketBuilder_1109_A` @ `0x004C6A80` | `0x1109` flag **`0`** | `message_id` |
+| `0x7C8C3F64` | `0x004A2640` | `Chat_PacketBuilder_1109_B` @ `0x004C6F50` | `0x1109` flag **`1`** | `radius`, `message_id` |
+
+Six other hashes hit the `0x004C6xxx` cluster but **do not** send `0x11xx` (entity FX, quest dialog, `0x0610` zone push, script flags) — see [`SCRIPT_OPCODE_HASHES.md`](SCRIPT_OPCODE_HASHES.md) § excluded cluster.
+
+#### Builtin slots → chat builders (**CONFIRMED** — not hashed)
+
+| `.data` slot | Wrapper | Builder | Wire opcode |
+|--------------|---------|---------|-------------|
+| `0x00581F34` | `Chat_ScriptWrapper_110A` @ `0x004CB3D0` | `0x004C8310` | `0x110A` |
+| `0x00581F3C` | `Chat_ScriptWrapper_110B` @ `0x004CB430` | `0x004C8520` | `0x110B` |
 
 **Direct `call rel32` xrefs (CONFIRMED):**
 
@@ -342,7 +360,7 @@ Script_ExecuteTick @ 0x004A4710
         mov eax, [obj]; call [eax+4]  @ 0x004A478B–0x004A4796  → Script_OpcodeDispatch @ 0x004A2210
         Script_ExecuteCleanup @ 0x004A3E70
 
-Script_OpcodeDispatch @ 0x004A2210 (hashed script opcodes)
+Script_OpcodeDispatch @ 0x004A2210 (hashed script opcodes — chat subset)
   ├─ hash 0x0B8820F2 → Script_ArgFetcher → Chat_PacketBuilder_1109_A @ 0x004C6A80
   │     └─ ZoneChat_MessageResolver @ 0x004C6970 → text → party or SConnection_Send
   └─ hash 0x7C8C3F64 → Script_ArgFetcher (radius, msg) → Chat_PacketBuilder_1109_B @ 0x004C6F50
