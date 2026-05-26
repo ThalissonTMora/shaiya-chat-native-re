@@ -2,11 +2,11 @@
 
 Stock chat flow mapping **client ↔ server**: Ghidra-decompiled code, address manifests, and opcode tables.
 
-| Target | Functions |
-|--------|-----------|
-| `Game.exe` | 144 manifest + 4 crypto-only + 5 HMAC/counter helpers |
-| `ps_game.exe` | 121 manifest (all `.c` present) |
-| `ps_login.exe` | 15 key-path exports (`docs/pslogin-native/`) |
+| Target | Folder | Exports |
+|--------|--------|---------|
+| `Game.exe` (client) | [`game-chat-native/`](game-chat-native/) | 144 manifest + crypto helpers |
+| `ps_game.exe` (world) | [`psgame-chat-native/`](psgame-chat-native/) | 121 manifest (all `.c`) |
+| `ps_login.exe` (handshake) | [`pslogin-chat-native/`](pslogin-chat-native/) | 15 key-path `.c` |
 
 ## Start here
 
@@ -45,10 +45,11 @@ Details and known uncertainties: [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md) · [`PACKET_
 
 | Folder | Contents |
 |--------|----------|
-| [`game-chat-native/`](game-chat-native/) | Client — decompiled `.c` files + README |
-| `psgame-chat-native/` | Server — decompiled `.c` files |
-| [`docs/`](docs/) | **Versioned in git** — P0 RE reports + [`pslogin-native/`](docs/pslogin-native/) exports |
-| `tools/ghidra/` | Manifests + scripts (`decompile-*-chat.sh`, `decompile-crypto.sh`, `decompile-pslogin-crypto.sh`) |
+| [`game-chat-native/`](game-chat-native/) | **Client** — `Game.exe` decomps + README |
+| [`psgame-chat-native/`](psgame-chat-native/) | **World server** — `ps_game.exe` decomps |
+| [`pslogin-chat-native/`](pslogin-chat-native/) | **Login server** — `ps_login.exe` (`0xA101` send path) |
+| [`docs/`](docs/) | P0 RE reports (`CRYPTO_COUNTER`, `SERVER_KEY_BLOB_RE`) |
+| `tools/ghidra/` | Manifests + `decompile-*` scripts |
 
 **Why some `.md` stay at repo root:** `CHAT_CHANNEL_MAP`, `PACKET_SPEC`, and `WIRE_CRYPTO` are the canonical index (linked from Paradise tooling). Supplementary reports live under [`docs/`](docs/README.md).
 

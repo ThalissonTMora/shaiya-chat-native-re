@@ -47,15 +47,15 @@ Regenerate:
 
 | Category | Symbol | VA | Export |
 |----------|--------|-----|--------|
-| keypath | `SendKeyBlob_A101` | `0x00404DA0` | [`pslogin-native/keypath/SendKeyBlob_A101_00404da0.c`](pslogin-native/keypath/SendKeyBlob_A101_00404da0.c) |
-| keypath | `Connection_Send` | `0x00410AE0` | [`pslogin-native/keypath/Connection_Send_00410ae0.c`](pslogin-native/keypath/Connection_Send_00410ae0.c) |
-| keypath | `Caller_StateMachine` | `0x00401CDF` | [`pslogin-native/keypath/Caller_StateMachine_00401cdf.c`](pslogin-native/keypath/Caller_StateMachine_00401cdf.c) *(landmark; entry `0x401C70`)* |
-| keypath | `Login_Dispatcher` | `0x00403810` | [`pslogin-native/keypath/Login_Dispatcher_00403810.c`](pslogin-native/keypath/Login_Dispatcher_00403810.c) |
-| keypath | `Connection_EnqueueKeyBlob` | `0x00401C70` | [`pslogin-native/keypath/Connection_EnqueueKeyBlob_00401c70.c`](pslogin-native/keypath/Connection_EnqueueKeyBlob_00401c70.c) |
-| handlers | `Login_OpcodeDispatch` | `0x004042F0` | [`pslogin-native/handlers/Login_OpcodeDispatch_004042f0.c`](pslogin-native/handlers/Login_OpcodeDispatch_004042f0.c) |
-| crypto | `KeyDeriv_PRNG` | `0x0042D77E` | [`pslogin-native/crypto/KeyDeriv_PRNG_0042d77e.c`](pslogin-native/crypto/KeyDeriv_PRNG_0042d77e.c) |
-| keypath | `PostSend_StateTransition` | `0x0042E427` | [`pslogin-native/keypath/PostSend_StateTransition_0042e427.c`](pslogin-native/keypath/PostSend_StateTransition_0042e427.c) |
-| pipeline | `Connection_RecvAppend` | `0x00403080` | [`pslogin-native/pipeline/Connection_RecvAppend_00403080.c`](pslogin-native/pipeline/Connection_RecvAppend_00403080.c) |
+| keypath | `SendKeyBlob_A101` | `0x00404DA0` | [`../pslogin-chat-native/keypath/SendKeyBlob_A101_00404da0.c`](../pslogin-chat-native/keypath/SendKeyBlob_A101_00404da0.c) |
+| keypath | `Connection_Send` | `0x00410AE0` | [`../pslogin-chat-native/keypath/Connection_Send_00410ae0.c`](../pslogin-chat-native/keypath/Connection_Send_00410ae0.c) |
+| keypath | `Caller_StateMachine` | `0x00401CDF` | [`../pslogin-chat-native/keypath/Caller_StateMachine_00401cdf.c`](../pslogin-chat-native/keypath/Caller_StateMachine_00401cdf.c) *(landmark; entry `0x401C70`)* |
+| keypath | `Login_Dispatcher` | `0x00403810` | [`../pslogin-chat-native/keypath/Login_Dispatcher_00403810.c`](../pslogin-chat-native/keypath/Login_Dispatcher_00403810.c) |
+| keypath | `Connection_EnqueueKeyBlob` | `0x00401C70` | [`../pslogin-chat-native/keypath/Connection_EnqueueKeyBlob_00401c70.c`](../pslogin-chat-native/keypath/Connection_EnqueueKeyBlob_00401c70.c) |
+| handlers | `Login_OpcodeDispatch` | `0x004042F0` | [`../pslogin-chat-native/handlers/Login_OpcodeDispatch_004042f0.c`](../pslogin-chat-native/handlers/Login_OpcodeDispatch_004042f0.c) |
+| crypto | `KeyDeriv_PRNG` | `0x0042D77E` | [`../pslogin-chat-native/crypto/KeyDeriv_PRNG_0042d77e.c`](../pslogin-chat-native/crypto/KeyDeriv_PRNG_0042d77e.c) |
+| keypath | `PostSend_StateTransition` | `0x0042E427` | [`../pslogin-chat-native/keypath/PostSend_StateTransition_0042e427.c`](../pslogin-chat-native/keypath/PostSend_StateTransition_0042e427.c) |
+| pipeline | `Connection_RecvAppend` | `0x00403080` | [`../pslogin-chat-native/pipeline/Connection_RecvAppend_00403080.c`](../pslogin-chat-native/pipeline/Connection_RecvAppend_00403080.c) |
 
 Manifest: [`tools/ghidra/pslogin-crypto-functions.manifest`](../tools/ghidra/pslogin-crypto-functions.manifest) (15 functions).
 
@@ -134,7 +134,7 @@ python3 - <<'PY'
 PY
 
 objdump -d .features/Shaiya-Core-V7/server/ps_login.exe | less  # VA 0x404DA0
-./tools/ghidra/decompile-pslogin-crypto.sh                   # Ghidra → docs/pslogin-native/
+./tools/ghidra/decompile-pslogin-crypto.sh                   # Ghidra → pslogin-chat-native/
 objdump -d .features/Shaiya-Core-V7/server/ps_game.exe   | less  # VA 0x413CB5, 0x4C6ADE
 ```
 
@@ -144,5 +144,5 @@ objdump -d .features/Shaiya-Core-V7/server/ps_game.exe   | less  # VA 0x413CB5, 
 
 - Client recv path (closed): [`WIRE_CRYPTO.md`](../WIRE_CRYPTO.md) Step 4
 - Client handler: `game-chat-native/handlers/Handler_Packet_A101_KeyMaterial_005e3d60.c`
-- Server login key send: `docs/pslogin-native/keypath/SendKeyBlob_A101_00404da0.c`
+- Server login key send: `pslogin-chat-native/keypath/SendKeyBlob_A101_00404da0.c`
 - Server crypto init (ps_game): `psgame-chat-native/crypto/Connection_InitStreamCrypto_00464e60.c`

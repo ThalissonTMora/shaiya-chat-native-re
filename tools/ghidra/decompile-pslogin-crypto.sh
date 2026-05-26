@@ -7,7 +7,7 @@ ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 BINARY="${ROOT}/../.features/Shaiya-Core-V7/server/ps_login.exe"
 MANIFEST="${SCRIPT_DIR}/pslogin-crypto-functions.manifest"
 PROJECT_DIR="${SCRIPT_DIR}/project-pslogin-crypto"
-OUTPUT_DIR="${ROOT}/docs/pslogin-native"
+OUTPUT_DIR="${ROOT}/pslogin-chat-native"
 GHIDRA_HOME="${GHIDRA_HOME:-$HOME/tools/ghidra_11.2.1_PUBLIC}"
 JAVA_HOME="${JAVA_HOME:-$HOME/tools/jdk-21.0.6+7}"
 
