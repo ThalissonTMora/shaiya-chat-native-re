@@ -1,21 +1,35 @@
-# Documentation — native chat RE
+# Documentation index
 
-This folder **is versioned in git** (not in `.gitignore`). Use it for deep-dive RE reports and binaries outside the main chat manifests (`game-chat-native/`, `psgame-chat-native/`).
+All project markdown lives in **`docs/`**. The repo root [`README.md`](../README.md) is a short entry point.
 
-## Layout
+## Specs (start here)
 
-| Path | Purpose |
-|------|---------|
-| [`CRYPTO_COUNTER.md`](CRYPTO_COUNTER.md) | Client `0xA101` body → HMAC → AES-CTR `ctx+0xF4` |
+| Doc | Contents |
+|-----|----------|
+| [`CHAT_CHANNEL_MAP.md`](CHAT_CHANNEL_MAP.md) | Opcodes, handlers, vtables, VAs, `.c` paths (client + server) |
+| [`PACKET_SPEC.md`](PACKET_SPEC.md) | Wire layouts (send/recv), validation, TCP envelope |
+| [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md) | AES-CTR, handshake `0xA101`/`0xA102`, encrypted pipeline |
+
+## Deep-dive RE
+
+| Doc | Contents |
+|-----|----------|
+| [`CRYPTO_COUNTER.md`](CRYPTO_COUNTER.md) | Client `0xA101` body → HMAC → `ctx+0xF4` counter |
 | [`SERVER_KEY_BLOB_RE.md`](SERVER_KEY_BLOB_RE.md) | Outbound `0xA101` on `ps_login.exe` (not `ps_game.exe`) |
-| [`../pslogin-chat-native/`](../pslogin-chat-native/) | Login server — `0xA101` send path (15 `.c`) |
 
-## Root specs (stay at repo root)
+## Tooling
 
-These are the **primary entry points** and remain next to [`README.md`](../README.md):
+| Doc | Contents |
+|-----|----------|
+| [`GHIDRA.md`](GHIDRA.md) | Decompile scripts, manifests, prerequisites |
+| [`BINARIES.md`](BINARIES.md) | `bin/*.exe` symlinks and MD5 checks |
 
-- [`CHAT_CHANNEL_MAP.md`](../CHAT_CHANNEL_MAP.md) — opcodes, handlers, vtables
-- [`PACKET_SPEC.md`](../PACKET_SPEC.md) — wire layouts
-- [`WIRE_CRYPTO.md`](../WIRE_CRYPTO.md) — TCP envelope, AES-CTR, handshake overview
+## Decompiled corpora (`.c` only)
 
-Regenerate login exports: `../tools/ghidra/decompile-pslogin-crypto.sh`
+| Folder | Binary |
+|--------|--------|
+| [`../game-chat-native/`](../game-chat-native/) | `Game.exe` — client chat + crypto |
+| [`../psgame-chat-native/`](../psgame-chat-native/) | `ps_game.exe` — world server |
+| [`../pslogin-chat-native/`](../pslogin-chat-native/) | `ps_login.exe` — login key handshake |
+
+Each corpus folder has a minimal README pointing back here.

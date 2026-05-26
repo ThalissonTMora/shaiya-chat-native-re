@@ -1,7 +1,7 @@
 # AES counter derivation — opcode `0x00A101`
 
 Evidence from `Game.exe` (`MD5=c1edd96639ad81835624b9c4516ac781`, `ImageBase=0x00400000`).  
-Companion: [`PACKET_SPEC.md`](../PACKET_SPEC.md), [`WIRE_CRYPTO.md`](../WIRE_CRYPTO.md).
+Companion: [`PACKET_SPEC.md`](PACKET_SPEC.md), [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md).
 
 Regenerate decomps: `./tools/ghidra/decompile-crypto.sh`
 

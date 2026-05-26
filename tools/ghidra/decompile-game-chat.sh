@@ -16,7 +16,7 @@ export PATH="$JAVA_HOME/bin:$PATH"
 export DISPLAY="${DISPLAY:-}"
 export JAVA_TOOL_OPTIONS="-Djava.awt.headless=true"
 
-[[ -f "$BINARY" ]] || { echo "Missing: $BINARY (see bin/README.md)" >&2; exit 1; }
+[[ -f "$BINARY" ]] || { echo "Missing: $BINARY (see docs/BINARIES.md)" >&2; exit 1; }
 [[ -f "$MANIFEST" ]] || { echo "Missing: $MANIFEST" >&2; exit 1; }
 
 find "$GHIDRA_HOME" -type f \( -name "decompile" -o -name "*.sh" \) -exec chmod +x {} \; 2>/dev/null || true

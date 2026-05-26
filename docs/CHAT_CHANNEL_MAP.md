@@ -8,10 +8,11 @@ Address tables and decompiled files. Base: `0x00400000` · client MD5 `c1edd9663
 
 | Folder / file | Contents |
 |---------------|----------|
-| **`CHAT_CHANNEL_MAP.md`** *(root)* | This document — client + server index |
-| **`game-chat-native/`** | **132** `.c` + `game-chat-functions.manifest` (+ 11 crypto) |
-| **`psgame-chat-native/`** | **114** server `.c` + `psgame-chat-functions.manifest` + `README.md` (+ 7 crypto) |
-| **`tools/ghidra/`** | Canonical manifests + scripts to regenerate exports |
+| **`docs/`** | All `.md` specs (this file, `PACKET_SPEC`, `WIRE_CRYPTO`, …) |
+| **`game-chat-native/`** | Client `.c` + `game-chat-functions.manifest` |
+| **`psgame-chat-native/`** | World server `.c` + `psgame-chat-functions.manifest` |
+| **`pslogin-chat-native/`** | Login `0xA101` send path (15 `.c`) |
+| **`tools/ghidra/`** | Canonical manifests + decompile scripts |
 
 | Global | VA / value |
 |--------|------------|

@@ -142,7 +142,7 @@ objdump -d .features/Shaiya-Core-V7/server/ps_game.exe   | less  # VA 0x413CB5, 
 
 ## Cross-reference
 
-- Client recv path (closed): [`WIRE_CRYPTO.md`](../WIRE_CRYPTO.md) Step 4
+- Client recv path (closed): [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md) Step 4
 - Client handler: `game-chat-native/handlers/Handler_Packet_A101_KeyMaterial_005e3d60.c`
 - Server login key send: `pslogin-chat-native/keypath/SendKeyBlob_A101_00404da0.c`
 - Server crypto init (ps_game): `psgame-chat-native/crypto/Connection_InitStreamCrypto_00464e60.c`

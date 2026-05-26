@@ -132,7 +132,7 @@ Routed by `PacketDispatcher` @ `0x5F1E10` (not a separate login socket path).
 +0x43  u8[128] block_b       // body = 195 bytes after opcode
 ```
 
-Counter derivation, HMAC stages, and `Crypto_CounterLoad` byte-permute: [`docs/CRYPTO_COUNTER.md`](docs/CRYPTO_COUNTER.md).
+Counter derivation, HMAC stages, and `Crypto_CounterLoad` byte-permute: [`CRYPTO_COUNTER.md`](CRYPTO_COUNTER.md).
 
 Client also sends follow-up **`0x00A101`** (131 B) via `NetworkSendKeyFollowUp` @ `0x5EC5A0`; login ack **`0x00A102`** — see [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md). Server outbound opcode for inbound blob: **not mapped**.
 

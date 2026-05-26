@@ -18,7 +18,7 @@ GAME_OUT="${ROOT}/game-chat-native"
 PS_OUT="${ROOT}/psgame-chat-native"
 
 for b in "$GAME_BIN" "$PS_BIN"; do
-  [[ -f "$b" ]] || { echo "Missing: $b (symlink from .features/Shaiya-Core-V7)" >&2; exit 1; }
+  [[ -f "$b" ]] || { echo "Missing: $b (see docs/BINARIES.md)" >&2; exit 1; }
 done
 
 find "$GHIDRA_HOME" -type f \( -name "decompile" -o -name "*.sh" \) -exec chmod +x {} \; 2>/dev/null || true
