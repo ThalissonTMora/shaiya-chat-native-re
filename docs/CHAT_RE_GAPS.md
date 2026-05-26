@@ -12,7 +12,10 @@ Objetivo deste documento: fechar o que falta para **chat 100%** (wire + server r
 |------------|------|-------------------------|
 | **P0** | `char[21]` recv/send + padding wire | **CONFIRMED** em handlers + builders; padding pós-null no wire = **HYPOTHESIS** (captura) |
 | **P0** | Admin recv `0xF102`–`0xF109` | **Fechado** — 7× `.c` + vtable `+0x334` / stubs `+0x344`/`+0x348` |
-| **P1** | Balloon `0x1101`/`0x1107` | **CONFIRMED** cadeia vtable → balloon create @ `0x4126D0` → tick `0x412780` |
+| **P1** | Balloon gates `DAT_*` → map §8 | **Fechado** — tabela em `CHAT_CHANNEL_MAP.md` §8 |
+| **P1** | `Chat_BroadcastNamed` / megaphone `0x1108` | **Fechado** — stub → `World_BroadcastTradeCore` queue mode **3** view **7** |
+| **P1** | Whisper server patch `+0x0B` | **Fechado** — byte **`0x16`** cleared; Pattern C `dir` 0/1 CONFIRMED |
+| **P1** | Balloon `0x1101`/`0x1107` recv path | **CONFIRMED** cadeia vtable → balloon create @ `0x4126D0` → tick `0x412780` |
 | **P1** | `NativeChatSendUI` vs submit | **CONFIRMED** — FX 3D vs `ChatWindow_SubmitChatInput` → `PacketSend_*` |
 | **P1** | Server push `0x1109`–`0x110B` | **Fechado** — 4× builders em `psgame-chat-native/send/`; layouts D/E/G em `PACKET_SPEC` |
 | **P2** | UI pixel-perfect / hooks render | Parcial — fora do mínimo wire-compat |
@@ -61,7 +64,7 @@ Objetivo deste documento: fechar o que falta para **chat 100%** (wire + server r
 | Guild + alliance `0x812` | `0x00432530` | `char local_a2[21]`, `char acStack_13e[21]`; loop `do { *dst = *src; } while (*src++ != '\0')` — `broadcast/Chat_BroadcastGuild_00432530.c` |
 | Megaphone repack `0x1108` | `0x0047F400` case `0x1101` | copia `CUser+0x184` → buffer; `FUN_004d55b0(&local_14c, bVar1 + 0x18)` — `handlers/Chat_ProcessIncoming_0047f400.c` L81–91 |
 | Trade `0x1103` | `0x0047F400` | mesmo padrão de cópia de `param_1+0x184` L157–165 |
-| Whisper forward | `0x0047F400` case `0x1102` | cópia nome para `local_14a`; patch `*(unaff_EBX+0xb)=0` antes de forward L105 |
+| Whisper forward | `0x0047F400` case `0x1102` | patch byte wire **`+0x16`** (`*(unaff_EBX+0xb)=0` como `u16*`); S→C Pattern C `dir=0` alvo / `dir=1` echo L138 |
 
 Tamanho wire name+text: **`len + 0x18`** (24 = 2 opcode + 21 name + 1 len) — CONFIRMED em `FUN_004d55b0(..., bVar1+0x18)`.
 
@@ -89,20 +92,9 @@ Entity_Render @ 0x00453ED0 (when DAT_007c0e60 != 0)
        → gates below → FUN_00420010    // ChatBalloon_DrawProjected
 ```
 
-#### `Entity_ChatBalloon_Tick` @ `0x00412780` — condição composta
+#### `Entity_ChatBalloon_Tick` @ `0x00412780` — **Fechado (P1-2)**
 
-```c
-// balloon/Entity_ChatBalloon_Tick_00412780.c (paraphrase)
-if ( ((DAT_007c0d8c == 0) || (*(DAT_007c0838 + 0x1d0) == 0))
-     && (DAT_007c0e7c != 0)
-     && (*(entity + 0x288) != 0) ) { ... draw + fade ... }
-```
-
-| Global | Set em | Role |
-|--------|--------|------|
-| `DAT_007c0e7c` | `OptionsMenu_WriteTalkBalloonStrings` @ `0x0051B220` L83 — opção `param_1_00+0x10dc3` | Master “talk balloon” enable |
-| `DAT_007c0d8c` | mesma função L229 — `+0xc1cb` | NPC voice / related mute |
-| `DAT_007c0838+0x1d0` | runtime UI object | Extra gate (render usa mesma condição L122 `Entity_Render_BalloonTick_CallSite_00453ed0.c`) |
+Tabela completa: [`CHAT_CHANNEL_MAP.md`](CHAT_CHANNEL_MAP.md) §8 (globals `DAT_007c0e7c`, `DAT_007c0d8c`, `DAT_007c0838+0x1D0`, recv faction `DAT_022aa816`).
 
 #### `ChatNormalParty_vfn` — quando chama balloon (INFERRED gates)
 
@@ -132,6 +124,24 @@ De `vtable/ChatNormalParty_vfn_0x324_0059c380.c` (recv normal, `param_1==0`):
 
 ---
 
+### 4. Megaphone `0x1108` — `Chat_BroadcastNamed` (P1-3 **Fechado**)
+
+```text
+Chat_ProcessIncoming @ 0x0047F400
+  case 0x1101 + CUser+0x58DC: repack opcode 0x1108 (name @ CUser+0x184, Pattern B)
+  case 0x1108 + cooldown: idem
+       -> Chat_BroadcastNamed @ 0x004D55B0
+            -> World_BroadcastTradeCore @ 0x00419240(zoneId=CUser+0xDC, 0, 7)
+                 -> per world slot: CUser_SendQueueEnqueue(mode=3, view=7) @ 0x00426DD0
+                 -> flush: SendQueue_Mode3_ZoneGroup @ 0x00427B20 -> SConnection_SendEx @ 0x004ED0B0
+```
+
+**INFERRED:** view id **7** na fila equivale ao mesmo parâmetro **7** de `Chat_BroadcastNormal` → `Zone_PSendViewCells` (normal imediato), mas megaphone usa **fila diferida** mode **3**, não `Chat_BroadcastViewMode7` @ `0x004D56D0` (arg spatial **5**).
+
+Detalhe: `psgame-chat-native/broadcast/Chat_BroadcastNamed_chain.md`.
+
+---
+
 ## Structures / Opcodes (quick ref)
 
 Ver [`PACKET_SPEC.md`](PACKET_SPEC.md) — patches nesta rodada na seção `char[21]` e whisper send.
@@ -155,6 +165,8 @@ Ver [`PACKET_SPEC.md`](PACKET_SPEC.md) — patches nesta rodada na seção `char
 | `game-chat-native/handlers/Handler_Chat*_*.c` | Leituras `0x15` |
 | `psgame-chat-native/broadcast/Chat_BroadcastGuild_00432530.c` | Null-term name |
 | `game-chat-native/balloon/Entity_ChatBalloon_Tick_00412780.c` | Gates balloon |
+| `psgame-chat-native/broadcast/Chat_BroadcastNamed_chain.md` | Megaphone `0x1108` queue path |
+| `docs/WIRE_CAPTURE_GUIDE.md` | Captura `0x1104` padding + push `0x1109`–`0x110B` |
 | `game-chat-native/vtable/ChatNormalParty_vfn_0x324_0059c380.c` | Balloon trigger |
 | `tools/ghidra/admin-handlers-temp.manifest` | VAs admin recv (não exportados) |
 
@@ -167,17 +179,17 @@ Ver [`PACKET_SPEC.md`](PACKET_SPEC.md) — patches nesta rodada na seção `char
 | # | Tarefa | Reprodução | Entregável |
 |---|--------|------------|------------|
 | P0-1 | **Padding `char[21]` no wire** | Captura guild `0x1104` + hexdump offset name+strlen | Nota em `PACKET_SPEC` ou tabela CONFIRMED/HYPOTHESIS |
-| P0-2 | **Decompilar admin recv `0xF102`–`0xF109`** | `tools/ghidra/admin-handlers-temp.manifest` + `decompile-game-chat.sh` | `game-chat-native/handlers/Handler_Chat_Admin_F*.c` + vtable slots |
-| P0-3 | **Layouts recv admin** | Ler handlers + vtable dispatch | Atualizar `PACKET_SPEC` § admin recv |
+| P0-2 | **Decompilar admin recv `0xF102`–`0xF109`** | ✅ `game-chat-native/handlers/Handler_Chat_Admin_F*.c` |
+| P0-3 | **Layouts recv admin** | ✅ `PACKET_SPEC` + `CHAT_CHANNEL_MAP` §2 admin table |
 
 ### P1 — chat funcional completo (stock behavior)
 
-| # | Tarefa | Reprodução | Entregável |
-|---|--------|------------|------------|
-| P1-1 | **Decompilar `Chat_PacketBuilder_1109/110A/110B`** | `tools/ghidra/psgame-chat-send-builders.manifest` | `psgame-chat-native/send/*.c` + layouts push |
-| P1-2 | **Balloon gates booleanos** | x64dbg: `0x412780`, togglar opções `0x10dc3` / `0xc1cb` | Tabela gates em `CHAT_CHANNEL_MAP` §8 |
-| P1-3 | **`Chat_BroadcastNamed` corpo real** | Decompilar caller `FUN_00419240` / `Chat_BroadcastViewMode7` | Encadear stub `0x4D55B0` → spatial send |
-| P1-4 | **Whisper server patch `+0x0B`** | Trace `Chat_ProcessIncoming` case `0x1102` | Documentar semântica byte dir/name |
+| # | Tarefa | Status |
+|---|--------|--------|
+| P1-1 | **Decompilar `Chat_PacketBuilder_1109/110A/110B`** | ✅ `psgame-chat-native/send/*.c` |
+| P1-2 | **Balloon gates booleanos** | ✅ `CHAT_CHANNEL_MAP` §8 |
+| P1-3 | **`Chat_BroadcastNamed` corpo real** | ✅ `Chat_BroadcastNamed_chain.md` |
+| P1-4 | **Whisper server patch** | ✅ `PACKET_SPEC` § Whisper + handler L105/L138 |
 
 ### P2 — UI proprietária / polish
 
@@ -193,7 +205,7 @@ Ver [`PACKET_SPEC.md`](PACKET_SPEC.md) — patches nesta rodada na seção `char
 ## Assumptions & Limitations
 
 - Decompilações Ghidra 11.2; nomes `FUN_*` onde PDB ausente.
-- `Chat_BroadcastNamed` @ `0x4D55B0` exportado como stub (só chama `FUN_00419240`) — lógica real no callee.
+- `Chat_BroadcastNamed` @ `0x4D55B0` é stub para `World_BroadcastTradeCore` @ `0x419240` (fila mode **3**, view **7**); não é o mesmo entry que `Chat_BroadcastViewMode7` @ `0x4D56D0` (spatial imediato, arg **5**).
 - Admin `F107`/`F109`: handlers leem `char[21]` mas vfn @ `0x0056BCB0` é stub (`ret 4`).
 - `0xF108` ausente no client dispatcher; relay só no server.
 - Balloon: símbolo `ChatString_Sanitize` @ `0x4126D0` é **create balloon**, não sanitização de string.
@@ -208,12 +220,12 @@ Ver [`PACKET_SPEC.md`](PACKET_SPEC.md) — patches nesta rodada na seção `char
 
 ---
 
-## Next Validation Steps (ordered)
+## Next Validation Steps (ordered) — **outro agente / captura**
 
-1. **Wire padding:** captura `0x1104` guild — hexdump 21 B do nome após `'\0'`.
-2. **Admin in-game:** captura `0xF102`–`0xF106` e diff vs tabela em `CHAT_CHANNEL_MAP`.
-3. **NPC push:** hook `SConnection_Send` durante script zone/union — validar `0x1109`/`0x110A`/`0x110B`.
-4. **Balloon:** breakpoint `0x004126D0` em recv `0x1101`; gates `DAT_007c0e7c`.
+1. **P0-1 Wire padding:** captura `0x1104` guild — hexdump 21 B do nome após `'\0'` (receita: [`WIRE_CAPTURE_GUIDE.md`](WIRE_CAPTURE_GUIDE.md) §3).
+2. **NPC push wire:** hook `SConnection_Send` @ `0x004ED0E0` durante script — validar `0x1109`/`0x110A`/`0x110B` (§4 do guia).
+3. **Script callers:** xref `0x004A2210` / `0x004CB3D0` — mapa quest→opcode (fora do mínimo estático).
+4. **Balloon UI+0x1D0:** breakpoint em writes a `DAT_007c0838+0x1D0` — confirmar semântica (HYPOTHESIS).
 5. **F107/F109:** confirmar se algum campo global muda apesar do stub vfn.
 
 ---

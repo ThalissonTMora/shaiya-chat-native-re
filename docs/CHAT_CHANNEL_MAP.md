@@ -236,6 +236,31 @@ Used by speech balloon, nameplates, and other overlays.
 | Fade timer | `+0x28C` | decremented in `412780` |
 | World position | `+0x10` … `+0x18` | used in `420010` |
 
+### Balloon render gates (`Entity_ChatBalloon_Tick` @ `0x00412780`) — P1-2 **CONFIRMED**
+
+Draw/fade runs only when **all** hold:
+
+```text
+( (DAT_007c0d8c == 0) OR (DAT_007c0838 + 0x1D0 == 0) )
+AND DAT_007c0e7c != 0
+AND entity+0x288 != 0
+```
+
+| Global / field | VA / offset | Written by | INI / option source | Role |
+|----------------|-------------|------------|---------------------|------|
+| `DAT_007c0e7c` | `0x007C0E7C` | `OptionsMenu_WriteTalkBalloonStrings` @ `0x0051B220` case **3** L83 | `[USER] TALK_BALLOON` ← `param+0x10DC3` | Master **talk balloon** enable |
+| `DAT_007c0d8c` | `0x007C0D8C` | same @ L229 (case **default**) | `[SOUND] VOICE_NPC` ← `param+0xC1CB` | NPC voice option; when **1**, UI flag `+0x1D0` must be **0** to allow balloon |
+| `DAT_007c0838` | `0x007C0838` | `ChatObject_alloc_site` @ `0x0040AD5D` L173 (`operator_new(0x308)` → `FUN_0056F470`) | — | Main UI shell object |
+| `*(DAT_007c0838 + 0x1D0)` | UI object `+0x1D0` | *(runtime)* | **HYPOTHESIS:** cinematic / interface suppress | Secondary gate paired with `VOICE_NPC` |
+| `DAT_007c0e58` | `0x007C0E58` | options case 3 L72 | `[USER] USE_FILTER` | Text wrap path in `ChatNormalParty_vfn` (not tick gate) |
+| `DAT_022aa816` | `0x022AA816` | runtime | — | Faction match for **recv** balloon in `ChatNormalParty_vfn` @ `0x0059C380` (entity `+0x2B7`) |
+
+**Render call site:** `Entity_Render` @ `0x00453ED0` L122 — same `(DAT_007c0d8c == 0) \|\| (UI+0x1D0 == 0)` test before nameplate branch.
+
+**Recv → balloon create (not a tick gate):** `Handler_ChatNormal` / `ChatShout` → vtable → `ChatString_Sanitize` @ `0x004126D0` → `ChatBalloon_CreateStaticText` @ `0x0041FCC0`.
+
+Evidence: `game-chat-native/balloon/Entity_ChatBalloon_Tick_00412780.c`, `ui/OptionsMenu_WriteTalkBalloonStrings_0051b220.c`.
+
 ---
 
 ## 9. Character lookup
@@ -273,18 +298,68 @@ Regenerate: `./tools/ghidra/decompile-psgame-chat.sh` (or subset `tools/ghidra/p
 | `0x110A` | E | `0x004C8310` | `send/Chat_PacketBuilder_110A_004c8310.c` | `u32 charId` · `u16 message_id` | **8** |
 | `0x110B` | G | `0x004C8520` *(landmark `0x004C8539`)* | `send/Chat_PacketBuilder_110B_004c8539.c` | `u32 entity` · `char[32] label` | **0x26** |
 
-### Builder call path (S→C)
+### Script → chat push (S→C)
+
+Evidence: `objdump -d` xrefs on `bin/ps_game.exe` (MD5 `91b212af…`) + Ghidra exports under `psgame-chat-native/script/` and `lookup/`. Regenerate subset: `./tools/ghidra/decompile-psgame-chat.sh` with `tools/ghidra/psgame-chat-script-chain.manifest`.
+
+#### Entry points and vtables
+
+| Symbol | VA | File | Role |
+|--------|-----|------|------|
+| `Script_ExecuteTick` | `0x004A4710` | `script/Script_ExecuteTick_004a4710.c` | NPC/script VM tick; dispatches one instruction |
+| `Script_OpcodeDispatch` | `0x004A2210` | `script/Script_OpcodeDispatch_004a2210.c` | **VTable slot +4** @ `0x00572534` (`CMob` script object, ctor writes `0x00572530` @ `0x004A0802`) |
+| `Script_ArgFetcher` | `0x004A3000` | `script/Script_ArgFetcher_004a3000.c` | Reads script operand (`stride 0x94`) |
+| `Script_InstrResolver` | `0x004A5720` | `script/Script_InstrResolver_004a5720.c` | Resolves current script PC → instruction object |
+| `ZoneChat_MessageResolver` | `0x004C6970` | `lookup/ZoneChat_MessageResolver_004c6970.c` | Maps `message_id` → NUL-terminated string (`+0x10` from table walk) |
+| `ZoneChat_MessageLookup` | `0x004C71D0` | `lookup/ZoneChat_MessageLookup_004c71d0.c` | Hash/table probe helper (called from resolver) |
+| `Chat_ScriptWrapper_110A` | `0x004CB3D0` | `script/Chat_ScriptWrapper_110A_004cb3d0.c` | Builtin: union chat (`0x110A`) |
+| `Chat_ScriptWrapper_110B` | `0x004CB430` | `script/Chat_ScriptWrapper_110B_004cb430.c` | Builtin: channel label (`0x110B`) |
+
+**Direct `call rel32` xrefs (CONFIRMED):**
+
+| Callee | Call site VA | Caller context |
+|--------|--------------|----------------|
+| `ZoneChat_MessageResolver` `0x004C6970` | `0x004C6AA3` | `Chat_PacketBuilder_1109_A` |
+| `ZoneChat_MessageResolver` `0x004C6970` | `0x004C6F70` | `Chat_PacketBuilder_1109_B` |
+| `Chat_PacketBuilder_1109_A` `0x004C6A80` | `0x004A22C6` | `Script_OpcodeDispatch` hash `0x0B8820F2` |
+| `Chat_PacketBuilder_1109_B` `0x004C6F50` | `0x004A2640` | `Script_OpcodeDispatch` hash `0x7C8C3F64` |
+| `Chat_PacketBuilder_110A` `0x004C8310` | `0x004CB41F` | `Chat_ScriptWrapper_110A` |
+| `Chat_PacketBuilder_110B` `0x004C8520` | `0x004CB45E` | `Chat_ScriptWrapper_110B` |
+
+**No direct `call/jmp rel32` to** `0x004A2210`, `0x004CB3D0`, or `0x004CB430` — all three are reached via **function pointers** (vtable or `.data` builtin table).
+
+#### Call graph (CONFIRMED)
 
 ```
-script/NPC dispatch @ 0x004A2210 ──call──► Chat_PacketBuilder_1109_A @ 0x004C6A80 ──► CParty_BroadcastPacket @ 0x0044E950 | SConnection_Send @ 0x004ED0E0
-script/NPC dispatch @ 0x004A2210 ──call──► Chat_PacketBuilder_1109_B @ 0x004C6F50 ──► cell loop (0x124 stride) ──► SConnection_Send (per viewer in radius)
-script wrapper     @ 0x004CB3D0 ──call──► Chat_PacketBuilder_110A @ 0x004C8310 ──► cell loop ──► SConnection_Send(..., 8)
-script wrapper     @ 0x004CB430 ──call──► Chat_PacketBuilder_110B @ 0x004C8520 ──► cell loop ──► SConnection_Send(..., 0x26)
-         │                              │
-         └─ Zone_FloorWorldToCellIndex @ 0x005250C0
-            Math_DistanceRadiusCompare @ 0x0041B8A0
-            SConnection_EnqueueWrite   @ 0x004EF080 (via SConnection_Send)
+Script_ExecuteTick @ 0x004A4710
+  ├─ callers: 0x004A3CDB, 0x004A3DB3, 0x004A3DEE, 0x004CC13A
+  ├─ Script_InstrResolver @ 0x004A5720
+  ├─ if (instr->handler @ +0x60 != NULL):
+  │     call [instr+0x60]  @ 0x004A480C
+  │       └─ .data builtin slot 0x00581F34 → Chat_ScriptWrapper_110A @ 0x004CB3D0
+  │       └─ .data builtin slot 0x00581F3C → Chat_ScriptWrapper_110B @ 0x004CB430
+  └─ else:
+        mov eax, [obj]; call [eax+4]  @ 0x004A478B–0x004A4796  → Script_OpcodeDispatch @ 0x004A2210
+        Script_ExecuteCleanup @ 0x004A3E70
+
+Script_OpcodeDispatch @ 0x004A2210 (hashed script opcodes)
+  ├─ hash 0x0B8820F2 → Script_ArgFetcher → Chat_PacketBuilder_1109_A @ 0x004C6A80
+  │     └─ ZoneChat_MessageResolver @ 0x004C6970 → text → party or SConnection_Send
+  └─ hash 0x7C8C3F64 → Script_ArgFetcher (radius, msg) → Chat_PacketBuilder_1109_B @ 0x004C6F50
+        └─ ZoneChat_MessageResolver → spatial cell loop → SConnection_Send
+
+Chat_ScriptWrapper_110A @ 0x004CB3D0
+  ├─ FUN_00507880(script, 2) + FUN_00507880(script, 1)  (radius floats)
+  ├─ or message_id, 0xC00  @ 0x004CB402
+  └─ call Chat_PacketBuilder_110A @ 0x004CB41F → SConnection_Send(..., 8)
+
+Chat_ScriptWrapper_110B @ 0x004CB430
+  ├─ FUN_00507880(script, 2)  (radius)
+  ├─ FUN_00507930(script, 1, 0, radius)  (label string)
+  └─ call Chat_PacketBuilder_110B @ 0x004CB45E → SConnection_Send(..., 0x26)
 ```
+
+Shared spatial tail (all builders that broadcast): `Zone_FloorWorldToCellIndex` `0x005250C0` · `Math_DistanceRadiusCompare` `0x0041B8A0` · `SConnection_Send` `0x004ED0E0` / `SConnection_EnqueueWrite` `0x004EF080`.
 
 ### Client recv cross-check
 
@@ -301,5 +376,5 @@ script wrapper     @ 0x004CB430 ──call──► Chat_PacketBuilder_110B @ 0x
 | `charId` / `entity` | `*(CUser+0x88)` in all four builders | Same offset; 110B uses it as entity id for nameplate |
 | `flag` (1109) | `movb $0x0` @ `0x4C6AEB` · `movb $0x1` @ `0x4C6F59` | **CONFIRMED** — selects party vs spatial path |
 | Text `len` (1109) | `len - 1U < 0x7f` in both builders | **1..0x7F** (stricter than player chat inbound 2..128) |
-| `message_id` (110A) | `local_a = param_2`; caller ORs `0xC00` @ `0x4CB402` | **INFERRED** — string-table index base |
+| `message_id` (110A) | `u16` on wire; wrapper `or eax, 0xC00` @ `0x004CB402` before `call 0x004C8310` @ `0x004CB41F` | **CONFIRMED** — client `GetMsg(message_id)`; base offset `0xC00` for script table indices |
 | `label[32]` (110B) | `_strncpy(..., 0x20)` + NUL; send `0x26` | **CONFIRMED** — fixed 32 B on wire (client reads `0x20`) |

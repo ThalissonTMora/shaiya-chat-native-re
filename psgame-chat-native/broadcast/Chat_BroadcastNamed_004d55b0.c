@@ -7,6 +7,10 @@
  * ImageBase: 0x00400000
  * Category: broadcast
  * Regenerate: tools/ghidra/decompile-psgame-chat.sh
+ *
+ * Chain (megaphone / 0x1108): see broadcast/Chat_BroadcastNamed_chain.md
+ *   -> World_BroadcastTradeCore @ 0x00419240 (CUser+0xDC, 0, view 7)
+ *   -> CUser_SendQueueEnqueue mode 3 -> SendQueue_Mode3_ZoneGroup @ 0x00427B20
  */
 
 

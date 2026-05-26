@@ -62,14 +62,30 @@ Companion to [`CHAT_CHANNEL_MAP.md`](CHAT_CHANNEL_MAP.md). Layouts inferred from
 
 ### Whisper
 
+**Client → server (CONFIRMED `PacketSend_Whisper` @ `0x005ED160`):**
+
 ```
 +0x00  u16  opcode (0x1102 / 0xF102)
-+0x02  u8   target[21]     // CONFIRMED: 5×u32 LE + u8 @ PacketSend_Whisper 0x005ED160 (21 B, not length-prefixed)
++0x02  u8   target[21]     // 5×u32 LE + u8 (21 B fixed; not length-prefixed)
 +0x17  u8   msg_len
 +0x18  u8   msg[msg_len]
 ```
 
 Plaintext size: `msg_len + 0x18` (24).
+
+**Server → client — Pattern C (CONFIRMED `Chat_ProcessIncoming` @ `0x0047F400` case `0x1102`):**
+
+```
++0x00  u16  opcode
++0x02  u8   dir            // 0 = to whisper target; 1 = echo to sender (CONCAT31 low byte @ L138)
++0x03  char[21] name
++0x18  u8   len
++0x19  u8   text[len]
+```
+
+**Server forward patch (CONFIRMED):** before building S→C packets, `*(unaff_EBX + 0xB) = 0` @ L105 — Ghidra types `unaff_EBX` as `u16*`, so the cleared byte is wire offset **`0x16`** (last byte of C→S `target[21]`), not `0x0B`. Clears client tail/flag byte before repackaging as Pattern C `dir` @ `+0x02`.
+
+**Dual send:** `SConnection_Send` @ `0x004ED0E0` to resolved target (`World_FindUserByName` @ `0x00414D40`), then echo to sender with `dir=1`; optional `Chat_LogGameLogB` @ `0x0047F190` when monitor session active.
 
 ---
 
@@ -210,7 +226,9 @@ Evidence: `psgame-chat-native/send/Chat_PacketBuilder_*.c` · client recv handle
 +0x06  u16  message_id // script table id; client resolves via GetMsg @ 0x420DB0
 ```
 
-Plaintext **8 B** (`SConnection_Send` size arg @ `0x4C8383`). Spatial broadcast (same cell loop as 1109_B). Caller @ `0x004CB41F` (wrapper @ `0x004CB3D0`).
+Plaintext **8 B** (`SConnection_Send` size arg @ `0x4C8383`). Spatial broadcast (same cell loop as 1109_B).
+
+**`message_id` encoding (CONFIRMED):** script builtin `Chat_ScriptWrapper_110A` @ `0x004CB3D0` loads a script integer, then **`or eax, 0xC00`** @ `0x004CB402` before `call Chat_PacketBuilder_110A` @ `0x004CB41F`. Wire field is **`u16le`** @ builder `local_a = param_2` (`Chat_PacketBuilder_110A_004c8310.c`). Client resolves via `GetMsg` @ `0x00420DB0` (`Handler_ChatUnion`). **Repro:** `objdump -d --start-address=0x4cb3d0 --stop-address=0x4cb430 bin/ps_game.exe`.
 
 **`0x110B` — Pattern G** (CONFIRMED):
 
