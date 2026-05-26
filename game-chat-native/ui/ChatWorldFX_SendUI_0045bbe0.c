@@ -1,5 +1,5 @@
 /*
- * Game.exe — NativeChatSendUI
+ * Game.exe — ChatWorldFX_SendUI (was NativeChatSendUI; not PacketSend_*)
  * Requested VA: 0x0045BBE0
  * Entry Ghidra:  0045bbe0
  * Ghidra name:   FUN_0045bbe0

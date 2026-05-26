@@ -64,8 +64,8 @@ Routing source: `game-chat-native/recv/PacketDispatcher_005f1e10.c` (chat opcode
 | `0xF104` | Admin guild | `005E5AB0` | `handlers/Handler_Chat_Admin_F104_005e5ab0.c` | `+0x328` case `2` | same | Pattern **B** · vfn `(0,1,2,…)` · SysMsg `0x172` |
 | `0xF105` | Admin party | `005E5B70` | `handlers/Handler_Chat_Admin_F105_005e5b70.c` | `+0x324` / `0059C380` | `vtable/ChatNormalParty_vfn_0x324_0059c380.c` | Pattern **A** · vfn `(1,1,id,len,text)` · party SysMsg |
 | `0xF106` | Admin long/sys | `005E5C10` | `handlers/Handler_Chat_Admin_F106_005e5c10.c` | `+0x334` / `0059ABC0` | `vtable/ChatAdminLong_vfn_0x334_0059abc0.c` | `u16le len` · text (max **0x7D0**) · SysMsg `0x164` · optional `EVENTMSG-` prefix |
-| `0xF107` | Whisper target set | `005DE950` | `handlers/Handler_Chat_Admin_F107_005de950.c` | `+0x344` / `0056BCB0` | `vtable/ChatWhisperTarget_vfn_0x344_0056bcb0.c` | `char[21]` only · **vfn stub (no-op)** on client |
-| `0xF109` | Whisper target clear | `005DE9B0` | `handlers/Handler_Chat_Admin_F109_005de9b0.c` | `+0x348` / `0056BCB0` | same (alias slot) | `char[21]` only · **vfn stub (no-op)** on client |
+| `0xF107` | Whisper target set | `005DE950` | `handlers/Handler_Chat_Admin_F107_005de950.c` | `+0x344` / `0056BCB0` | `vtable/ChatWhisperTarget_vfn_0x344_0056bcb0.c` | S→C **H** `char[21]` · **vfn stub** · server sets `CUser+0x5810`; client **no UI** |
+| `0xF109` | Whisper target clear | `005DE9B0` | `handlers/Handler_Chat_Admin_F109_005de9b0.c` | `+0x348` / `0056BCB0` | same (alias slot) | S→C **H** · dual notify · server clears `+0x5810` · client **no UI** |
 | `0xF10A` | Admin long | `005E88D0` | `handlers/Handler_Chat_LongText_1112_005e88d0.c` | `+0x578` | `ChatLongMsg_vfn` | Same handler as `0x1112` |
 
 **Shared vtable `+0x328` (`0059BDB0`)** — sub-channel via `param_3`:
@@ -88,8 +88,10 @@ Routing source: `game-chat-native/recv/PacketDispatcher_005f1e10.c` (chat opcode
 | `0xF104` | `0x1104` | **B** (same) | same |
 | `0xF105` | `0x1105` / `0xF101` | **A** `u32 id` · `u8 len` · `text[len]` | `Scalar×4` · `Scalar×1` · `String len` |
 | `0xF106` | *(unique)* | `u16le len` · `text[len]` (buf **0x7D0**) | `Scalar×2` · `String (len&0xFFFF)` |
-| `0xF107` | server whisper bind | `char[21]` | `String 0x15` only |
-| `0xF109` | server whisper clear | `char[21]` | `String 0x15` only |
+| `0xF107` | server whisper bind | **H** `char[21]` | `String 0x15` only → stub vfn |
+| `0xF109` | server whisper clear | **H** `char[21]` | `String 0x15` only → stub vfn |
+
+**Admin whisper bind (server):** `CUser+0x5810` = bound partner `+0x128`. Send chain: [`psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md`](../psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md). C→S: F107 = name to bind; F109 = opcode-only clear. S→C: dual `SConnection_Send` @ `0x004803C7` (F107) / `0x0047F390` (F109). Client whisper UI uses `ChatWindow_SetWhisperTarget` @ `0x0047C690` (`+0x198`) — **not** wired to F107/F109 recv.
 
 `0xF108` — **not routed** in client `PacketDispatcher` @ `0x005F1E10` (server-only relay in `AdminChat_ProcessIncoming`).
 
@@ -136,7 +138,7 @@ Routing source: `game-chat-native/recv/PacketDispatcher_005f1e10.c` (chat opcode
 | `ChatWindow_ChannelToMsgId` | `0047A420` | `ui/ChatWindow_ChannelToMsgId_0047a420.c` | Tab → msg id |
 | `ChatWindow_SetActiveChannel` | `0047C1E0` | `ui/ChatWindow_SetActiveChannel_0047c1e0.c` | |
 | `ChatWindow_ApplyChannelPrefix` | `0047C190` | `ui/ChatWindow_ApplyChannelPrefix_0047c190.c` | |
-| `NativeChatSendUI` | `0045BBE0` | `ui/NativeChatSendUI_0045bbe0.c` | World FX / 3D effect queue (**not** `PacketSend_*`) |
+| `ChatWorldFX_SendUI` | `0045BBE0` | `ui/ChatWorldFX_SendUI_0045bbe0.c` | World FX / 3D effect queue (**not** `PacketSend_*`) |
 
 ---
 
@@ -253,7 +255,7 @@ AND entity+0x288 != 0
 | `DAT_007c0838` | `0x007C0838` | `ChatObject_alloc_site` @ `0x0040AD5D` L173 (`operator_new(0x308)` → `FUN_0056F470`) | — | Main UI shell object |
 | `*(DAT_007c0838 + 0x1D0)` | UI object `+0x1D0` | *(runtime)* | **HYPOTHESIS:** cinematic / interface suppress | Secondary gate paired with `VOICE_NPC` |
 | `DAT_007c0e58` | `0x007C0E58` | options case 3 L72 | `[USER] USE_FILTER` | Text wrap path in `ChatNormalParty_vfn` (not tick gate) |
-| `DAT_022aa816` | `0x022AA816` | runtime | — | Faction match for **recv** balloon in `ChatNormalParty_vfn` @ `0x0059C380` (entity `+0x2B7`) |
+| `DAT_022aa816` | `0x022AA816` | **`0x0048BFEA`** ← `entity+0xBF4` on zone/char entry | — | **Local player faction byte** — compared to remote `entity+0x2B7` for recv balloon (`ChatNormalParty_vfn` @ `0x0059C463`, `ChatShout_vfn` @ `0x0059AA10`) |
 
 **Render call site:** `Entity_Render` @ `0x00453ED0` L122 — same `(DAT_007c0d8c == 0) \|\| (UI+0x1D0 == 0)` test before nameplate branch.
 
@@ -312,8 +314,9 @@ Regenerate: `./tools/ghidra/decompile-psgame-chat.sh` · subsets `tools/ghidra/p
 | `Script_OpcodeDispatch` | `0x004A2210` | `script/Script_OpcodeDispatch_004a2210.c` | **VTable slot +4** @ `0x00572534` (`CMob` script object, ctor writes `0x00572530` @ `0x004A0802`) |
 | `Script_ArgFetcher` | `0x004A3000` | `script/Script_ArgFetcher_004a3000.c` | Reads script operand (`stride 0x94`) |
 | `Script_InstrResolver` | `0x004A5720` | `script/Script_InstrResolver_004a5720.c` | Resolves current script PC → instruction object |
-| `ZoneChat_MessageResolver` | `0x004C6970` | `lookup/ZoneChat_MessageResolver_004c6970.c` | Maps `message_id` → NUL-terminated string (`+0x10` from table walk) |
-| `ZoneChat_MessageLookup` | `0x004C71D0` | `lookup/ZoneChat_MessageLookup_004c71d0.c` | Hash/table probe helper (called from resolver) |
+| `ZoneChat_MessageResolver` | `0x004C6970` | `lookup/ZoneChat_MessageResolver_004c6970.c` | `__stdcall(u32 id)` → `std::string*` @ node `+0x10`; text bytes @ `string+0x04` (1109 builder) |
+| `ZoneChat_MessageLookup` | `0x004C71D0` | `lookup/ZoneChat_MessageLookup_004c71d0.c` | BST `lower_bound`; inner walk @ `0x004C7250` |
+| `ZoneChat_TableLoader` | `0x00408C70` | *(asm only)* | Loads `data/cn_string.DB` → `std::map` @ `DAT_00587c5c` |
 | `Chat_ScriptWrapper_110A` | `0x004CB3D0` | `script/Chat_ScriptWrapper_110A_004cb3d0.c` | Builtin: union chat (`0x110A`) |
 | `Chat_ScriptWrapper_110B` | `0x004CB430` | `script/Chat_ScriptWrapper_110B_004cb430.c` | Builtin: channel label (`0x110B`) |
 
@@ -378,6 +381,20 @@ Chat_ScriptWrapper_110B @ 0x004CB430
 ```
 
 Shared spatial tail (all builders that broadcast): `Zone_FloorWorldToCellIndex` `0x005250C0` · `Math_DistanceRadiusCompare` `0x0041B8A0` · `SConnection_Send` `0x004ED0E0` / `SConnection_EnqueueWrite` `0x004EF080`.
+
+#### Zone chat message table (script id → text)
+
+Full spec: [`ZONECHAT_MESSAGE_TABLE.md`](ZONECHAT_MESSAGE_TABLE.md).
+
+| Item | VA / path | Tag |
+|------|-----------|-----|
+| Map object (sentinel ptr) | `DAT_00587c5c` | **CONFIRMED** — BSS; init @ `0x00407E6A` |
+| Element count | `DAT_00587c60` | **CONFIRMED** |
+| Loader `fopen` path | `data/cn_string.DB` @ `.rdata 0x0056F410` | **CONFIRMED** |
+| Loader function | `0x00408C70` | **CONFIRMED** — `fscanf("%d\n")` + `fgets` pairs |
+| Resolver | `0x004C6970` | **CONFIRMED** — used by 1109_A/B only |
+| Client mirror | `GetMsg` @ `0x00420DB0` → `0x004163C0` | **CONFIRMED** — same BST shape; map @ `DAT_007c3b4c` |
+| Static PE sample rows | — | **N/A** — map empty until loader runs; no `cn_string.DB` in repo |
 
 ### Client recv cross-check
 

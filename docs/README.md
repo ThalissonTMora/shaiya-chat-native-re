@@ -13,6 +13,8 @@ All project markdown lives in **`docs/`**. The repo root [`README.md`](../README
 | [`WIRE_CAPTURE_GUIDE.md`](WIRE_CAPTURE_GUIDE.md) | Receitas Wireshark/x64dbg: `char[21]` padding, push `0x1109`–`0x110B` |
 | [`CHAR21_SITES.md`](CHAR21_SITES.md) | Inventário estático de todos os sites `char[21]` (send/recv/admin) |
 | [`SCRIPT_OPCODE_HASHES.md`](SCRIPT_OPCODE_HASHES.md) | `Script_OpcodeDispatch` hashes → builders `0x1109`–`0x110B` |
+| [`ZONECHAT_MESSAGE_TABLE.md`](ZONECHAT_MESSAGE_TABLE.md) | `cn_string.DB` → `std::map` · resolver `0x1109`/`0x110A` |
+| [`PADDING_SIMULATION.md`](PADDING_SIMULATION.md) | Pattern B tail + `tools/padding/*.py` |
 
 ## Deep-dive RE
 
@@ -29,6 +31,8 @@ All project markdown lives in **`docs/`**. The repo root [`README.md`](../README
 | [`GHIDRA.md`](GHIDRA.md) | Decompile scripts, manifests, prerequisites |
 | [`BINARIES.md`](BINARIES.md) | Shaiya Core V9 executables in `bin/` (MD5 table) |
 | [`../bin/README.md`](../bin/README.md) | Same — versioned `bin/*.exe` |
+| [`../tools/padding/`](../tools/padding/) | Pattern B packet builders / send-site scan |
+| [`../psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md`](../psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md) | Admin whisper bind/clear wire |
 
 ## Decompiled corpora (`.c` only)
 

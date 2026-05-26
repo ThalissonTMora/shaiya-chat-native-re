@@ -28,6 +28,8 @@ Counts come from [`tools/ghidra/*-functions.manifest`](tools/ghidra/) (Ghidra de
 | Opcodes & handlers | [`docs/CHAT_CHANNEL_MAP.md`](docs/CHAT_CHANNEL_MAP.md) |
 | Wire layouts | [`docs/PACKET_SPEC.md`](docs/PACKET_SPEC.md) · [`docs/CHAR21_SITES.md`](docs/CHAR21_SITES.md) |
 | Script VM hashes | [`docs/SCRIPT_OPCODE_HASHES.md`](docs/SCRIPT_OPCODE_HASHES.md) |
+| Zone messages (`cn_string.DB`) | [`docs/ZONECHAT_MESSAGE_TABLE.md`](docs/ZONECHAT_MESSAGE_TABLE.md) |
+| Pattern B padding | [`docs/PADDING_SIMULATION.md`](docs/PADDING_SIMULATION.md) |
 | Crypto / handshake | [`docs/WIRE_CRYPTO.md`](docs/WIRE_CRYPTO.md) |
 | Counter derivation | [`docs/CRYPTO_COUNTER.md`](docs/CRYPTO_COUNTER.md) |
 | Login key blob RE | [`docs/SERVER_KEY_BLOB_RE.md`](docs/SERVER_KEY_BLOB_RE.md) |

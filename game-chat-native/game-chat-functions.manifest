@@ -9,7 +9,7 @@ send	PacketSend_Zone	0x005ED340
 recv	PacketDispatcher	0x005F1E10
 recv	PacketDispatcher_Fallback	0x005F3A3B
 
-ui	NativeChatSendUI	0x0045BBE0
+ui	ChatWorldFX_SendUI	0x0045BBE0
 
 handlers	Handler_ChatNormal	0x005E50E0
 handlers	Handler_ChatWhisper	0x005E5180

@@ -10,7 +10,7 @@ Objetivo deste documento: fechar o que falta para **chat 100%** (wire + server r
 
 | Prioridade | Tema | Status após esta rodada |
 |------------|------|-------------------------|
-| **P0** | `char[21]` recv/send + padding wire | **CONFIRMED** em handlers + builders; padding pós-null no wire = **HYPOTHESIS** (captura) |
+| **P0** | `char[21]` recv/send + padding wire | **INFERRED ~99%** tail = lixo de stack (não zeros); captura 1× guild fecha P0-1 — ver `PADDING_SIMULATION.md` |
 | **P0** | Admin recv `0xF102`–`0xF109` | **Fechado** — 7× `.c` + vtable `+0x334` / stubs `+0x344`/`+0x348` |
 | **P1** | Balloon gates `DAT_*` → map §8 | **Fechado** — tabela em `CHAT_CHANNEL_MAP.md` §8 |
 | **P1** | `Chat_BroadcastNamed` / megaphone `0x1108` | **Fechado** — stub → `World_BroadcastTradeCore` queue mode **3** view **7** |
@@ -19,7 +19,8 @@ Objetivo deste documento: fechar o que falta para **chat 100%** (wire + server r
 | **P1** | `NativeChatSendUI` vs submit | **CONFIRMED** — FX 3D vs `ChatWindow_SubmitChatInput` → `PacketSend_*` |
 | **P1** | Server push `0x1109`–`0x110B` | **Fechado** — 4× builders em `psgame-chat-native/send/`; layouts D/E/G em `PACKET_SPEC` |
 | **P2** | UI pixel-perfect / hooks render | Parcial — fora do mínimo wire-compat |
-| **P2** | `0xF107`/`0xF109` client effect | Stub vfn — whisper target no-op no cliente |
+| **P2** | `0xF107`/`0xF109` client effect | **Fechado** — stub vfn; server bind @ `CUser+0x5810`; chain doc |
+| **P1** | `DAT_022aa816` faction global | **CONFIRMED** — single write @ `0x0048BFEA` from local `entity+0xBF4` |
 
 ---
 
@@ -102,12 +103,29 @@ De `vtable/ChatNormalParty_vfn_0x324_0059c380.c` (recv normal, `param_1==0`):
 
 - Resolve entidade: `FUN_00452b10(param_3)` (charId).
 - Balloon path: `*(entity+0x2b7) == DAT_022aa816` (mesma facção/aliança).
+- **`DAT_022aa816` — CONFIRMED local player faction:** único write @ **`0x0048BFEA`** (`mov al, entity+0xBF4` → global) no path de entrada de personagem/zona; leituras em `ChatNormalParty_vfn` @ `0x0059C463` e `ChatShout_vfn` comparam contra `entity+0x2B7` de entidades remotas. Repro: `objdump -d bin/Game.exe | grep 'a2 16 a8 2a 02'`.
 - Texto: `FUN_004126d0(param_5)` ou após wrap `FUN_00422310` se `DAT_007ab0d4!=1 && DAT_007c0e58==1`.
 - Chat box: sempre `DrawText` style `0x22` / party `0x29` quando `param_2!=0`.
 
 `ChatShout_vfn` @ `0x0059AA10`: mesma `FUN_004126d0` para entidade shout; `DrawText` `0x27`.
 
-**HYPOTHESIS:** `DAT_022aa816` é facção do jogador local — validar com breakpoint em `0x0059C463`.
+**CONFIRMED:** `DAT_022aa816` = facção do jogador local (cache de `entity+0xBF4` @ write `0x0048BFEA`).
+
+---
+
+### 5. Admin whisper bind `0xF107` / `0xF109` — CONFIRMED (May 2026)
+
+| Claim | Tag | Evidence |
+|-------|-----|----------|
+| Server sends F107/F109 (only two opcode loads in `ps_game.exe`) | **CONFIRMED** | `0x004803C7`, `0x0047F390` — `objdump` |
+| Wire S→C: opcode + `char[21]`, size **0x17** | **CONFIRMED** | `push 0x17` @ `0x004803FA`, `0x0047F3B0` |
+| Server stores bind @ `CUser+0x5810` = target `+0x128` | **CONFIRMED** | asm `0x004803CC` `mov edx, 0x128(esi)` → `0x5810(ebp)` |
+| F109 C→S is opcode-only (no body) | **CONFIRMED** | `AdminChat_ProcessIncoming` case L317–318 |
+| Client handler: read 21 B + stub vfn only | **CONFIRMED** | asm `0x005DE950`–`0x005DE999`; vfn `ret 4` @ `0x0056BCB0` |
+| Client does **not** call `ChatWindow_SetWhisperTarget` / `+0x198` | **CONFIRMED** | zero xrefs from handlers; UI path separate @ `0x0047C690` |
+| Stock `Game.exe` does **not** send F107/F109 | **CONFIRMED** | `objdump` — no `mov $0xF107`/`$0xF109` in client |
+
+Chain: [`psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md`](../psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md).
 
 ---
 
@@ -118,7 +136,7 @@ De `vtable/ChatNormalParty_vfn_0x324_0059c380.c` (recv normal, `param_1==0`):
 | **Role** | Submit da janela de chat (Enter) | Spawner de **efeitos 3D / fila de objetos** no mundo |
 | **Network** | `ChatWindow_FormatOutgoing` → `PacketSend_*` → `NetworkSend` | **Nenhum** `NetworkSend` / `PacketSend_*` no corpo |
 | **Entrada** | Canal em `param_1+0x194`; prefixos `! %s` etc. | `param_6` ∈ {5,6,7,…}: trails, projéteis; `param_3==0x222` estende timer |
-| **Evidência** | `ui/ChatWindow_SubmitChatInput_0047a4b0.c` → `FUN_005663b0` | `ui/NativeChatSendUI_0045bbe0.c` → `FUN_004583d0` / `CreateObject` |
+| **Evidência** | `ui/ChatWindow_SubmitChatInput_0047a4b0.c` → `FUN_005663b0` | `ui/ChatWorldFX_SendUI_0045bbe0.c` → `FUN_004583d0` / `CreateObject` |
 
 **CONFIRMED:** não são alternativas para o mesmo send de chat; renomear símbolo no manifest de “Alternate send UI” para **“World FX / speech effect UI”** evita confusão (P2 doc).
 
@@ -168,7 +186,7 @@ Ver [`PACKET_SPEC.md`](PACKET_SPEC.md) — patches nesta rodada na seção `char
 | `psgame-chat-native/broadcast/Chat_BroadcastNamed_chain.md` | Megaphone `0x1108` queue path |
 | `docs/WIRE_CAPTURE_GUIDE.md` | Captura `0x1104` padding + push `0x1109`–`0x110B` |
 | `game-chat-native/vtable/ChatNormalParty_vfn_0x324_0059c380.c` | Balloon trigger |
-| `tools/ghidra/admin-handlers-temp.manifest` | VAs admin recv (não exportados) |
+| `psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md` | Admin bind F107/F109 S→C + CUser+0x5810 |
 
 ---
 
@@ -195,7 +213,7 @@ Ver [`PACKET_SPEC.md`](PACKET_SPEC.md) — patches nesta rodada na seção `char
 
 | # | Tarefa | Notas |
 |---|--------|-------|
-| P2-1 | Renomear `NativeChatSendUI` no manifest/docs | Evitar confusão com send path |
+| P2-1 | Renomear `NativeChatSendUI` → `ChatWorldFX_SendUI` | ✅ manifest + `ui/ChatWorldFX_SendUI_0045bbe0.c` |
 | P2-2 | Hooks `ChatWindow_Render_*` @ `0x47DB8D` | Esconder UI nativa — já há landmarks |
 | P2-3 | `GmCommand_Dispatch` / staff overlay | Fora do wire mínimo |
 | P2-4 | Pixel-perfect tabs/IME | `ChatUIFont_*`, `InputCapture` |
@@ -206,7 +224,8 @@ Ver [`PACKET_SPEC.md`](PACKET_SPEC.md) — patches nesta rodada na seção `char
 
 - Decompilações Ghidra 11.2; nomes `FUN_*` onde PDB ausente.
 - `Chat_BroadcastNamed` @ `0x4D55B0` é stub para `World_BroadcastTradeCore` @ `0x419240` (fila mode **3**, view **7**); não é o mesmo entry que `Chat_BroadcastViewMode7` @ `0x4D56D0` (spatial imediato, arg **5**).
-- Admin `F107`/`F109`: handlers leem `char[21]` mas vfn @ `0x0056BCB0` é stub (`ret 4`).
+- Admin `F107`/`F109`: handlers leem `char[21]`; vfn @ `0x0056BCB0` stub; semântica server fechada em `Chat_AdminWhisper_F107_F109_chain.md`.
+- `DAT_022aa816`: write único @ `0x0048BFEA`; remotes usam `entity+0x2B7` (offset diferente do local `+0xBF4` — mesmo enum de facção, **INFERRED**).
 - `0xF108` ausente no client dispatcher; relay só no server.
 - Balloon: símbolo `ChatString_Sanitize` @ `0x4126D0` é **create balloon**, não sanitização de string.
 
@@ -226,7 +245,7 @@ Ver [`PACKET_SPEC.md`](PACKET_SPEC.md) — patches nesta rodada na seção `char
 2. **NPC push wire:** hook `SConnection_Send` @ `0x004ED0E0` durante script — validar `0x1109`/`0x110A`/`0x110B` (§4 do guia).
 3. **Script callers:** xref `0x004A2210` / `0x004CB3D0` — mapa quest→opcode (fora do mínimo estático).
 4. **Balloon UI+0x1D0:** breakpoint em writes a `DAT_007c0838+0x1D0` — confirmar semântica (HYPOTHESIS).
-5. **F107/F109:** confirmar se algum campo global muda apesar do stub vfn.
+5. ~~**F107/F109:** confirmar se algum campo global muda apesar do stub vfn.~~ **Fechado** — nenhum efeito cliente; ver §5 em Findings.
 
 ---
 

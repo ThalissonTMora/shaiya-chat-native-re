@@ -60,6 +60,8 @@ Companion to [`CHAT_CHANNEL_MAP.md`](CHAT_CHANNEL_MAP.md). Layouts inferred from
 | `0x1111` | `PacketSend_Zone` | Zone/Area |
 | `0xF101`–`0xF105` | `PacketSend_Chat(1,…)` / Guild/Party with `param_1!=0` | Admin (+ `0xE000` on opcode) |
 
+Admin bind opcodes **`0xF107` / `0xF109`** — **no send site** in stock `Game.exe` (`objdump`: zero `mov $0xF107`/`$0xF109`). C→S handled server-side in `AdminChat_ProcessIncoming` @ `0x0047FD10`; S→C only from server (see § Admin whisper bind below).
+
 ### Whisper
 
 **Client → server (CONFIRMED `PacketSend_Whisper` @ `0x005ED160`):**
@@ -98,8 +100,8 @@ Plaintext size: `msg_len + 0x18` (24).
 | **A** | `1101`, `1105`, `1107`, `F101` | `u32 id` · `u8 len` · `bytes[len]` |
 | **B** | `1103`, `1104`, `1108`, `1111` | `char[21] name` · `u8 len` · `bytes[len]` |
 | **C** | `1102` | `u8 dir` · `char[21] name` · `u8 len` · `bytes[len]` |
-| **D** | `1109` | `u8 flag` · `u32 id` · `u8 len` · `bytes[len]` |
-| **E** | `110A` | `u32 id` · `u16 message_id` (no text — `GetMsg`) |
+| **D** | `1109` | `u8 flag` · `u32 id` · `u8 len` · `bytes[len]` — text from server `ZoneChat_MessageResolver` @ `0x004C6970` |
+| **E** | `110A` | `u32 id` · `u16 message_id` (no text — client `GetMsg` @ `0x00420DB0`) |
 | **F** | `1106` | `u8 code` (ignored in vtable — fixed SysMsg) |
 | **G** | `110B` | `u32 entity` · `char[32] label` (fixed 32 B on wire) |
 
@@ -164,6 +166,32 @@ Client also sends follow-up **`0x00A101`** (131 B) via `NetworkSendKeyFollowUp` 
 | `0x1111` | B (name 21 + len + text) | Area SysMsg `0x31` |
 | `0x1112` | `u32 rsv` · `u8 len` · `text` (buf `0x400`) | Long text SysMsg |
 | `0xF101` | A + vfn `(1,0,…)` | Party notify color `0x29` |
+| `0xF107` | **H** `char[21]` only | **Stub vfn** — no UI; see § Admin whisper bind |
+| `0xF109` | **H** (same) | **Stub vfn** — clear notify; no UI |
+
+### Admin whisper bind — `0xF107` / `0xF109` (CONFIRMED May 2026)
+
+Full call chain: [`psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md`](../psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md).
+
+**Pattern H** (S→C and C→S name field):
+
+```
++0x00  u16  opcode
++0x02  char[21] name     // C→S F107: target to bind; S→C: notifier display name
+```
+
+| Direction | Opcode | Plain size | Server / client evidence |
+|-----------|--------|------------|--------------------------|
+| C→S bind | `0xF107` | **0x17** | `AdminChat_ProcessIncoming` @ `0x0048038E`; clears `packet+0x16` before `World_FindUserByName` @ `0x00414D40` |
+| C→S clear | `0xF109` | **2** (opcode only) | case @ L317 — calls `Chat_AdminWhisperHelper` @ `0x0047F350`; no body read |
+| S→C bind notify | `0xF107` | **0x17** | `mov $0xF107` @ **`0x004803C7`** — dual `SConnection_Send`: target receives admin name, admin receives target name |
+| S→C clear notify | `0xF109` | **0x17** | `mov $0xF109` @ **`0x0047F390`** — dual send from `Chat_AdminWhisperHelper` |
+
+**Server state:** `CUser+0x5810` = bound target id (`CUser+0x128` of whisper partner). Cleared to `0` on F109 / pre-rebind.
+
+**Client UI:** recv handlers @ `0x005DE950` / `0x005DE9B0` read `char[21]` then call vfn `+0x344` / `+0x348` @ **`0x0056BCB0`** (`ret 4` stub). **`ChatWindow_SetWhisperTarget` @ `0x0047C690` (`+0x198`) is not invoked** — stock client does not apply server bind to whisper UI.
+
+**Related:** admin relay whisper text uses **`0xF108`** (server-only; not in client `PacketDispatcher`).
 
 ---
 
@@ -192,6 +220,8 @@ Client also sends follow-up **`0x00A101`** (131 B) via `NetworkSendKeyFollowUp` 
 | `0x1111` Area | `0x1111` name+text | `Chat_BroadcastZone` |
 | `0x1112` Raid leader | `0x1112` charId+text | `CParty_BroadcastPacket` |
 | `0xF101`–`0xF10A` | mirrored admin opcodes | `AdminChat_ProcessIncoming` |
+| `0xF107` bind | S→C **×2** (`0xF107` + `char[21]`) | `AdminChat_ProcessIncoming` @ `0x004803C7` · sets `CUser+0x5810` |
+| `0xF109` clear | S→C **×2** (`0xF109` + `char[21]`) | `Chat_AdminWhisperHelper` @ `0x0047F350` · clears `CUser+0x5810` |
 
 **Client inbound (C→S):** `0x1109`, `0x110A`, `0x110B` → **kick** (`Chat_ProcessIncoming` default branch → `SConnection_Close(9,0)` @ `0x0047FC24`). These opcodes are **server push only** on the stock protocol.
 
@@ -218,6 +248,8 @@ Evidence: `psgame-chat-native/send/Chat_PacketBuilder_*.c` · client recv handle
 - **1109_A** (`0x004C6A80`): `flag=0`; if sender in party → `CParty_BroadcastPacket`; else direct `SConnection_Send`. Caller @ `0x004A22C6`.
 - **1109_B** (`0x004C6F50`): `flag=1`; radius `param_2` (float); iterates zone cells (`Zone_FloorWorldToCellIndex` @ `0x005250C0`, stride `0x124`) and sends to users within `Math_DistanceRadiusCompare` @ `0x0041B8A0`. Caller @ `0x004A2640`.
 
+**Text source (CONFIRMED):** builder calls `ZoneChat_MessageResolver(message_id)` @ `0x004C6AA3` / `0x004C6F70`; copies NUL-terminated bytes from `return+4`. Map populated at startup from `data/cn_string.DB` (`FUN_00408C70` @ `0x00408C70`). See [`ZONECHAT_MESSAGE_TABLE.md`](ZONECHAT_MESSAGE_TABLE.md).
+
 **`0x110A` — Pattern E** (CONFIRMED):
 
 ```
@@ -228,7 +260,7 @@ Evidence: `psgame-chat-native/send/Chat_PacketBuilder_*.c` · client recv handle
 
 Plaintext **8 B** (`SConnection_Send` size arg @ `0x4C8383`). Spatial broadcast (same cell loop as 1109_B).
 
-**`message_id` encoding (CONFIRMED):** script builtin `Chat_ScriptWrapper_110A` @ `0x004CB3D0` loads a script integer, then **`or eax, 0xC00`** @ `0x004CB402` before `call Chat_PacketBuilder_110A` @ `0x004CB41F`. Wire field is **`u16le`** @ builder `local_a = param_2` (`Chat_PacketBuilder_110A_004c8310.c`). Client resolves via `GetMsg` @ `0x00420DB0` (`Handler_ChatUnion`). **Repro:** `objdump -d --start-address=0x4cb3d0 --stop-address=0x4cb430 bin/ps_game.exe`.
+**`message_id` encoding (CONFIRMED):** script builtin `Chat_ScriptWrapper_110A` @ `0x004CB3D0` loads a script integer, then **`or eax, 0xC00`** @ `0x004CB402` before `call Chat_PacketBuilder_110A` @ `0x004CB41F`. Wire field is **`u16le`** @ builder `local_a = param_2` (`Chat_PacketBuilder_110A_004c8310.c`). Client resolves via `GetMsg` @ `0x00420DB0` (`Handler_ChatUnion`) against the same **`cn_string.DB`** map as the server (client loader parallel @ `Game.exe`). **No text on wire** — only the id. **Repro:** `objdump -d --start-address=0x4cb3d0 --stop-address=0x4cb430 bin/ps_game.exe`. Table layout: [`ZONECHAT_MESSAGE_TABLE.md`](ZONECHAT_MESSAGE_TABLE.md).
 
 **`0x110B` — Pattern G** (CONFIRMED):
 
@@ -298,6 +330,7 @@ Full site list: [`CHAR21_SITES.md`](CHAR21_SITES.md). Offsets = **plaintext afte
 |---------|---------|-------------------------------|----------------|
 | **B** | S→C `1103`,`1104`,`1108`,`1111`; admin `F103`,`F104` | `+0x02 name[21]` · `+0x17 u8 len` · `+0x18 text[len]` | `len + 0x18` (24) |
 | **C** | S→C `1102`; admin `F102` | `+0x02 u8 dir` · `+0x03 name[21]` · `+0x18 u8 len` · `+0x19 text[len]` | `len + 0x19` (25) |
+| **H** | S→C `F107`,`F109`; C→S `F107` | `+0x02 name[21]` | **0x17** (23) |
 | **C→S whisper** | `1102` / `F102` | `+0x02 target[21]` (5×`u32` LE + `u8`) · `+0x17 u8 len` · `+0x18 text[len]` | `len + 0x18` (24) |
 | **Alliance** | S→C `0x812` | pattern **B** + `+0x18+len u32 guildId` | `len + 0x1C` (28) |
 
@@ -313,17 +346,25 @@ Full site list: [`CHAR21_SITES.md`](CHAR21_SITES.md). Offsets = **plaintext afte
 
 **CONFIRMED — client recv without 21 B:** `1101`,`1105`,`1107` (u32 id); `1109` (pattern D); `110A`; `110B` (`0x20` label); `F105` (u32); `F106`/`1112` (variable).
 
-#### Padding after `'\0'` on the wire
+#### Padding after `'\0'` on the wire (P0 static — May 2026)
+
+Full scan: `python3 tools/padding/scan_pattern_b_sends.py bin/ps_game.exe` · simulation: [`PADDING_SIMULATION.md`](PADDING_SIMULATION.md).
 
 | Claim | Tag | Evidence |
 |-------|-----|----------|
 | Send size includes all 21 name bytes | **CONFIRMED** | `len+0x18` / `len+0x19` everywhere |
-| Server does **not** `memset` name tail before `SConnection_Send` | **CONFIRMED** | `Chat_BroadcastGuild` asm: copy loop @ `0x004325B0` → `call 0x004ED0E0` @ `0x00432615`, no `rep stos` between |
-| Bytes `[strlen(name)..20]` on wire are zero | **HYPOTHESIS** | Needs S→C capture — recipe [`WIRE_CAPTURE_GUIDE.md`](WIRE_CAPTURE_GUIDE.md) §3 |
-| Bytes `[strlen..20]` are stack garbage | **HYPOTHESIS** | Static strongly suggests uninitialized tail; not wire-verified |
-| Stock client UI breaks on non-zero tail | **INFERRED** | `ChatWhisperTradeGuildZoneMega_vfn` uses C-string ops on name ptr; wire tail can poison if no early `NUL` |
+| Server does **not** `memset` name tail before `SConnection_Send` | **CONFIRMED** | All **5** chat-tagged Pattern B direct sends (`0x1104`/`0xF104`): **0** `memset(21)` / `rep stos` in 80-insn window before `call 0x004ED0E0` — guild @ `0x00432615`, admin @ `0x00432818`, GM relay @ `0x004070BC`/`0x0040714E`; megaphone indirect @ `0x0047F5AE`/`0x0047FEEE` (copy @ `0x0047F580`, no tail zero) |
+| MSVC prologue zeroes stack `name[21]` before copy loop | **CONFIRMED absent** | Builders use `sub esp,N` + cookie `xor esp,eax` only — e.g. `Chat_BroadcastGuild` @ `0x00432530` (`sub $0x14c`), `Chat_ProcessIncoming` @ `0x0047F40E`; no `rep stos`/`xorps` frame clear before copy |
+| Trade/area builders also skip tail memset | **CONFIRMED** | `0x1103` copy @ `0x0047F760` → queue; `0x1111` copy @ `0x0047FBD0` → zone fanout — same null-term idiom, no `0x15` zero |
+| Client recv pre-zeros local name buffer | **CONFIRMED** | `Handler_ChatGuild` @ `0x005E5310`: `xor eax,eax` + 5×`mov [esp+…]` @ `0x005E5324`–`0x005E5342` **before** `PacketRead_String(...,0x15)` |
+| Client recv post-read tail normalization | **CONFIRMED absent** | No `memset`/`rep stos` after `call 0x005F4780` @ `0x005E534F`; wire bytes `[0..20]` land verbatim in `local_a0+1` |
+| Bytes `[strlen(name)..20]` on wire are zero | **INFERRED false** | No code path zero-fills tail; stack locals never fully initialized |
+| Bytes `[strlen..20]` are prior-stack residue (non-zero) | **INFERRED (~99% static)** | Copy stops at source `NUL`; send size fixed at 21; prologue does not zero frame; 626× `SConnection_Send` scan — zero chat Pattern B sites with tail `memset` |
+| Stock client UI breaks on non-zero wire tail | **INFERRED false** | `ChatWhisperTradeGuildZoneMega_vfn` @ `0x0059BDB0` compares until `NUL`; early `NUL` @ `name[strlen]` hides tail |
 
-**Emulator guidance (INFERRED):** `memset(name,0,21)` then copy ASCII/null-terminated name before pattern B/C S→C sends. **Validate:** one guild `0x1104` hexdump @ `payload+2`, length 21.
+**Verdict (static):** stock server emits **uninitialized stack bytes** in `name[strlen+1..20]`, **not** zero padding. Wire capture still recommended to pin exact byte distribution — [`WIRE_CAPTURE_GUIDE.md`](WIRE_CAPTURE_GUIDE.md) §3.
+
+**Emulator guidance:** `memset(name,0,21)` then `strncpy` is **safer interop**, not stock-identical. For byte-for-byte stock replay, preserve garbage tail or capture one reference packet.
 
 ---
 

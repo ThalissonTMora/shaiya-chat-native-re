@@ -18,8 +18,10 @@ Offsets below are **plaintext payload bytes after `u16` LE opcode** (tap at `SCo
 | `0xF102` | `0x005E5920` | `Handler_Chat_Admin_F102_005e5920.c` | `&local_9c` after `dir` | **C** |
 | `0xF103` | `0x005E59F0` | `Handler_Chat_Admin_F103_005e59f0.c` | `local_a0+1` | **B** |
 | `0xF104` | `0x005E5AB0` | `Handler_Chat_Admin_F104_005e5ab0.c` | `local_a0+1` | **B** |
-| `0xF107` | `0x005DE950` | `Handler_Chat_Admin_F107_005de950.c` | `&local_1c` only | bind |
-| `0xF109` | `0x005DE9B0` | `Handler_Chat_Admin_F109_005de9b0.c` | `&local_1c` only | clear |
+| `0xF107` | `0x005DE950` | `Handler_Chat_Admin_F107_005de950.c` | `&local_1c` only | bind (S→C notify) |
+| `0xF109` | `0x005DE9B0` | `Handler_Chat_Admin_F109_005de9b0.c` | `&local_1c` only | clear (S→C notify) |
+
+Server S→C send (pattern **H**, size `0x17`): `AdminChat_ProcessIncoming` @ `0x004803C7` (F107) · `Chat_AdminWhisperHelper` @ `0x0047F390` (F109) — see [`psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md`](../psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md).
 
 **Not `0x15`:** `0x1101`, `0x1105`, `0x1107` (u32 id); `0x1109` (pattern D); `0x110A` (u32+u16); `0x110B` (`0x20` label); `0xF105`/`0xF106`/`0x1112` (other layouts).
 
@@ -70,13 +72,18 @@ Whisper UI source: `ChatWindow_SendMessage` @ `0x0047A5F0` passes `param_1_00+0x
 
 ---
 
-## Padding verdict (static)
+## Padding verdict (static — P0 May 2026)
+
+Scan: `python3 tools/padding/scan_pattern_b_sends.py bin/ps_game.exe` · sim: [`PADDING_SIMULATION.md`](PADDING_SIMULATION.md).
 
 | Claim | Tag |
 |-------|-----|
 | Send includes full 21 name bytes (not strlen) | **CONFIRMED** (`len+0x18` / `len+0x19` sizes) |
-| Server does not zero-fill after `'\0'` before send | **CONFIRMED** (no tail memset in guild/whisper asm) |
-| Tail bytes on wire are stack residue / prior frame | **HYPOTHESIS** — validate capture @ `payload+2` bytes `[strlen..20]` for `0x1104` |
-| Emulator should `memset(name,0,21)` then strcpy | **INFERRED** (safe interop; not stock-confirmed) |
+| Server does not zero-fill after `'\0'` before send | **CONFIRMED** — **5/5** chat Pattern B `SConnection_Send` sites: no `memset(21)`/`rep stos` in 80-insn window |
+| MSVC stack frame not zeroed before copy | **CONFIRMED absent** — `sub esp` + cookie only in all builders |
+| Client recv pre-zeros local 21 B | **CONFIRMED** — `Handler_ChatGuild` @ `0x005E5324`–`0x005E5342` before read |
+| Client recv post-read tail strip | **CONFIRMED absent** |
+| Tail bytes on wire are stack residue (not zeros) | **INFERRED (~99% static)** — capture still pins exact bytes |
+| Emulator should `memset(name,0,21)` then strcpy | **INFERRED** (safe interop; **not** stock-identical) |
 
 Reproduce guild send: `objdump -d --start-address=0x432530 --stop-address=0x432620 bin/ps_game.exe`
