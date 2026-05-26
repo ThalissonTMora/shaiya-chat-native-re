@@ -1,10 +1,13 @@
-# Binários (não versionar — coloque em bin/ para regenerar)
-bin/*.exe
+# Executables outside bin/ (bin/*.exe are versioned — see bin/README.md)
 *.exe
+!bin/Game.exe
+!bin/ps_game.exe
+!bin/ps_login.exe
+
 *.rar
 *.lock
 
-# Projetos Ghidra locais
+# Ghidra local projects
 tools/ghidra/project-game/
 tools/ghidra/project-psgame/
 tools/ghidra/project-crypto-*/
