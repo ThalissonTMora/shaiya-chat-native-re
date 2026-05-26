@@ -15,7 +15,7 @@ Mapeamento do fluxo de chat stock **cliente ↔ servidor**: código decompilado 
 
 | Pasta | Conteúdo |
 |-------|----------|
-| `game-chat-native/` | Cliente — `.c` decompilados |
+| [`game-chat-native/`](game-chat-native/) | Cliente — `.c` decompilados + README |
 | `psgame-chat-native/` | Servidor — `.c` decompilados |
 | `tools/ghidra/` | Manifests + scripts para regenerar exports |
 
