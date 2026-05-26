@@ -6,7 +6,7 @@ Binaries under [`bin/`](bin/) come from [Shaiya-Core](https://github.com/Spelunk
 
 | Target | Folder | Role | Functions (manifest) | `.c` in repo |
 |--------|--------|------|----------------------|--------------|
-| `Game.exe` | [`game-chat-native/`](game-chat-native/) | Client chat + recv `0xA101` | **160** | **167** |
+| `Game.exe` | [`game-chat-native/`](game-chat-native/) | Client chat + recv `0xA101` | **160** | **169** |
 | `ps_game.exe` | [`psgame-chat-native/`](psgame-chat-native/) | World server chat `0x11xx` | **136** | **143** |
 | `ps_login.exe` | [`pslogin-chat-native/`](pslogin-chat-native/) | Sends outbound `0xA101` key blob | **17** | **17** |
 | **Total** | — | Chat-related RE corpus | **313** | **329** |

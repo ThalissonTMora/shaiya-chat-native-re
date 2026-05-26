@@ -8,8 +8,15 @@
 | `decompile-psgame-chat.sh` | `ps_game.exe` | `psgame-chat-native/` |
 | `decompile-pslogin-crypto.sh` | `ps_login.exe` | `pslogin-chat-native/` |
 | `decompile-crypto.sh` | `Game.exe` + `ps_game.exe` | `*/crypto/` subset |
+| `decompile-mini.sh` | `game` \| `psgame` \| `pslogin` + custom manifest | same as target |
 
 Run from repo root: `./tools/ghidra/<script>.sh`
+
+Subset export (fast):
+
+```bash
+./tools/ghidra/decompile-mini.sh game tools/ghidra/balloon-ui-writers.manifest
+```
 
 Binaries: [`BINARIES.md`](BINARIES.md)
 
