@@ -4,7 +4,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-BINARY="${ROOT}/../.features/Shaiya-Core-V7/server/ps_login.exe"
+BINARY="${ROOT}/bin/ps_login.exe"
 MANIFEST="${SCRIPT_DIR}/pslogin-crypto-functions.manifest"
 PROJECT_DIR="${SCRIPT_DIR}/project-pslogin-crypto"
 OUTPUT_DIR="${ROOT}/pslogin-chat-native"
@@ -33,4 +33,5 @@ echo "==> [ps_login] $(basename "$BINARY") → $OUTPUT_DIR"
   -analysisTimeoutPerFile 600 \
   -postScript ExportDecompileByAddress.java "$OUTPUT_DIR" "$MANIFEST"
 
-echo "==> Done: $(find "$OUTPUT_DIR" -name '*.c' 2>/dev/null | wc -l) arquivos .c"
+cp "$MANIFEST" "$OUTPUT_DIR/pslogin-crypto-functions.manifest"
+echo "==> Done: $(find "$OUTPUT_DIR" -name '*.c' 2>/dev/null | wc -l) .c files"
