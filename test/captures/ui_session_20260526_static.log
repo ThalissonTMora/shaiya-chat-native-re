@@ -1,0 +1,14 @@
+# shaiya-chat-native-re static session capture
+# source: emit_session_capture.py + build_pattern_b_packet.py --tail stock
+# player='JACKSON' text='teste' ui_channels=normal,whisper,trade,area,guild
+# D1: guild/trade/area name[21] tail = 0xCC.. (not zeroed) per ps_game.exe RE
+
+TX opcode=0x1101 len=11 source=static_infer raw=011101000000046f6cc3a1
+RX opcode=0x1101 len=11 name=JACKSON source=static_infer raw=011101000000046f6cc3a1
+TX opcode=0x1101 len=12 source=static_infer raw=011101000000057465737465
+RX opcode=0x1101 len=12 name=JACKSON source=static_infer raw=011101000000057465737465
+TX opcode=0x1102 len=29 source=static_infer raw=02114a41434b534f4e0000000000000000000000000000057465737465
+RX opcode=0x1102 len=30 dir=1 source=static_infer raw=0211014a41434b534f4e0000000000000000000000000000057465737465
+RX opcode=0x1103 len=29 channel=trade name_tail=cccccccccccccccccccccccccc source=static_stock raw=03114a41434b534f4e00cccccccccccccccccccccccccc057465737465
+RX opcode=0x1111 len=29 channel=area name_tail=cccccccccccccccccccccccccc source=static_stock raw=11114a41434b534f4e00cccccccccccccccccccccccccc057465737465
+RX opcode=0x1104 len=29 channel=guild name_tail=cccccccccccccccccccccccccc source=static_stock raw=04114a41434b534f4e00cccccccccccccccccccccccccc057465737465

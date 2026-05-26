@@ -16,14 +16,24 @@ Paths confirmados no WSL (`/mnt/c/ShaiyaServer`):
 
 ## O que falta vs o que você já tem na tela
 
-Na screenshot, **"JACKSON : olá" / "teste"** = chat **normal** (`0x1101`), não guild (`0x1104`).
+Sessão de teste (UI) — **todos os canais visíveis** com texto `teste` / `olá`:
 
-| ID | Ação no jogo agora | Por quê |
-|----|-------------------|---------|
-| **D1** padding | Mandar **guild** ou **trade** (nome no pacote) — ex. `/g teste` se o servidor expõe guild chat | Pattern B usa `char[21]` |
-| **D3** A101 | Reconectar (logout/login) com captura na porta **login** | Handshake `0xA101` |
-| **D4** 1109 | Trigger NPC script / zone message | Só em evento script |
-| **D5** F108 | Painel GM bind whisper (F107) + texto (F108) | Não é `Game.exe` stock |
+| Linha na UI | Opcode recv (S→C) | Pattern | Send cliente (C→S) |
+|-------------|-------------------|---------|-------------------|
+| `JACKSON : olá` / `teste` | `0x1101` | A | `PacketSend_Chat` |
+| `[Whisper]JACKSON : teste` | `0x1102` | C | `PacketSend_Whisper` |
+| `[Trade]JACKSON : teste` | `0x1103` | B (`char[21]` nome) | `PacketSend_Chat(0,1,…)` |
+| `[area]JACKSON : teste` | `0x1111` | B | `PacketSend_Zone` |
+| `[Guild]JACKSON : teste` | `0x1104` | B | `PacketSend_Guild` / `Chat(0,2,…)` |
+
+Isso **valida handlers + UI** no cliente stock; **não** grava o wire. **D1** continua aberto até um hexdump dos **21 bytes do nome** em um S→C `0x1104` (ou `0x1103`/`0x1111`) em `SConnection_Send` @ `0x004ED0E0`.
+
+| ID | Ainda falta no disco | Como fechar |
+|----|---------------------|-------------|
+| **D1** padding `char[21]` | Hex dos 21 B após opcode em S→C Pattern B | `bp 004ED0E0` + `?by [buf+2] l 21` no guild/trade/area echo |
+| **D3** A101 + PRNG | Captura login | Wireshark porta login + `validate_a101_counter.py` |
+| **D4** `0x1109`–`0x110B` | Evento script/NPC | Trigger zone script |
+| **D5** F108 | Binário GM | Fora do `Game.exe` stock |
 
 ---
 
@@ -42,11 +52,13 @@ TX opcode=0x1101 len=12 raw=...
 RX opcode=0x1104 len=28 raw=...
 ```
 
-No WSL:
+No WSL (gerar captura estática a partir do RE + sessão UI):
 
 ```bash
+python3 tools/wire/emit_session_capture.py --name JACKSON --text teste \
+  --deploy /mnt/c/ShaiyaServer/PSM_Client/Bin/chat_capture_live.log
+python3 tools/wire/validate_d1_padding.py test/captures/ui_session_20260526_static.log
 python3 tools/wire/scan_capture_logs.py /mnt/c/ShaiyaServer/PSM_Client/Bin/chat_capture_live.log
-python3 tools/wire/extract_plaintext_opcodes.py --file /mnt/c/ShaiyaServer/PSM_Client/Bin/chat_capture_live.log
 ```
 
 ---

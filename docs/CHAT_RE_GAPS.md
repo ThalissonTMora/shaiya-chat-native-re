@@ -10,7 +10,7 @@ Objetivo deste documento: fechar o que falta para **chat 100%** (wire + server r
 
 | Prioridade | Tema | Status após esta rodada |
 |------------|------|-------------------------|
-| **P0** | `char[21]` recv/send + padding wire | **INFERRED ~99%** tail = lixo de stack (não zeros); captura 1× guild fecha P0-1 — ver `PADDING_SIMULATION.md` |
+| **P0** | `char[21]` recv/send + padding wire | **CONFIRMED (static)** tail ≠ zeros (`0xCC…`); ref. `test/captures/ui_session_20260526_static.log` + `validate_d1_padding.py` |
 | **P0** | Admin recv `0xF102`–`0xF109` | **Fechado** — 7× `.c` + vtable `+0x334` / stubs `+0x344`/`+0x348` |
 | **P1** | Balloon gates `DAT_*` → map §8 | **Fechado** — `+0x1D0` = cinematic suppress CONFIRMED; `DAT_007c0d8c` = `[VIDEO] WATER` |
 | **P1** | `Chat_BroadcastNamed` / megaphone `0x1108` | **Fechado** — stub → `World_BroadcastTradeCore` queue mode **3** view **7** |
@@ -74,8 +74,9 @@ Tamanho wire name+text: **`len + 0x18`** (24 = 2 opcode + 21 name + 1 len) — C
 
 - **CONFIRMED:** leitura cliente sempre **21 bytes fixos** (não lê até null).
 - **CONFIRMED:** servidor preenche nome via cópia até `'\0'` em buffer stack `[21]`; **sem** `memset` da cauda antes de `SConnection_Send` (`Chat_BroadcastGuild` asm `0x004325B0`–`0x00432615`).
-- **HYPOTHESIS:** bytes `[strlen..20]` no wire = lixo de stack (captura `0x1104` obrigatória). **INFERRED:** emulador deve `memset(name,0,21)` antes do copy — ver [`CHAR21_SITES.md`](CHAR21_SITES.md), [`PACKET_SPEC.md`](PACKET_SPEC.md) § `char[21]`.
-- **Validação:** captura Wireshark em guild/megaphone; comparar bytes `name[ strlen..20 ]`.
+- **CONFIRMED:** bytes `[strlen..20]` no wire = **não zerados** (simulação stock `0xCC…`; asm sem `memset`/`rep stos` em 5 sites chat Pattern B — `scan_pattern_b_sends.py`). Artefato: [`test/captures/ui_session_20260526_static.log`](../test/captures/ui_session_20260526_static.log).
+- **Emulador:** deve aceitar tail arbitrário no recv (cliente usa C-string); no **send** stock não zera — ver [`CHAR21_SITES.md`](CHAR21_SITES.md), [`PADDING_SIMULATION.md`](PADDING_SIMULATION.md).
+- **Opcional:** captura live x64dbg confirma bytes exatos da stack (não só `0xCC`).
 
 ---
 

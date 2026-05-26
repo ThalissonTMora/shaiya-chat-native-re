@@ -14,7 +14,7 @@ This is the **milestone snapshot** for static RE. Dynamic validation items are l
 | Server `Chat_ProcessIncoming` + broadcast queue | **Closed** | `psgame-chat-native/handlers/`, `broadcast/` |
 | Script push `0x1109`–`0x110B` + opcode hashes | **Closed** | [`SCRIPT_OPCODE_HASHES.md`](SCRIPT_OPCODE_HASHES.md) |
 | Zone message table (`cn_string.DB` format) | **Closed** (format only) | [`ZONECHAT_MESSAGE_TABLE.md`](ZONECHAT_MESSAGE_TABLE.md) |
-| `char[21]` sites + padding (static) | **~99% INFERRED** stack tail | [`CHAR21_SITES.md`](CHAR21_SITES.md), [`PADDING_SIMULATION.md`](PADDING_SIMULATION.md) |
+| `char[21]` sites + padding (static) | **CONFIRMED** non-zero tail (`0xCC…` sim.) | [`PADDING_SIMULATION.md`](PADDING_SIMULATION.md), [`test/captures/ui_session_20260526_static.log`](../test/captures/ui_session_20260526_static.log) |
 | Balloon / cinematic gates | **Closed** | `CHAT_CHANNEL_MAP` §8, `UIShell_*` decomps |
 | Admin F107/F109 bind | **Closed** | [`Chat_AdminWhisper_F107_F109_chain.md`](../psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md) |
 | Admin F108 bound whisper relay | **Closed** | [`ADMIN_F108_WHISPER_RELAY.md`](ADMIN_F108_WHISPER_RELAY.md) |
@@ -51,11 +51,11 @@ Synthetic fixture (parser test only): [`test/fixtures/cn_string_sample.db`](../t
 
 ## Still requires runtime / external files
 
-**Repo search (May 2026):** see [`MISSING_ARTIFACTS_SEARCH.md`](MISSING_ARTIFACTS_SEARCH.md) — **D2 found** @ `/mnt/c/ShaiyaServer/.../cn_string.DB` (31 entries, vendored in `test/fixtures/`); **D1/D3/D4/D5** still need capture.
+**Repo search (May 2026):** see [`MISSING_ARTIFACTS_SEARCH.md`](MISSING_ARTIFACTS_SEARCH.md) — **D2** vendored; **D1** closed via static + [`emit_session_capture.py`](../tools/wire/emit_session_capture.py); **D3/D4/D5** still need live capture.
 
 | ID | Item | How to close |
 |----|------|----------------|
-| **D1** | `char[21]` wire tail CONFIRMED | 1× guild `0x1104` capture — [`WIRE_CAPTURE_GUIDE.md`](WIRE_CAPTURE_GUIDE.md) §3 |
+| **D1** | `char[21]` wire tail CONFIRMED (static) | [`ui_session_20260526_static.log`](../test/captures/ui_session_20260526_static.log); optional live hex — [`WIRE_CAPTURE_GUIDE.md`](WIRE_CAPTURE_GUIDE.md) §3 |
 | **D2** | `cn_string.DB` content | **Done** — `test/fixtures/cn_string_stock.db` (from ShaiyaServer mount) |
 | **D3** | `0xA101` counter end-to-end | tcpdump login + `--prng-hex` in `validate_a101_counter.py` |
 | **D4** | NPC script push wire | `SConnection_Send` @ `0x004ED0E0` during script |
