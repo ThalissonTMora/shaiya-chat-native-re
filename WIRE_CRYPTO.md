@@ -138,36 +138,92 @@ if (len > 0):
 
 ## Step 4 — Handshake / key derivation
 
-### Client flow (two paths)
+### Inbound key blob — opcode `0x00A101` (client recv)
+
+Validated chain (Game.exe disassembly + PE read):
 
 ```
-Path A — server delivers key blob (connection state machine)
-  recv (login socket, NOT chat PacketDispatcher)
-    → connection state vtbl @ 0x747788, entry [4] = Connection_OnKeyMaterial @ 0x5A4D50
-         → Crypto_ProcessKeyPacket @ 0x401100
-              writes 16 B seed → 0x23027C0..CC (+ alt slots 0x23027D0..DC)
-              Crypto_CounterLoad @ 0x404680 → ctx 0x23037F0 / 0x2303940
-         → Connection_SendKeyAck follow-up @ 0x5EC5A0
-         → Crypto_EnableGameCipher @ 0x401310
-         → conn+0x224 = 1
+NetworkRecv_SocketPump @ 0x5F438E
+  → PacketPayload_Decrypt @ 0x401080
+  → PacketDispatcher @ 0x5F1E10  (cmp opcode == 0xA101)
+       → Handler_Packet_A101_KeyMaterial @ 0x5E3D60
+            reads body (see layout below)
+            → [DAT_022fa2f0 vtable + 0x254]  (slot VA 0x747798)
+                 → Connection_OnKeyMaterial @ 0x5A4D50
+                      → Crypto_ProcessKeyPacket @ 0x401100
+                      → NetworkSendKeyFollowUp @ 0x5EC5A0
+                      → Crypto_EnableGameCipher @ 0x401310
+                      → conn+0x224 = 1
+```
 
-Path B — post-login validation (game socket already up)
-  login tick @ 0x50C767: if conn+0x224 ∉ {0xFC,0xFD,0xFE,0xFF}
-    → Crypto_DeriveSessionKeys @ 0x401320  (SHA256 @ 0x404390 over 0x23027C0)
-    → credential check @ 0x5DE670
-    → Crypto_EnableGameCipher @ 0x401310
-    → conn+0x224 = 0
+**Payload layout** (after opcode `u16`, handler @ `0x5E3D60`):
+
+```
++0x00  u8   field_0
++0x01  u8   field_1
++0x02  u8   field_2
++0x03  u8[64]  block_a
++0x43  u8[128] block_b          // total body = 195 bytes
+```
+
+Semantics of the three leading bytes and exact HMAC inputs inside `0x401100` are not fully resolved.
+
+### Post-login derive path (client)
+
+```
+login tick @ 0x50C767: if conn+0x224 ∉ {0xFC,0xFD,0xFE,0xFF}
+  → Crypto_DeriveSessionKeys @ 0x401320  (SHA256 @ 0x404390 over 0x23027C0)
+  → credential check @ 0x5DE670
+  → Crypto_EnableGameCipher @ 0x401310
+  → conn+0x224 = 0
 ```
 
 | VA | Name | Action |
 |----|------|--------|
-| `0x00401100` | `Crypto_ProcessKeyPacket` | Parse server key blob; populate `0x23027C0`; init AES ctx via `0x404680` |
-| `0x00401320` | `Crypto_DeriveSessionKeys` | SHA256-like (`0x00404390`) over `0x23027C0`; expand keys into recv/send ctx |
+| `0x005E3D60` | `Handler_Packet_A101_KeyMaterial` | Recv handler; reads 195 B; calls vfn `+0x254` |
+| `0x00401100` | `Crypto_ProcessKeyPacket` | HMAC/expand pipeline; populates `0x23027C0` and AES ctx |
+| `0x00401320` | `Crypto_DeriveSessionKeys` | SHA256-like (`0x00404390`) over `0x23027C0`; expand keys |
 | `0x00401310` | `Crypto_EnableGameCipher` | `DAT_023037e9 = 1`, `DAT_023037ea = 1` |
-| `0x00404680` | `Crypto_CounterLoad` | Byte-swap 16 B nonce into `ctx+0xF4`; set `ctx+0xF0 = 10` (AES-128 rounds) |
-| `0x005A4D50` | `Connection_OnKeyMaterial` | State-machine handler; calls `401100` + enable |
-| `0x005A4D30` | `Connection_SendKeyAck` | Sends client ack packet (see below) |
+| `0x00404680` | `Crypto_CounterLoad` | AES key schedule init (first 16 B of derived block, byte-swapped) |
+| `0x005A4D50` | `Connection_OnKeyMaterial` | vfn `+0x254`; calls `401100` + ack follow-up + enable |
+| `0x005A4D30` | `Connection_SendKeyAck` | Sends client ack (see below) |
 | `0x004D2B50` | `Login_OnSubmitCredentials` | Copies creds to `conn+0x27C` / `+0x29F`; calls `5A4D30`; sets `conn+0x224 = 0x11` |
+
+Connection object vptr base: **`0x00747544`**. Handler slot **`+0x254`** → VA **`0x00747798`** → **`0x005A4D50`**.
+
+### Client → server key ack (`Connection_SendKeyAck`)
+
+Built by `NetworkSendKeyBlob` @ `0x005EC610`:
+
+| Offset | Size | Field |
+|--------|------|-------|
+| `+0` | 2 | **`opcode = 0x00A102`** (LE) |
+| `+2` | 2 | `0x0032` (50) — sub-field / length marker |
+| `+4` | 34 | Payload copied from `conn+0x27C` (18 B) + `conn+0x29F` (16 B) |
+
+Still encrypted with **login XOR** until `Crypto_EnableGameCipher` runs.
+
+### Server mirror (`ps_game.exe`)
+
+| VA | Name | Action |
+|----|------|--------|
+| `0x00464E60` | `Connection_InitStreamCrypto` | `AES_KeyExpand` on 16 B key; copy 16 B → `conn+0x118` ctx `+0xF4`; set `conn+0x230=1`, `conn+0x231=1` |
+| `0x00464F00` | `Connection_EnableSendCipher` | `conn+0x231 = 1`, clear login XOR send (`+0x232`) |
+| `0x00413CB5` | (zone-enter pipeline) | Calls `464E60` after copying 8×`u32` key material |
+
+Called during **`CUser` zone-enter** (`Handler_Packet1201` @ `0x47FCC0` path), not from chat handlers.
+
+**Server outbound opcode** that delivers the client-side `0xA101` key blob: **not identified** in this RE pass (no `0xA101`/`0xA102` immedate in `ps_game.exe` send sites).
+
+### Initial counter (IV)
+
+| Finding | Confidence |
+|---------|------------|
+| Server copies `[struct+0x10..0x1F]` literally into `ctx+0xF4..0x100` (`Connection_InitStreamCrypto`) | **High** |
+| Client counter at `0x23037F0+0xF4` comes from **derived** material inside `0x401100` (HMAC/PRNG path), not a fixed offset in the `0xA101` wire body | **High** |
+| Exact byte-for-byte formula payload → initial counter without runtime capture | **Not mapped** |
+
+### Client global contexts
 
 ### Client → server key ack (`Connection_SendKeyAck`)
 
@@ -197,7 +253,7 @@ Called during **`CUser` zone-enter** (`Handler_Packet1201` @ `0x47FCC0` path), n
 |----------|--------|
 | `Crypto_CounterLoad` @ `0x404680` | Loads **16 bytes** from key-material struct with **byte-pair swap** (BSwap32-like per dword) into `ctx+0xF4` |
 | Server `Connection_InitStreamCrypto` | Copies `[esi+0x10..0x1C]` (4×`u32`) → `ctx+0xF4..0x100`; `partial = 0` |
-| Confidence | **Medium-high** — layout matches CTR; exact server-side source offset needs one wire capture |
+| Confidence | **Medium-high** — layout matches CTR; inbound key-blob opcode **`0xA101`** via `PacketDispatcher`; server outbound opcode **not mapped** |
 
 ### Client global contexts
 
@@ -208,8 +264,6 @@ Called during **`CUser` zone-enter** (`Handler_Packet1201` @ `0x47FCC0` path), n
 | `0x02303A58` | Secondary recv |
 | `0x023027C0` | Key seed buffer (cleared after derive) |
 | `0x023027E0` | Login XOR table |
-
-**Remaining gap:** opcode of the **inbound** server packet that feeds `Crypto_ProcessKeyPacket` — delivered via login connection state machine (`0x747788`), **not** routed through chat `PacketDispatcher`. Capture on login port + breakpoint @ `0x401100`.
 
 ---
 
@@ -277,14 +331,24 @@ Confirmed flow: **megaphone item → set flag → client sends Normal → server
 
 ## Reimplementation confidence
 
-| Goal | Before | Now |
-|------|--------|-----|
-| Hook chat send/recv (correct plaintext) | ~90% | **~95%** — envelope + opcodes |
-| Wire-compatible proxy (no custom cipher) | ~40% | **~75%** — algorithm + ctx struct |
-| Server emulator with stock client | ~80% | **~85%** |
-| Cipher clone without handshake capture | ~40% | **~65%** — ack opcode + ctx init known; inbound key opcode open |
+Current assessment (May 2026, validated against `Game.exe` + `ps_game.exe`):
 
-**Still TODO:** inbound server opcode for key blob (login socket); one wire capture to confirm counter bytes.
+| Goal | Confidence | Basis |
+|------|------------|-------|
+| Hook chat send/recv (plaintext after decrypt) | **High (~95%)** | TCP envelope, opcode dispatch, decrypt/encrypt gates mapped |
+| Wire-compatible proxy (reuse stock cipher) | **Medium-high (~75%)** | AES-128 CTR-like stream, ctx struct, per-connection flags |
+| Server emulator compatible with stock client | **High (~85%)** | Chat validation, broadcasts, megaphone, server crypto init |
+| Standalone cipher clone (no wire capture) | **Medium-high (~75%)** | Inbound `0xA101` layout + ack `0xA102`; counter derivation inside `0x401100` not closed |
+| Pixel-perfect UI clone | **Medium (~65%)** | Out of scope — vtables/UI not fully mapped |
+
+### Known uncertainties
+
+| Topic | Status |
+|-------|--------|
+| Server outbound opcode for client `0xA101` key blob | **Not mapped** in `ps_game.exe` |
+| Initial counter bytes (client) | Derived via HMAC/PRNG in `0x401100` — wire offset **not mapped** |
+| `0xA101` leading 3 bytes | Read but semantics unknown |
+| Fixed-field charset/padding | `char[21]` name fields — partially inferred |
 
 ---
 

@@ -118,6 +118,22 @@ Effect: resolves entity via world mgr (`0x7C4A68`); may attach FX (`0x459D30`), 
 
 Evidence: `game-chat-native/vtable/ChatEntitySpawn_vfn_0xF0_00593970.c`
 
+### `0x00A101` — key material (crypto handshake)
+
+Handler: `Handler_Packet_A101_KeyMaterial` @ `0x005E3D60` → vfn `+0x254` → `Connection_OnKeyMaterial` @ `0x005A4D50` → `Crypto_ProcessKeyPacket` @ `0x401100`.
+
+Routed by `PacketDispatcher` @ `0x5F1E10` (not a separate login socket path).
+
+```
++0x00  u8   field_0
++0x01  u8   field_1
++0x02  u8   field_2
++0x03  u8[64]  block_a
++0x43  u8[128] block_b       // body = 195 bytes after opcode
+```
+
+Client ack: **`0x00A102`** — see [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md). Server outbound opcode for this blob: **not mapped**.
+
 ### Other recv opcodes (client)
 
 | Opcode | Payload | Effect |
@@ -187,14 +203,24 @@ u16 0x812 · u8 name[21] · u8 len · bytes[len] · u32 guildId   // size = len 
 
 ## 5. Reimplementation confidence
 
+Current assessment (May 2026):
+
 | Goal | Confidence | What this doc covers |
 |------|------------|----------------------|
-| Hook send/recv with correct opcodes | **High (~90%)** | Main send + recv layouts |
-| Server compatible with stock client | **High (~80%)** | Len validation, broadcasts, megaphone |
-| Pixel-perfect UI clone | **Medium (~65%)** | Out of scope — see vtables/UI |
-| End-to-end cryptography | **Medium-high (~80%)** | [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md) — handshake paths, `0xA102` ack, counter init |
+| Hook send/recv with correct opcodes and layouts | **High (~95%)** | Send/recv packet bodies, opcode routing |
+| Server chat compatible with stock client | **High (~85%)** | Length validation, broadcasts, megaphone flow |
+| End-to-end wire cryptography | **Medium-high (~85%)** | Envelope + `0xA101`/`0xA102`; see [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md) |
+| Standalone cipher without capture | **Medium-high (~75%)** | Inbound layout mapped; counter derivation not closed |
+| Pixel-perfect UI clone | **Medium (~65%)** | Out of scope — vtables/UI |
 
-**Open gaps:** inbound server key-blob opcode (login socket); charset/padding on fixed `char[21]` fields.
+### Known uncertainties
+
+| Topic | Status |
+|-------|--------|
+| Server outbound opcode for client `0xA101` | **Not mapped** |
+| Initial counter bytes (client) | Derived inside `0x401100` — wire mapping **not mapped** |
+| `0xA101` leading 3 bytes | Semantics unknown |
+| `char[21]` fixed fields | Charset and padding partially inferred |
 
 ---
 

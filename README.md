@@ -15,6 +15,27 @@ Stock chat flow mapping **client ↔ server**: Ghidra-decompiled code, address m
 
 **[`WIRE_CRYPTO.md`](WIRE_CRYPTO.md)** — AES-CTR, handshake, crypto context struct, encrypted send/recv pipeline.
 
+## Current coverage
+
+| Area | Status |
+|------|--------|
+| Chat opcodes + handlers (client + server) | Mapped with decompiled `.c` evidence |
+| Wire layouts (`0x1101`–`0x110A`, send paths) | Documented in PACKET_SPEC |
+| AES-128 stream cipher + TCP envelope | Documented in WIRE_CRYPTO |
+| Handshake (key recv `0xA101`, ack `0xA102`) | Mapped via `PacketDispatcher`; server outbound opcode not mapped |
+| Vtable bases | Chat `0x747544`, connection state `0x747788` |
+
+## Reimplementation confidence
+
+| Goal | Confidence |
+|------|------------|
+| Hook chat send/recv (plaintext) | **~95%** |
+| Server emulator + stock client | **~85%** |
+| Wire-compatible proxy | **~75%** |
+| Standalone cipher clone | **~75%** |
+
+Details and known uncertainties: [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md) · [`PACKET_SPEC.md`](PACKET_SPEC.md).
+
 ## Folders
 
 | Folder | Contents |

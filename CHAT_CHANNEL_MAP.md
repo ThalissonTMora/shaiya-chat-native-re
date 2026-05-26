@@ -35,7 +35,7 @@ Address tables and decompiled files. Base: `0x00400000` · client MD5 `c1edd9663
 
 ## 2. Received packets (`0x11xx` and related)
 
-Routing source: `game-chat-native/recv/PacketDispatcher_005f1e10.c` (~L917).
+Routing source: `game-chat-native/recv/PacketDispatcher_005f1e10.c` (chat opcodes ~L917; crypto `0xA101` ~L1193).
 
 | Opcode | Channel | Handler `0x…` | Handler file | VTable `+off` / `0x…` | VTable file | Main effect |
 |--------|---------|---------------|--------------|----------------------|-------------|-------------|
@@ -43,6 +43,7 @@ Routing source: `game-chat-native/recv/PacketDispatcher_005f1e10.c` (~L917).
 | `0x0E06` | Notify B | `005E5070` | `handlers/Handler_ChatNotify_E06_005e5070.c` | `+0x320` / `005957E0` | `vtable/ChatNotify_vfn_0x320_005957e0.c` | Entity FX / position (no chat box) |
 | `0x0F02` | Admin monitor | `005E4E30` | `handlers/Handler_AdminChatMonitor_005e4e30.c` | `+0x308` / `00595570` | `vtable/AdminChatMonitor_vfn_0x308_00595570.c` | Monitor flag or `SysMsg` |
 | `0x0502` | Entity spawn | `005E0CF0` | `handlers/Handler_Packet_0502_005e0cf0.c` | `+0xF0` / `00593970` | `vtable/ChatEntitySpawn_vfn_0xF0_00593970.c` | World entity update (no chat box) |
+| `0xA101` | Key material | `005E3D60` | `handlers/Handler_Packet_A101_KeyMaterial_005e3d60.c` | `+0x254` / `005A4D50` | `crypto/Connection_OnKeyMaterial_005a4d50.c` | Crypto handshake (see WIRE_CRYPTO) |
 | `0x1101` | Normal | `005E50E0` | `handlers/Handler_ChatNormal_005e50e0.c` | `+0x324` / `0059C380` | `vtable/ChatNormalParty_vfn_0x324_0059c380.c` | Chat box + 3D balloon |
 | `0x1102` | Whisper | `005E5180` | `handlers/Handler_ChatWhisper_005e5180.c` | `+0x328` case `0` / `0059BDB0` | `vtable/ChatWhisperTradeGuildZoneMega_vfn_0x328_0059bdb0.c` | Chat box + whisper highlight |
 | `0x1103` | Trade | `005E5250` | `handlers/Handler_ChatTrade_005e5250.c` | `+0x328` case `1` | same | Chat box (`SysMsg`) |
@@ -87,6 +88,7 @@ Routing source: `game-chat-native/recv/PacketDispatcher_005f1e10.c` (~L917).
 | `+0x34C` | `ChatUnion_vfn` | `0059A940` | `vtable/ChatUnion_vfn_0x34C_0059a940.c` | `0x110A` |
 | `+0x350` | `ChatChannel_vfn` | `0059A9D0` | `vtable/ChatChannel_vfn_0x350_0059a9d0.c` | `0x110B` |
 | `+0x578` | `ChatLongMsg_vfn` | `0059BD00` | `vtable/ChatLongMsg_vfn_0x578_0059bd00.c` | `0x1112`, `0xF10A` |
+| `+0x254` | `Connection_OnKeyMaterial_vfn` | `005A4D50` | `crypto/Connection_OnKeyMaterial_005a4d50.c` | `0xA101` key blob |
 | `+0x680` | `ChatObject_PacketUnderflow` | `00598DC0` | `vtable/ChatObject_PacketUnderflow_vfn680_00598dc0.c` | generic recv |
 | `+0x684` | `ChatObject_GenericPacketHandler` | `00599C30` | `vtable/ChatObject_GenericPacketHandler_vfn684_00599c30.c` | generic recv |
 
