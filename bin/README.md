@@ -2,6 +2,8 @@
 
 These are the **Shaiya Core V9** executables used for Ghidra decompilation. They are versioned in git.
 
+Source project: [Spelunkern/Shaiya-Core](https://github.com/Spelunkern/Shaiya-Core/) — C++ patching framework for `Game.exe`, `ps_game.exe`, and `ps_login.exe`.
+
 | File | Role | MD5 |
 |------|------|-----|
 | `Game.exe` | Client | `c1edd96639ad81835624b9c4516ac781` |

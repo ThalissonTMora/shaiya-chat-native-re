@@ -2,6 +2,8 @@
 
 The files in [`bin/`](../bin/) are the **Shaiya Core V9** executables used for Ghidra decompilation in this repo. They are versioned in git (see [`bin/README.md`](../bin/README.md)).
 
+Built from the [Shaiya-Core](https://github.com/Spelunkern/Shaiya-Core/) distribution (`Game.exe`, `ps_game.exe`, `ps_login.exe`).
+
 | File | Role | MD5 |
 |------|------|-----|
 | `Game.exe` | Client | `c1edd96639ad81835624b9c4516ac781` |

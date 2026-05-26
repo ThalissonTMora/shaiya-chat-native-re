@@ -2,6 +2,8 @@
 
 Stock chat flow mapping **client ↔ world server ↔ login handshake**: Ghidra decompilations, manifests, and wire specs.
 
+Binaries under [`bin/`](bin/) come from [Shaiya-Core](https://github.com/Spelunkern/Shaiya-Core/) (V9).
+
 | Target | Folder | Role |
 |--------|--------|------|
 | `Game.exe` | [`game-chat-native/`](game-chat-native/) | Client chat + recv `0xA101` |
