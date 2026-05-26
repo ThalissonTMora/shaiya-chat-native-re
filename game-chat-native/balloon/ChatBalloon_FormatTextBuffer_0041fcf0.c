@@ -1,12 +1,12 @@
 /*
  * Game.exe — ChatBalloon_FormatTextBuffer
- * VA solicitado: 0x0041FCF0
+ * Requested VA: 0x0041FCF0
  * Entry Ghidra:  0041fcf0
  * Ghidra name:   FUN_0041fcf0
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: balloon
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: balloon
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

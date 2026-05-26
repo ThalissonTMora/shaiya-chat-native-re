@@ -1,12 +1,12 @@
 /*
  * Game.exe — PacketDispatcher
- * VA solicitado: 0x005F1E10
+ * Requested VA: 0x005F1E10
  * Entry Ghidra:  005f1e10
  * Ghidra name:   FUN_005f1e10
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: recv
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: recv
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

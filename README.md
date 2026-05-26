@@ -1,11 +1,11 @@
 # Shaiya — Native Chat (RE)
 
-Stock chat flow mapping **client ↔ server**: decompiled code (Ghidra), address manifests, and opcode table.
+Stock chat flow mapping **client ↔ server**: Ghidra-decompiled code, address manifests, and opcode tables.
 
 | Target | Functions |
-|------|---------|
-| `Game.exe` | 131 |
-| `ps_game.exe` | 114 |
+|--------|-----------|
+| `Game.exe` | 131 + 7 crypto |
+| `ps_game.exe` | 114 + 6 crypto |
 
 ## Start here
 
@@ -13,12 +13,14 @@ Stock chat flow mapping **client ↔ server**: decompiled code (Ghidra), address
 
 **[`PACKET_SPEC.md`](PACKET_SPEC.md)** — wire layouts (send/recv), server validation, TCP envelope.
 
+**[`WIRE_CRYPTO.md`](WIRE_CRYPTO.md)** — AES-CTR, handshake, crypto context struct, encrypted send/recv pipeline.
+
 ## Folders
 
 | Folder | Contents |
-|-------|----------|
+|--------|----------|
 | [`game-chat-native/`](game-chat-native/) | Client — decompiled `.c` files + README |
 | `psgame-chat-native/` | Server — decompiled `.c` files |
-| `tools/ghidra/` | Manifests + scripts to regenerate exports |
+| `tools/ghidra/` | Manifests + scripts (`decompile-*-chat.sh`, `decompile-crypto.sh`) |
 
 Contributions and validations are welcome.

@@ -1,12 +1,12 @@
 /*
  * Game.exe — ChatObject_PacketUnderflow_vfn680
- * VA solicitado: 0x00598DC0
+ * Requested VA: 0x00598DC0
  * Entry Ghidra:  00598dc0
  * Ghidra name:   FUN_00598dc0
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: vtable
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: vtable
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

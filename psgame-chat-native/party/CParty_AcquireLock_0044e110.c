@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — CParty_AcquireLock
- * VA solicitado: 0x0044E110
+ * Requested VA: 0x0044E110
  * Entry Ghidra:  0044e110
  * Ghidra name:   FUN_0044e110
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: party
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: party
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

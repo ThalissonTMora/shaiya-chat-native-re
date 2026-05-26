@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — Chat_ProcessIncoming
- * VA solicitado: 0x0047F400
+ * Requested VA: 0x0047F400
  * Entry Ghidra:  0047f400
  * Ghidra name:   FUN_0047f400
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: handlers
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: handlers
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

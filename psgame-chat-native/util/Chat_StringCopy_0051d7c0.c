@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — Chat_StringCopy
- * VA solicitado: 0x0051D7C0
+ * Requested VA: 0x0051D7C0
  * Entry Ghidra:  0051d7c0
  * Ghidra name:   _memcpy
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: util
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: util
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

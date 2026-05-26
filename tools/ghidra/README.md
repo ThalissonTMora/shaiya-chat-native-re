@@ -1,13 +1,14 @@
-# Ghidra — export código nativo de chat
+# Ghidra — native chat code export
 
-**Sempre separar servidor e cliente.**
+**Always keep server and client separate.**
 
-| Script | Binário (`bin/`) | Saída |
-|--------|------------------|-------|
+| Script | Binary (`bin/`) | Output |
+|--------|-------------------|--------|
 | `./decompile-psgame-chat.sh` | `ps_game.exe` | `psgame-chat-native/` |
 | `./decompile-game-chat.sh` | `Game.exe` | `game-chat-native/` |
+| `./decompile-crypto.sh` | both | `*/crypto/` subset |
 
-## Pré-requisitos (`~/tools`)
+## Prerequisites (`~/tools`)
 
 - JDK 21: `~/tools/jdk-21.0.6+7`
 - Ghidra 11.2.1: `~/tools/ghidra_11.2.1_PUBLIC`
@@ -17,17 +18,17 @@ export JAVA_HOME=~/tools/jdk-21.0.6+7
 export GHIDRA_HOME=~/tools/ghidra_11.2.1_PUBLIC
 ```
 
-## Adicionar funções
+## Adding functions
 
-Edite o manifest correspondente (`psgame-chat-functions.manifest` ou `game-chat-functions.manifest`):
+Edit the matching manifest (`psgame-chat-functions.manifest` or `game-chat-functions.manifest`):
 
 ```
-categoria	SymbolName	0x0047F400
+category	SymbolName	0x0047F400
 ```
 
-Reexecute o script de export.
+Re-run the export script.
 
-## Regra
+## Rules
 
-- **Nunca** misturar `.c` de `ps_game.exe` e `Game.exe` na mesma pasta.
-- Headers nos `.c` identificam binário + MD5 (via linha `# binary=...` no manifest).
+- **Never** mix `.c` files from `ps_game.exe` and `Game.exe` in the same folder.
+- Headers in `.c` files identify binary + MD5 (via `# binary=...` line in the manifest).

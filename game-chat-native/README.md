@@ -1,30 +1,31 @@
-# Cliente — `Game.exe`
+# Client — `Game.exe`
 
-Código decompilado Ghidra do chat nativo do cliente. **131** funções.
+Ghidra-decompiled native chat code for the client. **131** functions (+ 7 crypto in `crypto/`).
 
-| Campo | Valor |
+| Field | Value |
 |-------|-------|
 | MD5 | `c1edd96639ad81835624b9c4516ac781` |
 | ImageBase | `0x00400000` |
-| Manifesto | [`game-chat-functions.manifest`](game-chat-functions.manifest) |
+| Manifest | [`game-chat-functions.manifest`](game-chat-functions.manifest) |
 
-## Referência
+## Reference
 
-Tabela de opcodes, handlers, vtables e caminhos dos `.c`:
+Opcode table, handlers, vtables, and `.c` paths:
 
 **[`../CHAT_CHANNEL_MAP.md`](../CHAT_CHANNEL_MAP.md)**
 
-## Pastas
+## Folders
 
-| Pasta | Conteúdo |
-|-------|----------|
+| Folder | Contents |
+|--------|----------|
 | `send/` | `NetworkSend`, `PacketSend_*` |
 | `recv/` | `PacketDispatcher`, decrypt, socket |
-| `handlers/` | Handlers recv `0x11xx` |
-| `vtable/` | Métodos virtuais do singleton chat |
+| `handlers/` | Recv handlers `0x11xx` |
+| `vtable/` | Virtual methods on chat singleton |
 | `ui/` | Render, input, DrawText |
-| `buffer/` | ChatBox, formatação de linhas |
-| `balloon/` | Balão de fala 3D (`entity+0x288`) |
-| `hooks/` | Landmarks para hooks (hide-native) |
+| `buffer/` | ChatBox, line formatting |
+| `balloon/` | 3D speech balloon (`entity+0x288`) |
+| `crypto/` | Wire encryption / AES-CTR |
+| `hooks/` | Landmarks for hooks (hide-native) |
 
-Não editar os `.c` manualmente — regenerar com `../tools/ghidra/decompile-game-chat.sh`.
+Do not edit `.c` files manually — regenerate with `../tools/ghidra/decompile-game-chat.sh`.

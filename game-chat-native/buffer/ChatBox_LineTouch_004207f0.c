@@ -1,12 +1,12 @@
 /*
  * Game.exe — ChatBox_LineTouch
- * VA solicitado: 0x004207F0
+ * Requested VA: 0x004207F0
  * Entry Ghidra:  004207f0
  * Ghidra name:   FUN_004207f0
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: buffer
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: buffer
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — SConnection_SendIfConnReady
- * VA solicitado: 0x004ED210
+ * Requested VA: 0x004ED210
  * Entry Ghidra:  004ed210
  * Ghidra name:   FUN_004ed210
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: network
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: network
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

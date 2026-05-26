@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — Chat_TwoCharValidate
- * VA solicitado: 0x0047A200
+ * Requested VA: 0x0047A200
  * Entry Ghidra:  0047a200
  * Ghidra name:   FUN_0047a200
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: util
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: util
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

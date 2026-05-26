@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — CWorld_TickShoutBroadcast500ms
- * VA solicitado: 0x00428DE0
+ * Requested VA: 0x00428DE0
  * Entry Ghidra:  00428de0
  * Ghidra name:   FUN_00428de0
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: queue
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: queue
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

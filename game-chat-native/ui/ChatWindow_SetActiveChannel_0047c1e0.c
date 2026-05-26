@@ -1,12 +1,12 @@
 /*
  * Game.exe — ChatWindow_SetActiveChannel
- * VA solicitado: 0x0047C1E0
+ * Requested VA: 0x0047C1E0
  * Entry Ghidra:  0047c1e0
  * Ghidra name:   FUN_0047c1e0
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: ui
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: ui
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

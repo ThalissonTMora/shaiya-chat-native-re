@@ -1,12 +1,12 @@
 /*
  * Game.exe — WorldToScreen_ProjectPoint
- * VA solicitado: 0x00573FF0
+ * Requested VA: 0x00573FF0
  * Entry Ghidra:  00573ff0
  * Ghidra name:   FUN_00573ff0
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: render
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: render
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

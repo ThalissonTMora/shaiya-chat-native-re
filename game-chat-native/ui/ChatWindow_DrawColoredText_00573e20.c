@@ -1,12 +1,12 @@
 /*
  * Game.exe — ChatWindow_DrawColoredText
- * VA solicitado: 0x00573E20
+ * Requested VA: 0x00573E20
  * Entry Ghidra:  00573e20
  * Ghidra name:   FUN_00573e20
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: ui
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: ui
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

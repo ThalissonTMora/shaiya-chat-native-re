@@ -1,12 +1,12 @@
 /*
  * Game.exe — ChatBox_ParseColorCode
- * VA solicitado: 0x00407F70
+ * Requested VA: 0x00407F70
  * Entry Ghidra:  00407f70
  * Ghidra name:   FUN_00407f70
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: buffer
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: buffer
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

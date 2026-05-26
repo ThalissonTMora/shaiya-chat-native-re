@@ -1,5 +1,5 @@
 # binary=Game.exe md5=c1edd96639ad81835624b9c4516ac781 imagebase=0x00400000 regen=tools/ghidra/decompile-game-chat.sh
-# Cliente — chat Game.exe (ImageBase 0x00400000)
+# Client — chat Game.exe (ImageBase 0x00400000)
 
 send	NetworkSend	0x005EA9A0
 send	PacketSend_Chat	0x005ED060

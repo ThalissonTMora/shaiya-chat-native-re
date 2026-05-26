@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — AdminChat_ProcessIncoming
- * VA solicitado: 0x0047FD10
+ * Requested VA: 0x0047FD10
  * Entry Ghidra:  0047fd10
  * Ghidra name:   FUN_0047fd10
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: handlers
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: handlers
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

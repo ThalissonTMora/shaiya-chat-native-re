@@ -1,12 +1,12 @@
 /*
  * Game.exe — Handler_ChatGuild
- * VA solicitado: 0x005E5310
+ * Requested VA: 0x005E5310
  * Entry Ghidra:  005e5310
  * Ghidra name:   FUN_005e5310
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: handlers
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: handlers
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

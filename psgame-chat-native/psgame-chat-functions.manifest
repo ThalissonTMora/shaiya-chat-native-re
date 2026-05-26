@@ -1,5 +1,5 @@
 # binary=server/ps_game.exe md5=91b212afbe6623382713772489dc82ce imagebase=0x00400000 regen=tools/ghidra/decompile-psgame-chat.sh
-# Servidor — chat ps_game.exe (ImageBase 0x00400000)
+# Server — chat ps_game.exe (ImageBase 0x00400000)
 
 pipeline	Recv_Wrapper	0x004748E0
 pipeline	Recv_PacketDecrypt	0x004E4180

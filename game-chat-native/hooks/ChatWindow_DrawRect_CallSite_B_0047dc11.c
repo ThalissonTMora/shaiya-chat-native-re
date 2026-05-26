@@ -1,13 +1,13 @@
 /*
  * Game.exe — ChatWindow_DrawRect_CallSite_B
- * VA solicitado: 0x0047DC11
+ * Requested VA: 0x0047DC11
  * Entry Ghidra:  0047db70
  * Ghidra name:   FUN_0047db70
- * NOTA: VA dentro da função (landmark/hook), não é entry point.
+ * NOTE: VA is inside the function (landmark/hook), not the entry point.
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: hooks
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: hooks
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

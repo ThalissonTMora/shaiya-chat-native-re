@@ -1,12 +1,12 @@
 /*
  * Game.exe — CGui_DrawIcon
- * VA solicitado: 0x00551B40
+ * Requested VA: 0x00551B40
  * Entry Ghidra:  00551b40
  * Ghidra name:   FUN_00551b40
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: gui
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: gui
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

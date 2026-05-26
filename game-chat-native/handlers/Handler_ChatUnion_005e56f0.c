@@ -1,12 +1,12 @@
 /*
  * Game.exe — Handler_ChatUnion
- * VA solicitado: 0x005E56F0
+ * Requested VA: 0x005E56F0
  * Entry Ghidra:  005e56f0
  * Ghidra name:   FUN_005e56f0
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: handlers
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: handlers
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

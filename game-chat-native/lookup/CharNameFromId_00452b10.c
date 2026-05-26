@@ -1,12 +1,12 @@
 /*
  * Game.exe — CharNameFromId
- * VA solicitado: 0x00452B10
+ * Requested VA: 0x00452B10
  * Entry Ghidra:  00452b10
  * Ghidra name:   FUN_00452b10
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: lookup
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: lookup
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

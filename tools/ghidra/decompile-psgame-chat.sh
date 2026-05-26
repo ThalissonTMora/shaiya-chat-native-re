@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Servidor: exporta chat ps_game.exe → psgame-chat-native/
+# Server: export ps_game.exe chat → psgame-chat-native/
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -33,4 +33,4 @@ echo "==> [SERVER] ps_game.exe → $OUTPUT_DIR"
   -postScript ExportDecompileByAddress.java "$OUTPUT_DIR" "$MANIFEST"
 
 cp "$MANIFEST" "$OUTPUT_DIR/psgame-chat-functions.manifest"
-echo "==> Done: $(find "$OUTPUT_DIR" -name '*.c' | wc -l) arquivos .c"
+echo "==> Done: $(find "$OUTPUT_DIR" -name '*.c' | wc -l) .c files"

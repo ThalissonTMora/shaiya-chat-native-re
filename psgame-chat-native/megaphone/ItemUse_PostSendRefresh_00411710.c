@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — ItemUse_PostSendRefresh
- * VA solicitado: 0x00411710
+ * Requested VA: 0x00411710
  * Entry Ghidra:  00411710
  * Ghidra name:   FUN_00411710
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: megaphone
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: megaphone
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

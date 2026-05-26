@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — Dispatch_Packet10B_ChatQuickSlots
- * VA solicitado: 0x0047ACE0
+ * Requested VA: 0x0047ACE0
  * Entry Ghidra:  0047ace0
  * Ghidra name:   FUN_0047ace0
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: handlers
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: handlers
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

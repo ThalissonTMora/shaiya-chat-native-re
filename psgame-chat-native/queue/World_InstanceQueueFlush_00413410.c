@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — World_InstanceQueueFlush
- * VA solicitado: 0x00413410
+ * Requested VA: 0x00413410
  * Entry Ghidra:  00413410
  * Ghidra name:   FUN_00413410
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: queue
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: queue
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

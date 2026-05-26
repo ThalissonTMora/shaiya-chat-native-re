@@ -1,12 +1,12 @@
 /*
  * Game.exe — DrawText_ChatBox_Wrapper
- * VA solicitado: 0x004231A0
+ * Requested VA: 0x004231A0
  * Entry Ghidra:  004231a0
  * Ghidra name:   FUN_004231a0
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: ui
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: ui
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

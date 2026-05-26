@@ -1,13 +1,13 @@
 /*
  * Game.exe — ChatWindow_ToggleOpenLayout
- * VA solicitado: 0x0047D203
+ * Requested VA: 0x0047D203
  * Entry Ghidra:  0047d1f0
  * Ghidra name:   FUN_0047d1f0
- * NOTA: VA dentro da função (landmark/hook), não é entry point.
+ * NOTE: VA is inside the function (landmark/hook), not the entry point.
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: ui
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: ui
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

@@ -1,13 +1,13 @@
 /*
  * server/ps_game.exe — Dispatch_Epilogue
- * VA solicitado: 0x00474ED1
+ * Requested VA: 0x00474ED1
  * Entry Ghidra:  00474940
  * Ghidra name:   FUN_00474940
- * NOTA: VA dentro da função (landmark/hook), não é entry point.
+ * NOTE: VA is inside the function (landmark/hook), not the entry point.
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: pipeline
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: pipeline
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

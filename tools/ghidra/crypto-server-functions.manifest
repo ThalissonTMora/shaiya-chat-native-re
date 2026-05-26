@@ -1,0 +1,9 @@
+# Crypto/wire subset — ps_game.exe (regenerate: decompile-crypto.sh)
+# binary=ps_game.exe md5=91b212afbe6623382713772489dc82ce imagebase=0x00400000
+
+crypto	AES_BlockKeystream	0x004E3450
+crypto	AES_KeyExpand	0x004E4350
+crypto	Crypto_CounterInit	0x004E4000
+crypto	PacketStream_XOR	0x004E4180
+crypto	Connection_EncryptOutbound	0x00464F20
+crypto	Connection_DecryptInbound	0x00464FA0

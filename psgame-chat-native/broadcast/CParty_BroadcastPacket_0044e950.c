@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — CParty_BroadcastPacket
- * VA solicitado: 0x0044E950
+ * Requested VA: 0x0044E950
  * Entry Ghidra:  0044e950
  * Ghidra name:   FUN_0044e950
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: broadcast
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: broadcast
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

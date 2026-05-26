@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — Cell_SendRadiusInner
- * VA solicitado: 0x0042B0F0
+ * Requested VA: 0x0042B0F0
  * Entry Ghidra:  0042b0f0
  * Ghidra name:   FUN_0042b0f0
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: spatial
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: spatial
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

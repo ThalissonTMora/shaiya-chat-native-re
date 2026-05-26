@@ -1,12 +1,12 @@
 /*
  * Game.exe — ChatBox_AddLine
- * VA solicitado: 0x00422630
+ * Requested VA: 0x00422630
  * Entry Ghidra:  00422630
  * Ghidra name:   FUN_00422630
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: buffer
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: buffer
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

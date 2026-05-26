@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — Dispatch_Packet0500_Handler
- * VA solicitado: 0x00478490
+ * Requested VA: 0x00478490
  * Entry Ghidra:  00478490
  * Ghidra name:   FUN_00478490
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: handlers
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: handlers
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

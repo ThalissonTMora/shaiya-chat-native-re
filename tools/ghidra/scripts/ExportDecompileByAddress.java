@@ -99,16 +99,16 @@ public class ExportDecompileByAddress extends GhidraScript {
             try (PrintWriter pw = new PrintWriter(new FileWriter(outFile))) {
                 pw.println("/*");
                 pw.println(" * " + meta.binary + " — " + e.symbol);
-                pw.println(" * VA solicitado: " + e.addrRaw);
+                pw.println(" * Requested VA: " + e.addrRaw);
                 pw.println(" * Entry Ghidra:  " + func.getEntryPoint());
                 pw.println(" * Ghidra name:   " + func.getName());
                 if (midFunction) {
-                    pw.println(" * NOTA: VA dentro da função (landmark/hook), não é entry point.");
+                    pw.println(" * NOTE: VA is inside the function (landmark/hook), not the entry point.");
                 }
                 pw.println(" * MD5: " + meta.md5);
                 pw.println(" * ImageBase: " + meta.imageBase);
-                pw.println(" * Categoria: " + e.category);
-                pw.println(" * Regenerar: " + meta.regenScript);
+                pw.println(" * Category: " + e.category);
+                pw.println(" * Regenerate: " + meta.regenScript);
                 pw.println(" */");
                 pw.println();
                 if (results.decompileCompleted()) {

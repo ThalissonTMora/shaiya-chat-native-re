@@ -1,0 +1,10 @@
+# Crypto/wire subset — Game.exe (regenerate: decompile-crypto.sh)
+# binary=Game.exe md5=c1edd96639ad81835624b9c4516ac781 imagebase=0x00400000
+
+crypto	PacketPayload_Encrypt	0x00401040
+crypto	Login_XORStream	0x00401000
+crypto	StreamCrypt_XOR	0x00404DF0
+crypto	StreamCrypt_AltCtx	0x00401640
+crypto	AES_BlockKeystream	0x00404830
+crypto	Crypto_EnableGameCipher	0x00401310
+crypto	Crypto_DeriveSessionKeys	0x00401320

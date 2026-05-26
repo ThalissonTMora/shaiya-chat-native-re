@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — Chat_BroadcastTrade
- * VA solicitado: 0x004192F0
+ * Requested VA: 0x004192F0
  * Entry Ghidra:  004192f0
  * Ghidra name:   FUN_004192f0
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: broadcast
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: broadcast
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

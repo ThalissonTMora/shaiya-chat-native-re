@@ -1,13 +1,13 @@
 /*
  * server/ps_game.exe — AdminChat_DefaultKick
- * VA solicitado: 0x004805A6
+ * Requested VA: 0x004805A6
  * Entry Ghidra:  0047fd10
  * Ghidra name:   FUN_0047fd10
- * NOTA: VA dentro da função (landmark/hook), não é entry point.
+ * NOTE: VA is inside the function (landmark/hook), not the entry point.
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: handlers
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: handlers
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

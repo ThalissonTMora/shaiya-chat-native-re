@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — Dispatch_ConnectState1_0100Router
- * VA solicitado: 0x0047A220
+ * Requested VA: 0x0047A220
  * Entry Ghidra:  0047a220
  * Ghidra name:   FUN_0047a220
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: pipeline
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: pipeline
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

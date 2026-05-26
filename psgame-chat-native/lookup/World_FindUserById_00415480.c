@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — World_FindUserById
- * VA solicitado: 0x00415480
+ * Requested VA: 0x00415480
  * Entry Ghidra:  00415480
  * Ghidra name:   FUN_00415480
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: lookup
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: lookup
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

@@ -1,12 +1,12 @@
 /*
  * Game.exe — NetworkRecv_SocketPump
- * VA solicitado: 0x005F438E
+ * Requested VA: 0x005F438E
  * Entry Ghidra:  005f438e
  * Ghidra name:   FUN_005f438e
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: recv
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: recv
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

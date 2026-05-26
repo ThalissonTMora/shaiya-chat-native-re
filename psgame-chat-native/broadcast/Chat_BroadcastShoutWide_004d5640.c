@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — Chat_BroadcastShoutWide
- * VA solicitado: 0x004D5640
+ * Requested VA: 0x004D5640
  * Entry Ghidra:  004d5640
  * Ghidra name:   FUN_004d5640
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: broadcast
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: broadcast
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

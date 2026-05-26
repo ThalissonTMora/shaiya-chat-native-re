@@ -1,13 +1,13 @@
 /*
  * Game.exe — PacketDispatcher_Fallback
- * VA solicitado: 0x005F3A3B
+ * Requested VA: 0x005F3A3B
  * Entry Ghidra:  005f1e10
  * Ghidra name:   FUN_005f1e10
- * NOTA: VA dentro da função (landmark/hook), não é entry point.
+ * NOTE: VA is inside the function (landmark/hook), not the entry point.
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: recv
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: recv
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

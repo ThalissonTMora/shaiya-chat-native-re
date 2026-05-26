@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — SendBuffer_NewChunk256
- * VA solicitado: 0x004F3B50
+ * Requested VA: 0x004F3B50
  * Entry Ghidra:  004f3b50
  * Ghidra name:   FUN_004f3b50
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: network
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: network
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

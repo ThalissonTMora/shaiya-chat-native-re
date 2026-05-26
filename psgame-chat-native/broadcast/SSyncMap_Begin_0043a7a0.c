@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — SSyncMap_Begin
- * VA solicitado: 0x0043A7A0
+ * Requested VA: 0x0043A7A0
  * Entry Ghidra:  0043a7a0
  * Ghidra name:   FUN_0043a7a0
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: broadcast
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: broadcast
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

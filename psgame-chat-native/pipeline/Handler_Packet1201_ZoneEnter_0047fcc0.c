@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — Handler_Packet1201_ZoneEnter
- * VA solicitado: 0x0047FCC0
+ * Requested VA: 0x0047FCC0
  * Entry Ghidra:  0047fcc0
  * Ghidra name:   FUN_0047fcc0
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: pipeline
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: pipeline
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

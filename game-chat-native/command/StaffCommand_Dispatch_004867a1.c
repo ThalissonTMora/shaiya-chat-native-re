@@ -1,13 +1,13 @@
 /*
  * Game.exe — StaffCommand_Dispatch
- * VA solicitado: 0x004867A1
+ * Requested VA: 0x004867A1
  * Entry Ghidra:  00486660
  * Ghidra name:   FUN_00486660
- * NOTA: VA dentro da função (landmark/hook), não é entry point.
+ * NOTE: VA is inside the function (landmark/hook), not the entry point.
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: command
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: command
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

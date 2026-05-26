@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — SConnection_CloseIfBound
- * VA solicitado: 0x004EC830
+ * Requested VA: 0x004EC830
  * Entry Ghidra:  004ec830
  * Ghidra name:   FUN_004ec830
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: network
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: network
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

@@ -1,12 +1,12 @@
 /*
  * Game.exe — Entity_ChatBalloon_Tick
- * VA solicitado: 0x00412780
+ * Requested VA: 0x00412780
  * Entry Ghidra:  00412780
  * Ghidra name:   FUN_00412780
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: balloon
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: balloon
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

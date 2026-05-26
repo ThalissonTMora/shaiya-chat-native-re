@@ -1,13 +1,13 @@
 /*
  * Game.exe — Entity_Render_BalloonTick_CallSite
- * VA solicitado: 0x00453ED0
+ * Requested VA: 0x00453ED0
  * Entry Ghidra:  004534e0
  * Ghidra name:   FUN_004534e0
- * NOTA: VA dentro da função (landmark/hook), não é entry point.
+ * NOTE: VA is inside the function (landmark/hook), not the entry point.
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: render
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: render
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

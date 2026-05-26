@@ -1,12 +1,12 @@
 /*
  * Game.exe — CGui_DrawRect
- * VA solicitado: 0x005388E0
+ * Requested VA: 0x005388E0
  * Entry Ghidra:  005388e0
  * Ghidra name:   FUN_005388e0
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: gui
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: gui
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

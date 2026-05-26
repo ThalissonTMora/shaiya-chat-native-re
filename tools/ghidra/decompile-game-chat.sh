@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cliente: exporta chat Game.exe → game-chat-native/
+# Client: export Game.exe chat → game-chat-native/
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -34,4 +34,4 @@ echo "==> [CLIENT] Game.exe → $OUTPUT_DIR"
   -postScript ExportDecompileByAddress.java "$OUTPUT_DIR" "$MANIFEST"
 
 cp "$MANIFEST" "$OUTPUT_DIR/game-chat-functions.manifest"
-echo "==> Done: $(find "$OUTPUT_DIR" -name '*.c' | wc -l) arquivos .c"
+echo "==> Done: $(find "$OUTPUT_DIR" -name '*.c' | wc -l) .c files"

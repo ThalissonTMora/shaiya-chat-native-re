@@ -1,12 +1,12 @@
 /*
  * Game.exe — PacketSend_Chat
- * VA solicitado: 0x005ED060
+ * Requested VA: 0x005ED060
  * Entry Ghidra:  005ed060
  * Ghidra name:   FUN_005ed060
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: send
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: send
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

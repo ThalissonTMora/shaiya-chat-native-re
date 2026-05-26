@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — CGuild_AcquireLockForChat
- * VA solicitado: 0x00431EB0
+ * Requested VA: 0x00431EB0
  * Entry Ghidra:  00431eb0
  * Ghidra name:   FUN_00431eb0
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: guild
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: guild
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

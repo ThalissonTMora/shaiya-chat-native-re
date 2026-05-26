@@ -1,12 +1,12 @@
 /*
  * Game.exe — Network_ConnectAndBindWndMsg
- * VA solicitado: 0x005DE780
+ * Requested VA: 0x005DE780
  * Entry Ghidra:  005de780
  * Ghidra name:   FUN_005de780
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: init
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: init
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

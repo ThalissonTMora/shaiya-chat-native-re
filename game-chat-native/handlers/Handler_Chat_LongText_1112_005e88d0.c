@@ -1,12 +1,12 @@
 /*
  * Game.exe — Handler_Chat_LongText_1112
- * VA solicitado: 0x005E88D0
+ * Requested VA: 0x005E88D0
  * Entry Ghidra:  005e88d0
  * Ghidra name:   FUN_005e88d0
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: handlers
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: handlers
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

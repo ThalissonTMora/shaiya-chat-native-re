@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — Recv_PacketDecrypt
- * VA solicitado: 0x004E4180
+ * Requested VA: 0x004E4180
  * Entry Ghidra:  004e4180
  * Ghidra name:   FUN_004e4180
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: pipeline
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: pipeline
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

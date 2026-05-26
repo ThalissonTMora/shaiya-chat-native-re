@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — SendQueue_ReleaseIdleSlot
- * VA solicitado: 0x004F4150
+ * Requested VA: 0x004F4150
  * Entry Ghidra:  004f4150
  * Ghidra name:   FUN_004f4150
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: queue
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: queue
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

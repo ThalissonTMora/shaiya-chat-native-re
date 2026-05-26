@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — SendQueue_Mode2_ZoneCountry
- * VA solicitado: 0x00427140
+ * Requested VA: 0x00427140
  * Entry Ghidra:  00427140
  * Ghidra name:   FUN_00427140
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: queue
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: queue
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

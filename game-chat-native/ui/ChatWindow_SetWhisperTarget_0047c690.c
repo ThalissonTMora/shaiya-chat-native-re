@@ -1,12 +1,12 @@
 /*
  * Game.exe — ChatWindow_SetWhisperTarget
- * VA solicitado: 0x0047C690
+ * Requested VA: 0x0047C690
  * Entry Ghidra:  0047c690
  * Ghidra name:   FUN_0047c690
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: ui
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: ui
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

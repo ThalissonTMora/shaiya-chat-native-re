@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — CUser_DispatchPacket_Main
- * VA solicitado: 0x00474940
+ * Requested VA: 0x00474940
  * Entry Ghidra:  00474940
  * Ghidra name:   FUN_00474940
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: pipeline
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: pipeline
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

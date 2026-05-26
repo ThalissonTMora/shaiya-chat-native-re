@@ -1,12 +1,12 @@
 /*
  * Game.exe — NativeChatSendUI
- * VA solicitado: 0x0045BBE0
+ * Requested VA: 0x0045BBE0
  * Entry Ghidra:  0045bbe0
  * Ghidra name:   FUN_0045bbe0
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: ui
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: ui
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

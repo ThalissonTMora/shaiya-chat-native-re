@@ -1,12 +1,12 @@
 /*
  * Game.exe — ChatUIFont_ImeCompose
- * VA solicitado: 0x00565350
+ * Requested VA: 0x00565350
  * Entry Ghidra:  00565350
  * Ghidra name:   FUN_00565350
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: ui
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: ui
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

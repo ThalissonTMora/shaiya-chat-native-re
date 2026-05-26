@@ -1,12 +1,12 @@
 /*
  * Game.exe — ChatNotify_vfn_0x320
- * VA solicitado: 0x005957E0
+ * Requested VA: 0x005957E0
  * Entry Ghidra:  005957e0
  * Ghidra name:   FUN_005957e0
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: vtable
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: vtable
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

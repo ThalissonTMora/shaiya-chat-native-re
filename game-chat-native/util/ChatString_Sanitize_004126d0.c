@@ -1,12 +1,12 @@
 /*
  * Game.exe — ChatString_Sanitize
- * VA solicitado: 0x004126D0
+ * Requested VA: 0x004126D0
  * Entry Ghidra:  004126d0
  * Ghidra name:   FUN_004126d0
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: util
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: util
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

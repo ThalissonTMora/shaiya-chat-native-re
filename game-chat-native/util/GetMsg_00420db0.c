@@ -1,12 +1,12 @@
 /*
  * Game.exe — GetMsg
- * VA solicitado: 0x00420DB0
+ * Requested VA: 0x00420DB0
  * Entry Ghidra:  00420db0
  * Ghidra name:   FUN_00420db0
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: util
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: util
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

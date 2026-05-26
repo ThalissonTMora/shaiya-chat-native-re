@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — AdminChat_BuildGuildPacket
- * VA solicitado: 0x00432770
+ * Requested VA: 0x00432770
  * Entry Ghidra:  00432770
  * Ghidra name:   FUN_00432770
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: broadcast
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: broadcast
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

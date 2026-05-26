@@ -1,12 +1,12 @@
 /*
  * Game.exe — PacketSend_Whisper
- * VA solicitado: 0x005ED160
+ * Requested VA: 0x005ED160
  * Entry Ghidra:  005ed160
  * Ghidra name:   FUN_005ed160
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: send
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: send
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

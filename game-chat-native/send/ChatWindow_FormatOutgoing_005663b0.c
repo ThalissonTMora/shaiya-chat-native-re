@@ -1,12 +1,12 @@
 /*
  * Game.exe — ChatWindow_FormatOutgoing
- * VA solicitado: 0x005663B0
+ * Requested VA: 0x005663B0
  * Entry Ghidra:  005663b0
  * Ghidra name:   FUN_005663b0
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: send
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: send
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

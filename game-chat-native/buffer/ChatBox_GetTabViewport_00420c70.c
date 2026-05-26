@@ -1,12 +1,12 @@
 /*
  * Game.exe — ChatBox_GetTabViewport
- * VA solicitado: 0x00420C70
+ * Requested VA: 0x00420C70
  * Entry Ghidra:  00420c70
  * Ghidra name:   FUN_00420c70
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: buffer
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: buffer
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

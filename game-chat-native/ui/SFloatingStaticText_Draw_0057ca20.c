@@ -1,12 +1,12 @@
 /*
  * Game.exe — SFloatingStaticText_Draw
- * VA solicitado: 0x0057CA20
+ * Requested VA: 0x0057CA20
  * Entry Ghidra:  0057ca20
  * Ghidra name:   FUN_0057ca20
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: ui
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: ui
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

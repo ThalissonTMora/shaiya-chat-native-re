@@ -1,8 +1,16 @@
 # binary=server/ps_game.exe md5=91b212afbe6623382713772489dc82ce imagebase=0x00400000 regen=tools/ghidra/decompile-psgame-chat.sh
-# Servidor — chat ps_game.exe (ImageBase 0x00400000)
+# Server — chat ps_game.exe (ImageBase 0x00400000)
 
 pipeline	Recv_Wrapper	0x004748E0
 pipeline	Recv_PacketDecrypt	0x004E4180
+
+# --- Wire crypto (Ghidra 2026-05-26) — see WIRE_CRYPTO.md ---
+crypto	PacketStream_XOR	0x004E4180
+crypto	AES_BlockKeystream	0x004E3450
+crypto	AES_KeyExpand	0x004E4350
+crypto	Crypto_CounterInit	0x004E4000
+crypto	Connection_EncryptOutbound	0x00464F20
+crypto	Connection_DecryptInbound	0x00464FA0
 pipeline	Recv_PreDispatchGuard	0x004EC930
 pipeline	Recv_PostDispatchCleanup	0x004F33A0
 pipeline	CUser_DispatchPacket_Main	0x00474940

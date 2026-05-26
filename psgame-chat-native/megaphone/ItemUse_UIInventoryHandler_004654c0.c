@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — ItemUse_UIInventoryHandler
- * VA solicitado: 0x004654C0
+ * Requested VA: 0x004654C0
  * Entry Ghidra:  004654c0
  * Ghidra name:   FUN_004654c0
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: megaphone
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: megaphone
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 

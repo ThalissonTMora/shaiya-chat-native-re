@@ -1,5 +1,5 @@
 # binary=Game.exe md5=c1edd96639ad81835624b9c4516ac781 imagebase=0x00400000 regen=tools/ghidra/decompile-game-chat.sh
-# Cliente — chat Game.exe (ImageBase 0x00400000)
+# Client — chat Game.exe (ImageBase 0x00400000)
 
 send	NetworkSend	0x005EA9A0
 send	PacketSend_Chat	0x005ED060
@@ -104,6 +104,15 @@ vtable	ChatObject_PacketUnderflow_vfn680	0x00598DC0
 # --- Chat flow: socket WndProc + decrypt (Ghidra multi-agent 2026-05-26) ---
 recv	Network_GameSocketWndProc	0x005F1810
 recv	PacketPayload_Decrypt	0x00401080
+
+# --- Wire crypto (Ghidra 2026-05-26) — see WIRE_CRYPTO.md ---
+crypto	PacketPayload_Encrypt	0x00401040
+crypto	Login_XORStream	0x00401000
+crypto	StreamCrypt_XOR	0x00404DF0
+crypto	StreamCrypt_AltCtx	0x00401640
+crypto	AES_BlockKeystream	0x00404830
+crypto	Crypto_EnableGameCipher	0x00401310
+crypto	Crypto_DeriveSessionKeys	0x00401320
 init	Network_ConnectAndBindWndMsg	0x005DE780
 recv	Network_SocketNotifyDispatch	0x005DE810
 recv	Network_OnSocketDisconnect	0x005DE820

@@ -1,12 +1,12 @@
 /*
  * Game.exe — GmOverlay_AppendText
- * VA solicitado: 0x0047F8B0
+ * Requested VA: 0x0047F8B0
  * Entry Ghidra:  0047f8b0
  * Ghidra name:   FUN_0047f8b0
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
- * Categoria: command
- * Regenerar: tools/ghidra/decompile-game-chat.sh
+ * Category: command
+ * Regenerate: tools/ghidra/decompile-game-chat.sh
  */
 
 

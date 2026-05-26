@@ -1,12 +1,12 @@
 /*
  * server/ps_game.exe — CGuild_SyncMapFindNode
- * VA solicitado: 0x0043BC90
+ * Requested VA: 0x0043BC90
  * Entry Ghidra:  0043bc90
  * Ghidra name:   FUN_0043bc90
  * MD5: 91b212afbe6623382713772489dc82ce
  * ImageBase: 0x00400000
- * Categoria: guild
- * Regenerar: tools/ghidra/decompile-psgame-chat.sh
+ * Category: guild
+ * Regenerate: tools/ghidra/decompile-psgame-chat.sh
  */
 
 
