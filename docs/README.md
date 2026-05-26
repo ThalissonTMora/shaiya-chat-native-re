@@ -8,6 +8,7 @@ All project markdown lives in **`docs/`**. The repo root [`README.md`](../README
 |-----|----------|
 | [`CHAT_CHANNEL_MAP.md`](CHAT_CHANNEL_MAP.md) | Opcodes, handlers, vtables, VAs, `.c` paths (client + server) |
 | [`CHAT_RE_STATUS.md`](CHAT_RE_STATUS.md) | Milestone estático + itens só runtime |
+| [`MISSING_ARTIFACTS_SEARCH.md`](MISSING_ARTIFACTS_SEARCH.md) | Busca D1–D5 no monorepo/WSL (resultados) |
 | [`CHAT_RE_GAPS.md`](CHAT_RE_GAPS.md) | Lacunas chat 100%, roadmap P0/P1/P2 |
 | [`PACKET_SPEC.md`](PACKET_SPEC.md) | Wire layouts (send/recv), validation, TCP envelope |
 | [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md) | AES-CTR, handshake `0xA101`/`0xA102`, encrypted pipeline |
