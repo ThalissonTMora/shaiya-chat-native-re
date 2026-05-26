@@ -125,14 +125,16 @@ Handler: `Handler_Packet_A101_KeyMaterial` @ `0x005E3D60` → vfn `+0x254` → `
 Routed by `PacketDispatcher` @ `0x5F1E10` (not a separate login socket path).
 
 ```
-+0x00  u8   field_0
-+0x01  u8   field_1
-+0x02  u8   field_2
++0x00  u8   field_0    // ctx selector: 0 → recv CounterLoad @ 0x23037F0+0xF4 (CONFIRMED @ 0x40116C)
++0x01  u8   field_1    // block_b slice length → HMAC/ack vector (INFERRED; append @ 0x404F96)
++0x02  u8   field_2    // block_a slice length → ack vector (CONFIRMED @ 0x404F91/0x404FEA)
 +0x03  u8[64]  block_a
 +0x43  u8[128] block_b       // body = 195 bytes after opcode
 ```
 
-Client ack: **`0x00A102`** — see [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md). Server outbound opcode for this blob: **not mapped**.
+Counter derivation, HMAC stages, and `Crypto_CounterLoad` byte-permute: [`docs/CRYPTO_COUNTER.md`](docs/CRYPTO_COUNTER.md).
+
+Client also sends follow-up **`0x00A101`** (131 B) via `NetworkSendKeyFollowUp` @ `0x5EC5A0`; login ack **`0x00A102`** — see [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md). Server outbound opcode for inbound blob: **not mapped**.
 
 ### Other recv opcodes (client)
 
@@ -219,7 +221,8 @@ Current assessment (May 2026):
 |-------|--------|
 | Server outbound opcode for client `0xA101` | **Not mapped** |
 | Initial counter bytes (client) | Derived inside `0x401100` — wire mapping **not mapped** |
-| `0xA101` leading 3 bytes | Semantics unknown |
+| `0xA101` `field_1` HMAC inner length | **INFERRED** — validate @ `0x404569` |
+| `0xA101` counter bytes `stack+0x38` | **HYPOTHESIS** — 8 B pre-digest source unknown |
 | `char[21]` fixed fields | Charset and padding partially inferred |
 
 ---

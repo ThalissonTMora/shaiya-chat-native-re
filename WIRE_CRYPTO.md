@@ -7,6 +7,7 @@ Companion to [`PACKET_SPEC.md`](PACKET_SPEC.md) and [`CHAT_CHANNEL_MAP.md`](CHAT
 |--------|-----|-----------|
 | `Game.exe` | `c1edd96639ad81835624b9c4516ac781` | `0x00400000` |
 | `ps_game.exe` | `91b212afbe6623382713772489dc82ce` | `0x00400000` |
+| `ps_login.exe` | *(server tree; login handshake)* | `0x00400000` |
 
 Regenerate crypto `.c`: `./tools/ghidra/decompile-crypto.sh`
 
@@ -159,14 +160,14 @@ NetworkRecv_SocketPump @ 0x5F438E
 **Payload layout** (after opcode `u16`, handler @ `0x5E3D60`):
 
 ```
-+0x00  u8   field_0
-+0x01  u8   field_1
-+0x02  u8   field_2
++0x00  u8   field_0    // ctx selector (0 = recv CounterLoad path)
++0x01  u8   field_1    // block_b slice length (append/HMAC — INFERRED)
++0x02  u8   field_2    // block_a slice length (append — CONFIRMED)
 +0x03  u8[64]  block_a
 +0x43  u8[128] block_b          // total body = 195 bytes
 ```
 
-Semantics of the three leading bytes and exact HMAC inputs inside `0x401100` are not fully resolved.
+Full counter/HMAC chain: [`docs/CRYPTO_COUNTER.md`](docs/CRYPTO_COUNTER.md).
 
 ### Post-login derive path (client)
 
@@ -211,9 +212,9 @@ Still encrypted with **login XOR** until `Crypto_EnableGameCipher` runs.
 | `0x00464F00` | `Connection_EnableSendCipher` | `conn+0x231 = 1`, clear login XOR send (`+0x232`) |
 | `0x00413CB5` | (zone-enter pipeline) | Calls `464E60` after copying 8×`u32` key material |
 
-Called during **`CUser` zone-enter** (`Handler_Packet1201` @ `0x47FCC0` path), not from chat handlers.
+Called from **`ZoneCryptoInit` @ `0x413B30`** (callers `0x406C1B` / `0x406C52`), **not** from `Handler_Packet1201` @ `0x47FCC0` (that handler only calls `0x453CB0` for zone name).
 
-**Server outbound opcode** that delivers the client-side `0xA101` key blob: **not identified** in this RE pass (no `0xA101`/`0xA102` immedate in `ps_game.exe` send sites).
+**Server outbound `0xA101` key blob** (client recv equivalent): sent by **`ps_login.exe` `SendKeyBlob_A101` @ `0x404DA0`** (`mov [esp+0x10], 0xA101`, `push 0xC5`, `call 0x410AE0`); caller **`0x401CDF`**. **Not present in `ps_game.exe`.** See [`docs/SERVER_KEY_BLOB_RE.md`](docs/SERVER_KEY_BLOB_RE.md).
 
 ### Initial counter (IV)
 
@@ -243,17 +244,17 @@ Still encrypted with **login XOR** until `Crypto_EnableGameCipher` runs.
 |----|------|--------|
 | `0x00464E60` | `Connection_InitStreamCrypto` | `AES_KeyExpand` on 16 B key; copy 16 B counter → `conn+0x118` ctx; set `conn+0x230=1`, `conn+0x231=1` |
 | `0x00464F00` | `Connection_EnableSendCipher` | `conn+0x231 = 1`, clear login XOR send (`+0x232`) |
-| `0x00413CB5` | (zone-enter pipeline) | Calls `464E60` after copying 8×`u32` key material from login packet |
+| `0x00413CB5` | `ZoneCryptoInit` inner site | Calls `464E60` after copying 8×`u32` key material; parent **`0x413B30`** ← `0x406C1B` / `0x406C52` |
 
-Called during **`CUser` zone-enter** (`Handler_Packet1201` @ `0x47FCC0` path), not from chat handlers.
+Called from **`ZoneCryptoInit` @ `0x413B30`**, **not** from `Handler_Packet1201` @ `0x47FCC0`. Outbound **`0xA101`**: **`ps_login.exe` @ `0x404DA0`** — see [`docs/SERVER_KEY_BLOB_RE.md`](docs/SERVER_KEY_BLOB_RE.md).
 
 ### Initial counter (IV)
 
 | Evidence | Detail |
 |----------|--------|
-| `Crypto_CounterLoad` @ `0x404680` | Loads **16 bytes** from key-material struct with **byte-pair swap** (BSwap32-like per dword) into `ctx+0xF4` |
+| `Crypto_CounterLoad` @ `0x404680` | Loads **16 B** from stack (`esp+0x38` in `0x401100`); **custom dword permute** @ `0x40468D` + AES-128 expand → `ctx+0xF4` |
 | Server `Connection_InitStreamCrypto` | Copies `[esi+0x10..0x1C]` (4×`u32`) → `ctx+0xF4..0x100`; `partial = 0` |
-| Confidence | **Medium-high** — layout matches CTR; inbound key-blob opcode **`0xA101`** via `PacketDispatcher`; server outbound opcode **not mapped** |
+| Outbound `0xA101` | **`ps_login.exe` `SendKeyBlob_A101` @ `0x404DA0`** (`push 0xC5`, `call 0x410AE0`) |
 
 ### Client global contexts
 
@@ -345,9 +346,10 @@ Current assessment (May 2026, validated against `Game.exe` + `ps_game.exe`):
 
 | Topic | Status |
 |-------|--------|
-| Server outbound opcode for client `0xA101` key blob | **Not mapped** in `ps_game.exe` |
+| Server outbound `0xA101` key blob | **`ps_login.exe` @ `0x404DA0`** (confirmed); absent from `ps_game.exe` |
 | Initial counter bytes (client) | Derived via HMAC/PRNG in `0x401100` — wire offset **not mapped** |
-| `0xA101` leading 3 bytes | Read but semantics unknown |
+| `0xA101` `field_0/1/2` | `field_0` ctx branch **CONFIRMED**; `field_1/2` slice lengths **CONFIRMED/INFERRED** — see `docs/CRYPTO_COUNTER.md` |
+| HMAC inner length vs `field_1` | **INFERRED** @ `0x404569` |
 | Fixed-field charset/padding | `char[21]` name fields — partially inferred |
 
 ---
@@ -356,7 +358,7 @@ Current assessment (May 2026, validated against `Game.exe` + `ps_game.exe`):
 
 | Doc | Contents |
 |-----|----------|
-| [`PACKET_SPEC.md`](PACKET_SPEC.md) | Opcode/body layouts |
+| [`docs/CRYPTO_COUNTER.md`](docs/CRYPTO_COUNTER.md) | `0xA101` → `ctx+0xF4`, HMAC, header bytes |
 | [`CHAT_CHANNEL_MAP.md`](CHAT_CHANNEL_MAP.md) | Chat handlers |
 | `game-chat-native/send/NetworkSend_*.c` | Encrypt call site |
 | `psgame-chat-native/pipeline/Recv_Wrapper_*.c` | Decrypt call site |

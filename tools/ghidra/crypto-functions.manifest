@@ -10,6 +10,11 @@ crypto	Crypto_EnableGameCipher	0x00401310
 crypto	Crypto_DeriveSessionKeys	0x00401320
 crypto	Crypto_ProcessKeyPacket	0x00401100
 crypto	Crypto_CounterLoad	0x00404680
+crypto	Crypto_HMAC_Derive	0x00404420
+crypto	Crypto_PRNGFill	0x00404610
+crypto	Crypto_CounterAdvance	0x00401500
+crypto	Crypto_KeyMaterialAppend	0x00404F90
+crypto	Crypto_OutputPack	0x00405050
 crypto	Connection_OnKeyMaterial	0x005A4D50
 crypto	Connection_SendKeyAck	0x005A4D30
 crypto	NetworkSendKeyBlob	0x005EC610

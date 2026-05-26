@@ -1,0 +1,29 @@
+# Crypto/key-path subset — ps_login.exe (regenerate: decompile-pslogin-crypto.sh)
+# binary=server/ps_login.exe md5=de5b348cca36e0585f06be93f013fa6d imagebase=0x00400000 regen=tools/ghidra/decompile-pslogin-crypto.sh
+
+# --- CONFIRMED key-path anchors (SERVER_KEY_BLOB_RE.md) ---
+keypath	SendKeyBlob_A101	0x00404DA0
+keypath	Connection_Send	0x00410AE0
+keypath	Caller_StateMachine	0x00401CDF
+keypath	Login_Dispatcher	0x00403810
+
+# --- Static scan: enqueue → SendKeyBlob caller @ 0x401CDF ---
+keypath	Connection_EnqueueKeyBlob	0x00401C70
+
+# --- Static scan: recv buffer → Login_Dispatcher @ 0x4030F0 ---
+pipeline	Connection_RecvAppend	0x00403080
+pipeline	Login_BufferEnsure	0x00403980
+
+# --- Static scan: inbound opcode router (sub 0xA101 @ 0x404374) ---
+handlers	Login_OpcodeDispatch	0x004042F0
+
+# --- Static scan: SendKeyBlob callees (pre-send PRNG + post-send) ---
+crypto	KeyDeriv_PRNG	0x0042D77E
+crypto	KeyTable_SetSlot	0x0042D771
+keypath	PostSend_StateTransition	0x0042E427
+
+# --- Static scan: Connection_Send helpers ---
+pipeline	Connection_SendGuard	0x00410C10
+pipeline	Connection_SendEx	0x00410B50
+network	SendBuffer_AllocBySize	0x0041DBB0
+network	IOCP_EnqueueSend	0x004116C0
