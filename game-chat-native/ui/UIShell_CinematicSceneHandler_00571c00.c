@@ -7,30 +7,577 @@
  * ImageBase: 0x00400000
  * Category: ui
  * Regenerate: tools/ghidra/decompile-game-chat.sh
- *
- * CONFIRMED: only enters cinematic when object+0x1D0 == 0 (L571C24, L57227C).
- * Calls UIShell_CinematicEnter @ 0x5722BE and UIShell_CinematicEnterAlt @ 0x5722FD.
  */
 
-void __thiscall FUN_00571c00(int param_1)
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void __fastcall FUN_00571c00(int *param_1)
 
 {
-  if (*(int *)param_1 != 0) {
-    if ((*(int *)param_1 == 1) && (*(char *)(param_1 + 4) != '\0') &&
-       (*(char *)(param_1 + 0x1d0) == '\0')) {
+  char cVar1;
+  int iVar2;
+  int *piVar3;
+  int *piVar4;
+  int **ppiStack_35c;
+  undefined *puStack_358;
+  int **ppiStack_354;
+  int *piStack_350;
+  undefined *puStack_34c;
+  int *piStack_348;
+  int *piStack_344;
+  undefined4 *puStack_340;
+  undefined **ppuStack_33c;
+  int *piStack_338;
+  undefined4 *puStack_334;
+  undefined4 *puStack_330;
+  undefined4 *puStack_32c;
+  int *piStack_328;
+  undefined4 *puStack_324;
+  undefined4 *puStack_320;
+  undefined *puStack_31c;
+  undefined4 *puStack_318;
+  int *piStack_314;
+  undefined *puStack_310;
+  undefined4 *puStack_30c;
+  undefined4 *puStack_308;
+  undefined *puStack_304;
+  undefined4 *puStack_300;
+  undefined4 *puStack_2fc;
+  undefined4 *puStack_2f8;
+  undefined4 *puStack_2f4;
+  undefined *puStack_2f0;
+  int *piStack_2ec;
+  undefined *puStack_2e8;
+  undefined *puStack_2e4;
+  undefined4 uStack_2e0;
+  undefined *puStack_2dc;
+  undefined *puStack_2d8;
+  undefined *puStack_2d4;
+  undefined *puStack_2d0;
+  undefined *puStack_2cc;
+  int *piStack_2c8;
+  undefined4 uStack_2c4;
+  undefined *puStack_2c0;
+  int *piStack_2bc;
+  undefined *puStack_2b8;
+  int *piStack_2b4;
+  undefined4 uStack_2a0;
+  undefined4 uStack_29c;
+  undefined4 uStack_298;
+  undefined4 uStack_294;
+  undefined4 uStack_290;
+  undefined4 uStack_28c;
+  undefined4 uStack_288;
+  undefined4 uStack_284;
+  undefined4 uStack_280;
+  undefined4 uStack_27c;
+  undefined4 uStack_278;
+  undefined4 uStack_274;
+  undefined4 uStack_270;
+  undefined4 uStack_26c;
+  undefined4 uStack_268;
+  undefined4 uStack_264;
+  undefined4 uStack_260;
+  undefined4 uStack_25c;
+  undefined4 uStack_258;
+  undefined4 uStack_254;
+  int aiStack_250 [20];
+  undefined auStack_200 [20];
+  undefined auStack_1ec [16];
+  undefined auStack_1dc [12];
+  undefined auStack_1d0 [12];
+  undefined auStack_1c4 [12];
+  undefined auStack_1b8 [4];
+  undefined auStack_1b4 [12];
+  undefined auStack_1a8 [12];
+  undefined auStack_19c [12];
+  undefined auStack_190 [8];
+  undefined auStack_188 [16];
+  undefined auStack_178 [16];
+  undefined auStack_168 [8];
+  undefined auStack_160 [4];
+  undefined auStack_15c [16];
+  undefined auStack_14c [32];
+  undefined auStack_12c [4];
+  undefined auStack_128 [64];
+  undefined auStack_e8 [12];
+  undefined auStack_dc [40];
+  undefined auStack_b4 [12];
+  undefined auStack_a8 [44];
+  undefined auStack_7c [8];
+  undefined auStack_74 [112];
+  
+  if (*param_1 == 0) {
+    if ((*(char *)(param_1 + 1) != '\0') && (*(char *)(param_1 + 0x74) == '\0')) {
+      piStack_2b4 = (int *)0x571c35;
       FUN_0056f6e0();
-      FUN_00570ff0();
-      FUN_00571730();
+      piStack_2b4 = (int *)0x571c3f;
+      FUN_00574d40();
+      piVar3 = &DAT_022b6aac;
+      piVar4 = param_1 + 0xc;
+      for (iVar2 = 0x10; iVar2 != 0; iVar2 = iVar2 + -1) {
+        *piVar4 = *piVar3;
+        piVar3 = piVar3 + 1;
+        piVar4 = piVar4 + 1;
+      }
+      piVar3 = &DAT_022b6aec;
+      piVar4 = param_1 + 0x1c;
+      for (iVar2 = 0x10; iVar2 != 0; iVar2 = iVar2 + -1) {
+        *piVar4 = *piVar3;
+        piVar3 = piVar3 + 1;
+        piVar4 = piVar4 + 1;
+      }
+      piVar3 = &DAT_022b6b2c;
+      piVar4 = param_1 + 0x2c;
+      for (iVar2 = 0x10; iVar2 != 0; iVar2 = iVar2 + -1) {
+        *piVar4 = *piVar3;
+        piVar3 = piVar3 + 1;
+        piVar4 = piVar4 + 1;
+      }
+      piStack_2b4 = (int *)0x571c76;
+      cVar1 = FUN_00571730();
+      piStack_2b4 = (int *)&DAT_022ba200;
+      puStack_2b8 = (undefined *)0x571c84;
+      FUN_005d6700();
+      piVar3 = param_1 + 0xc;
+      piVar4 = &DAT_022b6aac;
+      for (iVar2 = 0x10; iVar2 != 0; iVar2 = iVar2 + -1) {
+        *piVar4 = *piVar3;
+        piVar3 = piVar3 + 1;
+        piVar4 = piVar4 + 1;
+      }
+      piVar3 = param_1 + 0x1c;
+      piVar4 = &DAT_022b6aec;
+      for (iVar2 = 0x10; iVar2 != 0; iVar2 = iVar2 + -1) {
+        *piVar4 = *piVar3;
+        piVar3 = piVar3 + 1;
+        piVar4 = piVar4 + 1;
+      }
+      piVar3 = param_1 + 0x2c;
+      piVar4 = &DAT_022b6b2c;
+      for (iVar2 = 0x10; iVar2 != 0; iVar2 = iVar2 + -1) {
+        *piVar4 = *piVar3;
+        piVar3 = piVar3 + 1;
+        piVar4 = piVar4 + 1;
+      }
+      if (cVar1 != '\0') {
+        piStack_2b4 = &uStack_2a0;
+        uStack_268 = 0;
+        uStack_26c = 0;
+        uStack_270 = 0;
+        uStack_274 = 0;
+        uStack_27c = 0;
+        uStack_280 = 0;
+        uStack_284 = 0;
+        uStack_288 = 0;
+        uStack_290 = 0;
+        uStack_294 = 0;
+        uStack_298 = 0;
+        uStack_29c = 0;
+        uStack_264 = 0x3f800000;
+        uStack_278 = 0x3f800000;
+        uStack_28c = 0x3f800000;
+        uStack_2a0 = 0x3f800000;
+        puStack_2b8 = (undefined *)0x571d15;
+        FUN_005736a0();
+        piStack_2b4 = (int *)&DAT_022ba218;
+        puStack_2b8 = &DAT_022ba20c;
+        piStack_2bc = (int *)&DAT_022ba200;
+        puStack_2c0 = auStack_1d0;
+        uStack_2c4 = 0x571d31;
+        FUN_0065ab84();
+        piStack_2b4 = (int *)auStack_1d0;
+        puStack_2b8 = (undefined *)0x2;
+        piStack_2bc = DAT_022b69a8;
+        puStack_2c0 = (undefined *)0x571d4b;
+        (**(code **)(*DAT_022b69a8 + 0xb0))();
+        puStack_2c0 = (undefined *)_DAT_007c0d94;
+        uStack_2c4 = _DAT_007c0d98;
+        piStack_2c8 = (int *)_DAT_007ab0f0;
+        puStack_2cc = (undefined *)0x571d75;
+        FUN_00573470();
+        puStack_2c0 = auStack_1dc;
+        uStack_2c4 = 0;
+        piStack_2c8 = (int *)auStack_15c;
+        puStack_2cc = (undefined *)0x571d8c;
+        FUN_006599f7();
+        puStack_2cc = (undefined *)0x3f800000;
+        puStack_2d8 = auStack_128;
+        puStack_2d0 = (undefined *)_DAT_00748278;
+        puStack_2d4 = (undefined *)_DAT_00748160;
+        puStack_2dc = (undefined *)0x571db5;
+        FUN_00659dd4();
+        puStack_2dc = (undefined *)0x0;
+        puStack_2e8 = auStack_1b8;
+        uStack_2e0 = _DAT_00748160;
+        puStack_2e4 = (undefined *)_DAT_00748160;
+        piStack_2ec = (int *)0x571dd8;
+        FUN_00659e68();
+        piStack_2ec = param_1 + 0x3f;
+        puStack_2f0 = auStack_188;
+        puStack_2f4 = &uStack_288;
+        puStack_2f8 = (undefined4 *)0x571df1;
+        FUN_006594d1();
+        puStack_300 = &uStack_294;
+        puStack_2f8 = &DAT_022b6a30;
+        puStack_304 = (undefined *)0x571e03;
+        puStack_2fc = puStack_300;
+        FUN_006594d1();
+        puStack_304 = auStack_160;
+        puStack_30c = &uStack_2a0;
+        puStack_310 = (undefined *)0x571e18;
+        puStack_308 = puStack_30c;
+        FUN_006594d1();
+        puStack_310 = auStack_1ec;
+        puStack_318 = (undefined4 *)&stack0xfffffd54;
+        puStack_31c = (undefined *)0x571e2d;
+        piStack_314 = puStack_318;
+        FUN_006594d1();
+        puStack_31c = (undefined *)0x20000;
+        puStack_320 = (undefined4 *)0xb;
+        puStack_324 = (undefined4 *)0x1;
+        piStack_328 = DAT_022b69a8;
+        puStack_32c = (undefined4 *)0x571e46;
+        (**(code **)(*DAT_022b69a8 + 0x10c))();
+        puStack_32c = (undefined4 *)0x104;
+        puStack_330 = (undefined4 *)0x18;
+        puStack_334 = (undefined4 *)0x1;
+        piStack_338 = DAT_022b69a8;
+        ppuStack_33c = (undefined **)0x571e5f;
+        (**(code **)(*DAT_022b69a8 + 0x10c))();
+        ppuStack_33c = &puStack_2d8;
+        puStack_340 = (undefined4 *)0x11;
+        piStack_344 = DAT_022b69a8;
+        piStack_348 = (int *)0x571e76;
+        (**(code **)(*DAT_022b69a8 + 0xb0))();
+        piStack_348 = (int *)0x571e80;
+        FUN_00574d40();
+        piStack_348 = (int *)0x1;
+        puStack_34c = (undefined *)0x1;
+        piStack_350 = (int *)0x0;
+        ppiStack_354 = (int **)DAT_022b69a8;
+        puStack_358 = (undefined *)0x571e96;
+        (**(code **)(*DAT_022b69a8 + 0x114))();
+        puStack_358 = (undefined *)0x1;
+        ppiStack_35c = (int **)0x2;
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,0);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,1,1,3);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,1,2,3);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,0,5,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,0,6,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,0,7,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,1,5,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,1,6,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,1,7,2);
+        (**(code **)(*DAT_022b69a8 + 0xe4))(DAT_022b69a8,0x89,0);
+        (**(code **)(*DAT_022b69a8 + 0xe4))(DAT_022b69a8,0x91,1);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,0,0xb,0);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,0,1,0x16);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,0,2,2);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,0,3,1);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,0,4,1);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,1,1,0xe);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,1,2,2);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,1,3,0);
+        (**(code **)(*DAT_022b69a8 + 0xe4))(DAT_022b69a8,0x3c,0xf0000000);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,1,4,3);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,1,5,2);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,1,6,0);
+        (**(code **)(*DAT_022b69a8 + 0x170))(DAT_022b69a8,0);
+        (**(code **)(*DAT_022b69a8 + 0x1ac))(DAT_022b69a8,0);
+        (**(code **)(*DAT_022b69a8 + 0x164))(DAT_022b69a8,0x242);
+        (**(code **)(*DAT_022b69a8 + 400))(DAT_022b69a8,0,param_1[0xb8],0,0x20);
+        (**(code **)(*DAT_022b69a8 + 0x104))(DAT_022b69a8,0,param_1[0xb7]);
+        (**(code **)(*DAT_022b69a8 + 0x104))(DAT_022b69a8,1,param_1[0x3d]);
+        (**(code **)(*DAT_022b69a8 + 0x144))(DAT_022b69a8,5,0,2);
+        (**(code **)(*DAT_022b69a8 + 0xe4))(DAT_022b69a8,0x89,1);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,1,0xb,1);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,1,0x18,0);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,1,1,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,1,2,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,1,3,1);
+        (**(code **)(*DAT_022b69a8 + 0xe4))(DAT_022b69a8,0x13,5);
+        (**(code **)(*DAT_022b69a8 + 0xe4))(DAT_022b69a8,0x14,6);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,0,1,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,0,2,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,0,3,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,0,5,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,0,6,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,0,7,2);
+        return;
+      }
     }
-    return;
   }
-  if (*(char *)(param_1 + 4) == '\0') {
-    return;
+  else if (((*param_1 == 1) && (*(char *)(param_1 + 1) != '\0')) &&
+          (*(char *)(param_1 + 0x74) == '\0')) {
+    piStack_2b4 = (int *)0x57228e;
+    FUN_0056f6e0();
+    uStack_260 = _DAT_022ba200;
+    uStack_25c = _DAT_022ba204;
+    uStack_258 = _DAT_022ba208;
+    uStack_254 = 0;
+    piStack_2b4 = (int *)0x5722bc;
+    FUN_00574d40();
+    piStack_2b4 = (int *)0x5722c3;
+    cVar1 = FUN_00570ff0();
+    if (cVar1 != '\0') {
+      piVar3 = &DAT_022b6aac;
+      piVar4 = param_1 + 0xc;
+      for (iVar2 = 0x10; iVar2 != 0; iVar2 = iVar2 + -1) {
+        *piVar4 = *piVar3;
+        piVar3 = piVar3 + 1;
+        piVar4 = piVar4 + 1;
+      }
+      piVar3 = &DAT_022b6aec;
+      piVar4 = param_1 + 0x1c;
+      for (iVar2 = 0x10; iVar2 != 0; iVar2 = iVar2 + -1) {
+        *piVar4 = *piVar3;
+        piVar3 = piVar3 + 1;
+        piVar4 = piVar4 + 1;
+      }
+      piVar3 = &DAT_022b6b2c;
+      piVar4 = param_1 + 0x2c;
+      for (iVar2 = 0x10; iVar2 != 0; iVar2 = iVar2 + -1) {
+        *piVar4 = *piVar3;
+        piVar3 = piVar3 + 1;
+        piVar4 = piVar4 + 1;
+      }
+      piStack_2b4 = (int *)0x572302;
+      cVar1 = FUN_00571730();
+      if (cVar1 != '\0') {
+        piStack_2b4 = (int *)&DAT_022ba200;
+        puStack_2b8 = (undefined *)0x572314;
+        FUN_005d6700();
+        aiStack_250[0xe] = 0;
+        aiStack_250[0xd] = 0;
+        aiStack_250[0xc] = 0;
+        aiStack_250[0xb] = 0;
+        piVar3 = param_1 + 0xc;
+        piVar4 = &DAT_022b6aac;
+        for (iVar2 = 0x10; iVar2 != 0; iVar2 = iVar2 + -1) {
+          *piVar4 = *piVar3;
+          piVar3 = piVar3 + 1;
+          piVar4 = piVar4 + 1;
+        }
+        aiStack_250[9] = 0;
+        aiStack_250[8] = 0;
+        aiStack_250[7] = 0;
+        aiStack_250[6] = 0;
+        aiStack_250[4] = 0;
+        aiStack_250[3] = 0;
+        aiStack_250[2] = 0;
+        aiStack_250[1] = 0;
+        aiStack_250[0xf] = 0x3f800000;
+        aiStack_250[10] = 0x3f800000;
+        aiStack_250[5] = 0x3f800000;
+        aiStack_250[0] = 0x3f800000;
+        piVar3 = param_1 + 0x1c;
+        piVar4 = &DAT_022b6aec;
+        for (iVar2 = 0x10; iVar2 != 0; iVar2 = iVar2 + -1) {
+          *piVar4 = *piVar3;
+          piVar3 = piVar3 + 1;
+          piVar4 = piVar4 + 1;
+        }
+        piStack_2b4 = aiStack_250;
+        piVar3 = param_1 + 0x2c;
+        piVar4 = &DAT_022b6b2c;
+        for (iVar2 = 0x10; iVar2 != 0; iVar2 = iVar2 + -1) {
+          *piVar4 = *piVar3;
+          piVar3 = piVar3 + 1;
+          piVar4 = piVar4 + 1;
+        }
+        puStack_2b8 = (undefined *)0x5723b5;
+        FUN_005736a0();
+        piStack_2b4 = (int *)&DAT_022ba218;
+        puStack_2b8 = &DAT_022ba20c;
+        piStack_2bc = (int *)&DAT_022ba200;
+        puStack_2c0 = auStack_190;
+        uStack_2c4 = 0x5723d1;
+        FUN_0065ab84();
+        piStack_2b4 = (int *)auStack_190;
+        puStack_2b8 = (undefined *)0x2;
+        piStack_2bc = DAT_022b69a8;
+        puStack_2c0 = (undefined *)0x5723eb;
+        (**(code **)(*DAT_022b69a8 + 0xb0))();
+        puStack_2c0 = (undefined *)_DAT_007c0d94;
+        uStack_2c4 = _DAT_007c0d98;
+        piStack_2c8 = (int *)_DAT_007ab0f0;
+        puStack_2cc = (undefined *)0x572415;
+        FUN_00573470();
+        puStack_2c0 = auStack_dc;
+        uStack_2c4 = 3;
+        piStack_2c8 = DAT_022b69a8;
+        puStack_2cc = (undefined *)0x57242f;
+        (**(code **)(*DAT_022b69a8 + 0xb4))();
+        puStack_2cc = auStack_e8;
+        puStack_2d0 = auStack_1a8;
+        puStack_2d4 = auStack_a8;
+        puStack_2d8 = (undefined *)0x57244c;
+        FUN_006594d1();
+        puStack_2d8 = auStack_b4;
+        puStack_2dc = auStack_74;
+        uStack_2e0 = 0x572461;
+        FUN_00659722();
+        uStack_2e0 = 4;
+        puStack_2e4 = auStack_7c;
+        puStack_2e8 = (undefined *)0xa;
+        piStack_2ec = DAT_022b69a8;
+        puStack_2f0 = (undefined *)0x57247d;
+        (**(code **)(*DAT_022b69a8 + 0x178))();
+        aiStack_250[0xf] = 0;
+        aiStack_250[0xe] = 0;
+        puStack_2fc = (undefined4 *)auStack_14c;
+        aiStack_250[0xd] = 0;
+        aiStack_250[0xc] = 0;
+        aiStack_250[10] = 0;
+        aiStack_250[9] = 0;
+        aiStack_250[8] = 0;
+        aiStack_250[7] = 0;
+        aiStack_250[5] = 0;
+        aiStack_250[4] = 0;
+        aiStack_250[3] = 0;
+        aiStack_250[2] = 0;
+        aiStack_250[0x10] = 0x3f800000;
+        aiStack_250[0xb] = 0x3f800000;
+        aiStack_250[6] = 0x3f800000;
+        aiStack_250[1] = 0x3f800000;
+        puStack_2f0 = (undefined *)0x3f800000;
+        puStack_2f4 = (undefined4 *)_DAT_00748278;
+        puStack_2f8 = (undefined4 *)_DAT_00748160;
+        puStack_300 = (undefined4 *)0x572518;
+        FUN_00659dd4();
+        puStack_300 = (undefined4 *)0x0;
+        puStack_30c = (undefined4 *)auStack_19c;
+        puStack_304 = (undefined *)_DAT_00748160;
+        puStack_308 = (undefined4 *)_DAT_00748160;
+        puStack_310 = (undefined *)0x57253b;
+        FUN_00659e68();
+        puStack_310 = auStack_12c;
+        piStack_314 = param_1 + 0x3f;
+        puStack_318 = &uStack_26c;
+        puStack_31c = (undefined *)0x572557;
+        FUN_006594d1();
+        puStack_31c = auStack_178;
+        puStack_324 = &uStack_278;
+        piStack_328 = (int *)0x57256f;
+        puStack_320 = puStack_324;
+        FUN_006594d1();
+        piStack_328 = (int *)auStack_1c4;
+        puStack_330 = &uStack_284;
+        puStack_334 = (undefined4 *)0x572587;
+        puStack_32c = puStack_330;
+        FUN_006594d1();
+        puStack_334 = &uStack_290;
+        piStack_338 = aiStack_250;
+        ppuStack_33c = (undefined **)0x57259c;
+        FUN_00659722();
+        ppuStack_33c = (undefined **)0x4;
+        puStack_340 = &uStack_258;
+        piStack_344 = (int *)0xe;
+        piStack_348 = DAT_022b69a8;
+        puStack_34c = (undefined *)0x5725b8;
+        (**(code **)(*DAT_022b69a8 + 0x178))();
+        puStack_300 = (undefined4 *)0x0;
+        puStack_304 = (undefined *)0x0;
+        puStack_34c = auStack_168;
+        puStack_308 = (undefined4 *)0x0;
+        puStack_30c = (undefined4 *)0x0;
+        piStack_350 = aiStack_250 + 10;
+        piStack_314 = (int *)0x0;
+        puStack_318 = (undefined4 *)0x0;
+        ppiStack_354 = &piStack_338;
+        puStack_31c = (undefined *)0x0;
+        puStack_320 = (undefined4 *)0x0;
+        piStack_328 = (int *)0x0;
+        puStack_32c = (undefined4 *)0x0;
+        puStack_330 = (undefined4 *)0x0;
+        puStack_334 = (undefined4 *)0x0;
+        puStack_2fc = (undefined4 *)0x3f800000;
+        puStack_310 = (undefined *)0x3f800000;
+        puStack_324 = (undefined4 *)0x3f800000;
+        piStack_338 = (int *)0x3f800000;
+        puStack_358 = (undefined *)0x572616;
+        FUN_006594d1();
+        puStack_358 = auStack_1b4;
+        ppiStack_35c = &piStack_344;
+        FUN_006594d1(ppiStack_35c);
+        FUN_006594d1(&piStack_350,&piStack_350,auStack_200);
+        FUN_00659722(&uStack_28c,&ppiStack_35c);
+        (**(code **)(*DAT_022b69a8 + 0x178))(DAT_022b69a8,0x12,&uStack_294,4);
+        (**(code **)(*DAT_022b69a8 + 0x178))(DAT_022b69a8,0x16,&puStack_334,1);
+        piStack_344 = (int *)param_1[0xc0];
+        (**(code **)(*DAT_022b69a8 + 0x178))(DAT_022b69a8,0x17,&piStack_344,1);
+        (**(code **)(*DAT_022b69a8 + 0x170))(DAT_022b69a8,param_1[0xbe]);
+        (**(code **)(*DAT_022b69a8 + 0x1ac))(DAT_022b69a8,param_1[0xbf]);
+        (**(code **)(*DAT_022b69a8 + 0x104))(DAT_022b69a8,0,param_1[0xbc]);
+        (**(code **)(*DAT_022b69a8 + 0x104))(DAT_022b69a8,1,param_1[0x3d]);
+        (**(code **)(*DAT_022b69a8 + 0x104))(DAT_022b69a8,2,param_1[0x3e]);
+        (**(code **)(*DAT_022b69a8 + 0x104))(DAT_022b69a8,3,param_1[0xbd]);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,0,1,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,0,2,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,0,3,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,0,5,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,0,6,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,0,7,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,1,1,3);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,1,2,3);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,1,3,3);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,1,5,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,1,6,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,1,7,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,2,1,3);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,2,2,3);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,2,3,3);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,2,5,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,2,6,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,2,7,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,3,1,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,3,2,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,3,3,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,3,5,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,3,6,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,3,7,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,4,1,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,4,2,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,4,3,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,4,5,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,4,6,2);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,4,7,2);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,0,0xb,0);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,1,0xb,1);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,2,0xb,2);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,3,0xb,3);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,4,0xb,3);
+        (**(code **)(*DAT_022b69a8 + 0xe4))(DAT_022b69a8,0x89,0);
+        (**(code **)(*DAT_022b69a8 + 0xe4))(DAT_022b69a8,0x91,1);
+        (**(code **)(*DAT_022b69a8 + 0x164))(DAT_022b69a8,0x412);
+        (**(code **)(*DAT_022b69a8 + 400))(DAT_022b69a8,0,param_1[0xb8],0,0x38);
+        (**(code **)(*DAT_022b69a8 + 0x144))(DAT_022b69a8,5,0,2);
+        (**(code **)(*DAT_022b69a8 + 0x170))(DAT_022b69a8,0);
+        (**(code **)(*DAT_022b69a8 + 0x1ac))(DAT_022b69a8,0);
+        (**(code **)(*DAT_022b69a8 + 0x104))(DAT_022b69a8,0,0);
+        (**(code **)(*DAT_022b69a8 + 0x104))(DAT_022b69a8,1,0);
+        (**(code **)(*DAT_022b69a8 + 0x104))(DAT_022b69a8,2,0);
+        (**(code **)(*DAT_022b69a8 + 0x104))(DAT_022b69a8,3,0);
+        (**(code **)(*DAT_022b69a8 + 0x104))(DAT_022b69a8,4,0);
+        (**(code **)(*DAT_022b69a8 + 0xe4))(DAT_022b69a8,0x89,1);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,0,0x18,0);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,1,0x18,0);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,2,0x18,0);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,3,0x18,0);
+        (**(code **)(*DAT_022b69a8 + 0x10c))(DAT_022b69a8,4,0x18,0);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,1,1,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,1,2,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,1,3,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,2,1,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,2,2,1);
+        (**(code **)(*DAT_022b69a8 + 0x114))(DAT_022b69a8,2,3,1);
+        (**(code **)(*DAT_022b69a8 + 0xe4))(DAT_022b69a8,0x13,5);
+        (**(code **)(*DAT_022b69a8 + 0xe4))(DAT_022b69a8,0x14,6);
+      }
+    }
   }
-  if (*(char *)(param_1 + 0x1d0) != '\0') {
-    return;
-  }
-  FUN_0056f6e0();
-  FUN_00571730();
   return;
 }
+

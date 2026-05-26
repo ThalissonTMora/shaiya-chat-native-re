@@ -27,3 +27,7 @@ pipeline	Connection_SendGuard	0x00410C10
 pipeline	Connection_SendEx	0x00410B50
 network	SendBuffer_AllocBySize	0x0041DBB0
 network	IOCP_EnqueueSend	0x004116C0
+
+# --- Key table DAT_00454C74 (stride 0x84) — LOGIN_A101_BODY_MAP.md ---
+crypto	KeyTable_SlotInit	0x00409AE0
+keypath	KeyTable_GlobalInit	0x00406380

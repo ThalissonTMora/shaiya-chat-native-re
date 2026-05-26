@@ -10,6 +10,8 @@
  */
 
 
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
 int FUN_00404610(void)
 
 {
@@ -20,11 +22,11 @@ int FUN_00404610(void)
   
   iVar3 = 0x20;
   do {
-    uVar2 = DAT_02303a8c * 0x343fd + 0x269ec3 & 0x7fffffff;
-    DAT_02303a8c = uVar2 * 0x343fd + 0x269ec3 & 0x7fffffff;
-    iVar1 = DAT_02303a8c * -0x7fff7fff;
+    uVar2 = _DAT_02303a8c * 0x343fd + 0x269ec3 & 0x7fffffff;
+    _DAT_02303a8c = uVar2 * 0x343fd + 0x269ec3 & 0x7fffffff;
+    iVar1 = _DAT_02303a8c * -0x7fff7fff;
     iVar3 = iVar3 + -1;
-    *in_EAX = DAT_02303a8c / 0xffff << 0x10 | uVar2 / 0xffff;
+    *in_EAX = _DAT_02303a8c / 0xffff << 0x10 | uVar2 / 0xffff;
     in_EAX = in_EAX + 1;
   } while (iVar3 != 0);
   return iVar1;

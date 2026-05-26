@@ -10,6 +10,8 @@
  */
 
 
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
 void __thiscall
 FUN_005a4d50(int param_1,undefined param_2,undefined param_3,undefined param_4,undefined4 param_5,
             undefined4 param_6)
@@ -19,9 +21,9 @@ FUN_005a4d50(int param_1,undefined param_2,undefined param_3,undefined param_4,u
   undefined auStack_84 [128];
   uint uStack_4;
   
-  uStack_4 = DAT_007b4dd0 ^ (uint)&uStack_88;
+  uStack_4 = _DAT_007b4dd0 ^ (uint)&uStack_88;
   FUN_00401100(auStack_84,&uStack_88,param_2,param_5,param_3,param_6,param_4);
-  FUN_005ec5a0(uStack_88,auStack_84);
+  func_0x005ec5a0(uStack_88,auStack_84);
   FUN_00401310();
   *(undefined4 *)(param_1 + 0x224) = 1;
   FUN_00630c8a();

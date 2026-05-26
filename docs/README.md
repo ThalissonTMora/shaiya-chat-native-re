@@ -21,7 +21,9 @@ All project markdown lives in **`docs/`**. The repo root [`README.md`](../README
 | Doc | Contents |
 |-----|----------|
 | [`CRYPTO_COUNTER.md`](CRYPTO_COUNTER.md) | Client `0xA101` body → HMAC → `ctx+0xF4` counter |
+| [`LOGIN_A101_BODY_MAP.md`](LOGIN_A101_BODY_MAP.md) | Server `SendKeyBlob` ↔ client handler byte map |
 | [`SERVER_KEY_BLOB_RE.md`](SERVER_KEY_BLOB_RE.md) | Outbound `0xA101` on `ps_login.exe` (not `ps_game.exe`) |
+| [`LOGIN_A101_BODY_MAP.md`](LOGIN_A101_BODY_MAP.md) | Byte-a-byte `0xA101` body: `SendKeyBlob` ↔ client handler |
 | [`CHAT_RE_GAPS.md`](CHAT_RE_GAPS.md) | Lacunas chat + roadmap P0/P1/P2 (atualizado) |
 
 ## Tooling
@@ -33,6 +35,7 @@ All project markdown lives in **`docs/`**. The repo root [`README.md`](../README
 | [`../bin/README.md`](../bin/README.md) | Same — versioned `bin/*.exe` |
 | [`../tools/padding/`](../tools/padding/) | Pattern B packet builders / send-site scan |
 | [`../tools/zonechat/parse_cn_string_db.py`](../tools/zonechat/parse_cn_string_db.py) | Parser `data/cn_string.DB` (when available) |
+| [`../tools/crypto/validate_a101_counter.py`](../tools/crypto/validate_a101_counter.py) | Offline `0xA101` digest/counter check |
 | [`../psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md`](../psgame-chat-native/send/Chat_AdminWhisper_F107_F109_chain.md) | Admin whisper bind/clear wire |
 
 ## Decompiled corpora (`.c` only)

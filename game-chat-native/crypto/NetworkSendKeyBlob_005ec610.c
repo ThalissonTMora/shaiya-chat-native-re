@@ -11,6 +11,7 @@
 
 
 /* WARNING: Function: __alloca_probe replaced with injection: alloca_probe */
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
 
 void FUN_005ec610(undefined4 *param_1,undefined4 *param_2,char param_3)
 
@@ -25,7 +26,7 @@ void FUN_005ec610(undefined4 *param_1,undefined4 *param_2,char param_3)
   undefined4 uStack_1fd6;
   uint uStack_4;
   
-  uStack_4 = DAT_007b4dd0 ^ (uint)&sStack_2004;
+  uStack_4 = _DAT_007b4dd0 ^ (uint)&sStack_2004;
   sStack_2004 = (ushort)(param_3 != '\0') * 4 + -0x5efe;
   uStack_1fde = param_2[1];
   puVar2 = auStack_2002;

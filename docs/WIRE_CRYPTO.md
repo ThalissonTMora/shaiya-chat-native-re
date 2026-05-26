@@ -157,17 +157,18 @@ NetworkRecv_SocketPump @ 0x5F438E
                       → conn+0x224 = 1
 ```
 
-**Payload layout** (after opcode `u16`, handler @ `0x5E3D60`):
+**Payload layout** (after opcode `u16`, handler @ `0x5E3D60`; server builder @ `ps_login` `0x404DA0`):
 
 ```
-+0x00  u8   field_0    // ctx selector (0 = recv CounterLoad path)
-+0x01  u8   field_1    // block_b slice length (append/HMAC — INFERRED)
-+0x02  u8   field_2    // block_a slice length (append — CONFIRMED)
++0x00  u8   field_0    // ctx selector; server always 0 → recv CounterLoad path
++0x01  u8   field_1    // (u8)(slot block_a byte len); HMAC len on block_b @ 0x404569
++0x02  u8   field_2    // (u8)(slot block_b byte len); block_a append @ 0x404FEA
 +0x03  u8[64]  block_a
-+0x43  u8[128] block_b          // total body = 195 bytes
++0x43  u8[128] block_b          // total body = 195 bytes; wire total = 197 (0xC5)
 ```
 
-Full counter/HMAC chain: [`CRYPTO_COUNTER.md`](CRYPTO_COUNTER.md).
+Server stores `field_1`/`field_2` at **`F+0x13`/`F+0x14`** with push-adjusted `esp` (@ `0x404E2C`/`0x404E3A`) — not `F+0x17`/`F+0x1C`. Full server↔client table: [`LOGIN_A101_BODY_MAP.md`](LOGIN_A101_BODY_MAP.md).  
+Counter/HMAC chain: [`CRYPTO_COUNTER.md`](CRYPTO_COUNTER.md).
 
 ### Post-login derive path (client)
 
@@ -348,7 +349,8 @@ Current assessment (May 2026, validated against `Game.exe` + `ps_game.exe`):
 |-------|--------|
 | Server outbound `0xA101` key blob | **`ps_login.exe` @ `0x404DA0`** (confirmed); absent from `ps_game.exe` |
 | Initial counter bytes (client) | Derived via HMAC/PRNG in `0x401100` — wire offset **not mapped** |
-| `0xA101` `field_0/1/2` | `field_0` ctx branch **CONFIRMED**; `field_1/2` slice lengths **CONFIRMED/INFERRED** — see [`CRYPTO_COUNTER.md`](CRYPTO_COUNTER.md) |
+| `0xA101` body layout server↔client | **CONFIRMED** byte-a-byte — [`LOGIN_A101_BODY_MAP.md`](LOGIN_A101_BODY_MAP.md) |
+| `0xA101` `field_0/1/2` | `field_0` ctx branch **CONFIRMED**; `field_1` HMAC/`block_b` slice, `field_2` `block_a` slice **CONFIRMED** @ `0x404F96`/`0x404FEA`/`0x404569` |
 | HMAC inner length vs `field_1` | **INFERRED** @ `0x404569` |
 | Fixed-field charset/padding | `char[21]` name fields — partially inferred |
 

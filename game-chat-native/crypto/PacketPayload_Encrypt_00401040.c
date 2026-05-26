@@ -10,11 +10,13 @@
  */
 
 
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
 void FUN_00401040(undefined4 param_1,undefined4 param_2)
 
 {
   if (DAT_023037e9 != '\0') {
-    if (DAT_023037e0 == 0) {
+    if (_DAT_023037e0 == 0) {
       FUN_00404df0(param_2);
       return;
     }

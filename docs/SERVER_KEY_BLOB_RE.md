@@ -23,19 +23,37 @@ Method: PE section map + static `E8` xref scan + `mov word [esp+disp], imm16` op
 
 ### `SendKeyBlob_A101` @ `0x00404DA0` (ps_login.exe) — disassembly summary
 
+Full byte-a-byte map (server stack **`F`** → wire **`W=F+0x10`**): [`LOGIN_A101_BODY_MAP.md`](LOGIN_A101_BODY_MAP.md).
+
 ```
-00404DCC  mov word [esp+0x10], 0xA101
-00404DD4  mov byte [esp+0x12], 0          ; leading body byte (field_0)
-00404DD8  lea  edi, [esp+0x15]
-00404DDC  push 0xC5                       ; total plaintext size
-00404DE1… rep movsd from key table @ 0x454C74 (indexed by connection)
-00404E29  mov [esp+0x17], dl              ; per-connection byte into header region
-00404E39  mov [esp+0x1C], bl
-00404E3E  call 0x410AE0                   ; Connection_Send
-00404E4A  call 0x42E427                   ; post-send state transition
+00404DCE  mov word [F+0x10], 0xA101       ; W+0 opcode
+00404DD5  mov byte [F+0x12], 0            ; W+2 field_0 (always 0)
+00404DDA  lea  edi, [F+0x15]              ; block_a dest = W+5
+00404DDE  push 0xC5                       ; total plaintext 197 B
+00404DEA  lea  eax, [0x454C74 + idx*0x84] ; key-table slot (rand()%DAT_454C70)
+00404DF1  mov [conn+0x18], eax            ; stash slot ptr on connection
+00404DF4… rep movsd block_a ← [slot+0x08], len [slot+0x04]*4
+00404E1F  lea  edi, [esp+0x59]            ; block_b dest = F+0x55 = W+0x45
+00404E23… rep movsd block_b ← [slot+0x20], len [slot+0x1C]*4
+00404E2C  mov [F+0x13], dl                ; W+3 field_1 = (u8)(block_a byte len)
+00404E33  lea  ecx, [esp+0x14]            ; send ptr = F+0x10 (after push 0xC5)
+00404E3A  mov [F+0x14], bl                ; W+4 field_2 (after push ecx; esp=F-8)
+00404E3E  call Connection_Send @ 0x410AE0
+00404E4A  call PostSend_StateTransition @ 0x42E427
 ```
 
-Pre-send key derivation: `call 0x42D77E` @ `0x00404DBE` (Ghidra: `_rand()` via `KeyDeriv_PRNG`).
+Pre-send PRNG index: `KeyDeriv_PRNG` @ `0x0042D77E` (`call` @ `0x00404DBE`).
+
+### Key table `DAT_00454C74` (stride `0x84`)
+
+| Item | Evidence |
+|------|----------|
+| **16 slots** | Loop `0x454C74` … `< 0x4554B4` @ `0x4065E4`–`0x4065EA` |
+| **Slot count** | `DAT_00454C70` incremented each init iteration @ `0x4065DE` |
+| **Init** | `KeyTable_GlobalInit` @ `0x00406380` → `KeyTable_SlotInit(0x400,0)` @ `0x00409AE0` |
+| **Send index** | `rand() % DAT_454C70` @ `0x404DC4` |
+
+Slot fields used at send: **`+0x04/+0x08`** (block_a count/ptr), **`+0x1C/+0x20`** (block_b count/ptr). See [`LOGIN_A101_BODY_MAP.md`](LOGIN_A101_BODY_MAP.md).
 
 ### Ghidra decomp exports (2026-05-26)
 
@@ -54,10 +72,12 @@ Regenerate:
 | keypath | `Connection_EnqueueKeyBlob` | `0x00401C70` | [`../pslogin-chat-native/keypath/Connection_EnqueueKeyBlob_00401c70.c`](../pslogin-chat-native/keypath/Connection_EnqueueKeyBlob_00401c70.c) |
 | handlers | `Login_OpcodeDispatch` | `0x004042F0` | [`../pslogin-chat-native/handlers/Login_OpcodeDispatch_004042f0.c`](../pslogin-chat-native/handlers/Login_OpcodeDispatch_004042f0.c) |
 | crypto | `KeyDeriv_PRNG` | `0x0042D77E` | [`../pslogin-chat-native/crypto/KeyDeriv_PRNG_0042d77e.c`](../pslogin-chat-native/crypto/KeyDeriv_PRNG_0042d77e.c) |
+| crypto | `KeyTable_SlotInit` | `0x00409AE0` | [`../pslogin-chat-native/crypto/KeyTable_SlotInit_00409ae0.c`](../pslogin-chat-native/crypto/KeyTable_SlotInit_00409ae0.c) |
+| keypath | `KeyTable_GlobalInit` | `0x00406380` | [`../pslogin-chat-native/keypath/KeyTable_GlobalInit_00406380.c`](../pslogin-chat-native/keypath/KeyTable_GlobalInit_00406380.c) |
 | keypath | `PostSend_StateTransition` | `0x0042E427` | [`../pslogin-chat-native/keypath/PostSend_StateTransition_0042e427.c`](../pslogin-chat-native/keypath/PostSend_StateTransition_0042e427.c) |
 | pipeline | `Connection_RecvAppend` | `0x00403080` | [`../pslogin-chat-native/pipeline/Connection_RecvAppend_00403080.c`](../pslogin-chat-native/pipeline/Connection_RecvAppend_00403080.c) |
 
-Manifest: [`tools/ghidra/pslogin-crypto-functions.manifest`](../tools/ghidra/pslogin-crypto-functions.manifest) (15 functions).
+Manifest: [`tools/ghidra/pslogin-crypto-functions.manifest`](../tools/ghidra/pslogin-crypto-functions.manifest) (17 functions).
 
 ---
 
@@ -142,6 +162,7 @@ objdump -d .features/Shaiya-Core-V7/server/ps_game.exe   | less  # VA 0x413CB5, 
 
 ## Cross-reference
 
+- **Byte-a-byte body map (server build ↔ client parse):** [`LOGIN_A101_BODY_MAP.md`](LOGIN_A101_BODY_MAP.md)
 - Client recv path (closed): [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md) Step 4
 - Client handler: `game-chat-native/handlers/Handler_Packet_A101_KeyMaterial_005e3d60.c`
 - Server login key send: `pslogin-chat-native/keypath/SendKeyBlob_A101_00404da0.c`

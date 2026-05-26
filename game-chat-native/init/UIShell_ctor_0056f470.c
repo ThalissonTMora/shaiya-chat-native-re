@@ -7,44 +7,40 @@
  * ImageBase: 0x00400000
  * Category: init
  * Regenerate: tools/ghidra/decompile-game-chat.sh
- *
- * CONFIRMED: allocates main UI shell stored in DAT_007c0838 @ ChatObject_alloc_site 0x0040AD5D.
- * Initializes +0x1D0 = 0 @ 0x56F515 (cinematic_overlay_suppress).
  */
 
-int __thiscall FUN_0056f470(int param_1)
+
+undefined4 * __fastcall FUN_0056f470(undefined4 *param_1)
 
 {
-  int iVar1;
-  undefined4 uVar2;
-  
-  FUN_0056ae00(param_1 + 0x1d4);
-  uVar2 = 0;
-  *(undefined4 *)(param_1 + 0x13c) = 0;
-  *(undefined4 *)(param_1 + 0x140) = 0;
-  *(undefined4 *)(param_1 + 0x148) = 0;
-  *(undefined4 *)(param_1 + 0x144) = 0;
-  *(undefined4 *)(param_1 + 0x14c) = 0;
-  *(undefined4 *)(param_1 + 0x154) = 0;
-  *(undefined4 *)(param_1 + 0x150) = 0;
-  *(undefined4 *)param_1 = uVar2;
-  *(undefined4 *)(param_1 + 0xf4) = uVar2;
-  *(undefined4 *)(param_1 + 0xf8) = uVar2;
-  *(undefined4 *)(param_1 + 0xf0) = uVar2;
-  *(undefined4 *)(param_1 + 0x2d8) = uVar2;
-  *(undefined1 *)(param_1 + 0x1d0) = 0;  /* CONFIRMED @ 0x56F515 */
-  *(undefined4 *)(param_1 + 0x158) = 0;
-  *(undefined4 *)(param_1 + 0x10) = uVar2;
-  *(undefined4 *)(param_1 + 0x14) = uVar2;
-  *(undefined4 *)(param_1 + 0x2dc) = uVar2;
-  *(undefined4 *)(param_1 + 0x2e0) = uVar2;
-  *(undefined4 *)(param_1 + 0x2e4) = uVar2;
-  *(undefined4 *)(param_1 + 0x2f0) = uVar2;
-  *(undefined4 *)(param_1 + 0x2f4) = uVar2;
-  *(undefined4 *)(param_1 + 0x2e8) = uVar2;
-  *(undefined4 *)(param_1 + 0x2ec) = uVar2;
-  *(undefined4 *)(param_1 + 0x2f8) = uVar2;
-  *(undefined4 *)(param_1 + 0x2fc) = uVar2;
-  *(undefined1 *)(param_1 + 4) = 0;
+  FUN_005ca350();
+  param_1[0x4f] = 0;
+  param_1[0x50] = 0;
+  param_1[0x52] = 0x3f800000;
+  param_1[0x51] = 0;
+  param_1[0x53] = 0;
+  param_1[0x55] = 0;
+  param_1[0x54] = 0;
+  *param_1 = 0;
+  param_1[0x3d] = 0;
+  param_1[0x3e] = 0;
+  param_1[0x3c] = 0;
+  param_1[0xb6] = 0;
+  *(undefined *)(param_1 + 0x74) = 0;
+  param_1[0x56] = 0x3f800000;
+  param_1[4] = 0;
+  param_1[5] = 0;
+  param_1[0xb7] = 0;
+  param_1[0xb8] = 0;
+  param_1[0xb9] = 0;
+  param_1[0xbc] = 0;
+  param_1[0xbd] = 0;
+  param_1[0xba] = 0;
+  param_1[0xbb] = 0;
+  param_1[0xbe] = 0;
+  param_1[0xbf] = 0;
+  *(undefined *)(param_1 + 1) = 0;
+  param_1[0x57] = 0;
   return param_1;
 }
+

@@ -25,9 +25,9 @@ void FUN_00401320(void)
   undefined4 uStack_8;
   uint uStack_4;
   
-  uStack_4 = DAT_007b4dd0 ^ (uint)auStack_24;
+  uStack_4 = _DAT_007b4dd0 ^ (uint)auStack_24;
   FUN_00404390(&DAT_023027c0);
-  if (DAT_023037e0 == 0) {
+  if (_DAT_023037e0 == 0) {
     _DAT_023038e4 = auStack_24[0];
     _DAT_023038e8 = auStack_24[1];
     _DAT_023038ec = auStack_24[2];
@@ -42,14 +42,14 @@ void FUN_00401320(void)
   else {
     uStack_10 = auStack_24[1];
     uStack_14 = auStack_24[0];
-    auStack_24[0] = DAT_023027d0;
+    auStack_24[0] = _DAT_023027d0;
     uStack_c = auStack_24[2];
     uStack_8 = auStack_24[3];
-    auStack_24[3] = DAT_023027dc;
-    auStack_24[1] = DAT_023027d4;
-    auStack_24[2] = DAT_023027d8;
+    auStack_24[3] = _DAT_023027dc;
+    auStack_24[1] = _DAT_023027d4;
+    auStack_24[2] = _DAT_023027d8;
     puVar2 = auStack_24;
-    puVar3 = &DAT_02303908;
+    puVar3 = (undefined4 *)0x2303908;
     for (iVar1 = 8; iVar1 != 0; iVar1 = iVar1 + -1) {
       *puVar3 = *puVar2;
       puVar2 = puVar2 + 1;
@@ -57,7 +57,7 @@ void FUN_00401320(void)
     }
     FUN_00401500();
     puVar2 = auStack_24;
-    puVar3 = &DAT_02303a58;
+    puVar3 = (undefined4 *)0x2303a58;
     for (iVar1 = 8; iVar1 != 0; iVar1 = iVar1 + -1) {
       *puVar3 = *puVar2;
       puVar2 = puVar2 + 1;
@@ -71,10 +71,10 @@ void FUN_00401320(void)
   _DAT_023027c4 = 0;
   _DAT_023027c8 = 0;
   _DAT_023027cc = 0;
-  DAT_023027d0 = 0;
-  DAT_023027d4 = 0;
-  DAT_023027d8 = 0;
-  DAT_023027dc = 0;
+  _DAT_023027d0 = 0;
+  _DAT_023027d4 = 0;
+  _DAT_023027d8 = 0;
+  _DAT_023027dc = 0;
   FUN_00630c8a();
   return;
 }

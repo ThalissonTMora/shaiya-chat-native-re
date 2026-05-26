@@ -7,10 +7,6 @@
  * ImageBase: 0x00400000
  * Category: crypto
  * Regenerate: tools/ghidra/decompile.sh
- *
- * Recv counter (field_0==0, CONFIRMED @ 0x401174–0x40118B):
- *   auStack_b0[0..3] @ stack+0x38 = HMAC digest[0..15] → Crypto_CounterLoad ×2
- *   uStack_a0..uStack_94 @ stack+0x48 = HMAC digest[16..31] → key-seed globals
  */
 
 
@@ -21,9 +17,10 @@ void FUN_00401100(undefined4 param_1,undefined4 param_2,int param_3,undefined4 p
 
 {
   int iVar1;
+  undefined4 unaff_ESI;
   undefined4 *puVar2;
   undefined4 *puVar3;
-  undefined auStack_dc [4];
+  undefined4 uStack_dc;
   undefined4 uStack_d8;
   undefined4 uStack_d4;
   undefined4 uStack_d0;
@@ -39,12 +36,12 @@ void FUN_00401100(undefined4 param_1,undefined4 param_2,int param_3,undefined4 p
   byte bStack_11;
   uint uStack_c;
   
-  uStack_c = DAT_007b4dd0 ^ (uint)auStack_dc;
+  uStack_c = _DAT_007b4dd0 ^ (uint)&uStack_dc;
   uStack_d8 = param_1;
   uStack_d0 = param_2;
   uStack_cc = param_4;
   uStack_d4 = param_6;
-  DAT_023037e0 = param_3;
+  _DAT_023037e0 = param_3;
   FUN_00404610();
   bStack_11 = bStack_11 & 0x7f;
   FUN_00404420(auStack_90,param_7);
@@ -70,21 +67,21 @@ void FUN_00401100(undefined4 param_1,undefined4 param_2,int param_3,undefined4 p
     _DAT_023027c8 = uStack_98;
     _DAT_023027c0 = uStack_a0;
     _DAT_023027c4 = uStack_9c;
-    DAT_023027d4 = auStack_b0[1];
+    _DAT_023027d4 = auStack_b0[1];
     _DAT_023027cc = uStack_94;
-    DAT_023027d0 = auStack_b0[0];
+    _DAT_023027d0 = auStack_b0[0];
     puVar2 = auStack_b0;
-    puVar3 = &DAT_02303908;
+    puVar3 = (undefined4 *)0x2303908;
     for (iVar1 = 8; iVar1 != 0; iVar1 = iVar1 + -1) {
       *puVar3 = *puVar2;
       puVar2 = puVar2 + 1;
       puVar3 = puVar3 + 1;
     }
-    DAT_023027d8 = auStack_b0[2];
-    DAT_023027dc = auStack_b0[3];
+    _DAT_023027d8 = auStack_b0[2];
+    _DAT_023027dc = auStack_b0[3];
     FUN_00401500();
     puVar2 = auStack_b0;
-    puVar3 = &DAT_02303a58;
+    puVar3 = (undefined4 *)0x2303a58;
     for (iVar1 = 8; iVar1 != 0; iVar1 = iVar1 + -1) {
       *puVar3 = *puVar2;
       puVar2 = puVar2 + 1;
@@ -98,9 +95,9 @@ void FUN_00401100(undefined4 param_1,undefined4 param_2,int param_3,undefined4 p
   FUN_005be350(auStack_c8);
   FUN_005be350(auStack_bc);
   FUN_00404f90(uStack_cc,param_6,param_7);
-  FUN_00405050(uStack_d8,uStack_d0,auStack_90);
+  FUN_00405050(unaff_ESI,uStack_dc,&uStack_9c);
   FUN_005be590(auStack_c8);
-  FUN_005be590(auStack_bc);
+  FUN_005be590(&uStack_d4);
   FUN_00630c8a();
   return;
 }

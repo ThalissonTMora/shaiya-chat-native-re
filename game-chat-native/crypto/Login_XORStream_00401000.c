@@ -21,7 +21,7 @@ void __fastcall FUN_00401000(byte *param_1,uint param_2)
   }
   if (0 < (int)param_2) {
     do {
-      *param_1 = *param_1 ^ (&DAT_023027e0)[uVar1];
+      *param_1 = *param_1 ^ *(byte *)(uVar1 + 0x23027e0);
       uVar1 = uVar1 + 1;
       param_1 = param_1 + 1;
       if (0xfff < (int)uVar1) {
