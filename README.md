@@ -19,7 +19,7 @@ Stock chat flow mapping **client ↔ world server ↔ login handshake**: Ghidra 
 | Crypto / handshake | [`docs/WIRE_CRYPTO.md`](docs/WIRE_CRYPTO.md) |
 | Counter derivation | [`docs/CRYPTO_COUNTER.md`](docs/CRYPTO_COUNTER.md) |
 | Login key blob RE | [`docs/SERVER_KEY_BLOB_RE.md`](docs/SERVER_KEY_BLOB_RE.md) |
-| Ghidra & `bin/` | [`docs/GHIDRA.md`](docs/GHIDRA.md) · [`docs/BINARIES.md`](docs/BINARIES.md) |
+| Ghidra & `bin/` | [`docs/GHIDRA.md`](docs/GHIDRA.md) · [`docs/BINARIES.md`](docs/BINARIES.md) · [`bin/README.md`](bin/README.md) (Shaiya Core V9) |
 
 ## Reimplementation confidence - AI Vision:
 
