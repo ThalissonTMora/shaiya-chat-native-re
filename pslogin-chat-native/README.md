@@ -9,6 +9,6 @@ Ghidra exports for the **`0xA101` key-blob send path** (not in `ps_game.exe`). M
 
 **Docs:** [`../docs/SERVER_KEY_BLOB_RE.md`](../docs/SERVER_KEY_BLOB_RE.md) · [`../docs/GHIDRA.md`](../docs/GHIDRA.md)
 
-Binary: `../bin/ps_login.exe` (symlink, not versioned).
+Binary: `../bin/ps_login.exe` (Shaiya Core V9, versioned in git).
 
 Regenerate: `../tools/ghidra/decompile-pslogin-crypto.sh`

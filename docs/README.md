@@ -22,8 +22,8 @@ All project markdown lives in **`docs/`**. The repo root [`README.md`](../README
 | Doc | Contents |
 |-----|----------|
 | [`GHIDRA.md`](GHIDRA.md) | Decompile scripts, manifests, prerequisites |
-| [`BINARIES.md`](BINARIES.md) | `bin/*.exe` symlinks and MD5 checks |
-| [`../bin/README.md`](../bin/README.md) | **Shaiya Core V9** — `bin/` setup (versioned) |
+| [`BINARIES.md`](BINARIES.md) | Shaiya Core V9 executables in `bin/` (MD5 table) |
+| [`../bin/README.md`](../bin/README.md) | Same — versioned `bin/*.exe` |
 
 ## Decompiled corpora (`.c` only)
 
