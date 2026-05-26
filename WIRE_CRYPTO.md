@@ -143,7 +143,7 @@ if (len > 0):
 ```
 Path A — server delivers key blob (connection state machine)
   recv (login socket, NOT chat PacketDispatcher)
-    → connection state vtbl @ 0x746988, entry [4] = Connection_OnKeyMaterial @ 0x5A4D50
+    → connection state vtbl @ 0x747788, entry [4] = Connection_OnKeyMaterial @ 0x5A4D50
          → Crypto_ProcessKeyPacket @ 0x401100
               writes 16 B seed → 0x23027C0..CC (+ alt slots 0x23027D0..DC)
               Crypto_CounterLoad @ 0x404680 → ctx 0x23037F0 / 0x2303940
@@ -162,7 +162,7 @@ Path B — post-login validation (game socket already up)
 | VA | Name | Action |
 |----|------|--------|
 | `0x00401100` | `Crypto_ProcessKeyPacket` | Parse server key blob; populate `0x23027C0`; init AES ctx via `0x404680` |
-| `0x00401320` | `Crypto_DeriveSessionKeys` | SHA256-like (`0x40404390`) over `0x23027C0`; expand keys into recv/send ctx |
+| `0x00401320` | `Crypto_DeriveSessionKeys` | SHA256-like (`0x00404390`) over `0x23027C0`; expand keys into recv/send ctx |
 | `0x00401310` | `Crypto_EnableGameCipher` | `DAT_023037e9 = 1`, `DAT_023037ea = 1` |
 | `0x00404680` | `Crypto_CounterLoad` | Byte-swap 16 B nonce into `ctx+0xF4`; set `ctx+0xF0 = 10` (AES-128 rounds) |
 | `0x005A4D50` | `Connection_OnKeyMaterial` | State-machine handler; calls `401100` + enable |
@@ -209,7 +209,7 @@ Called during **`CUser` zone-enter** (`Handler_Packet1201` @ `0x47FCC0` path), n
 | `0x023027C0` | Key seed buffer (cleared after derive) |
 | `0x023027E0` | Login XOR table |
 
-**Remaining gap:** opcode of the **inbound** server packet that feeds `Crypto_ProcessKeyPacket` — delivered via login connection state machine (`0x746988`), **not** routed through chat `PacketDispatcher`. Capture on login port + breakpoint @ `0x401100`.
+**Remaining gap:** opcode of the **inbound** server packet that feeds `Crypto_ProcessKeyPacket` — delivered via login connection state machine (`0x747788`), **not** routed through chat `PacketDispatcher`. Capture on login port + breakpoint @ `0x401100`.
 
 ---
 

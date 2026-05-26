@@ -1,9 +1,9 @@
 /*
  * Game.exe — ChatWindow_ToggleOpenLayout
- * Requested VA: 0x0047D203
+ * Requested VA: 0x0047D1F0
  * Entry Ghidra:  0047d1f0
  * Ghidra name:   FUN_0047d1f0
- * NOTE: VA is inside the function (landmark/hook), not the entry point.
+ * NOTE: 0x0047D203 is a mid-instruction landmark inside this function (e.g. hook site); entry is 0x0047D1F0.
  * MD5: c1edd96639ad81835624b9c4516ac781
  * ImageBase: 0x00400000
  * Category: ui

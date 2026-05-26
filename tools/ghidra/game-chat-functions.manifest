@@ -53,7 +53,7 @@ command	StaffCommand_Dispatch	0x004867A1
 command	GmCommand_Dispatch	0x0047FFD0
 command	GmOverlay_AppendText	0x0047F8B0
 
-# --- Chat object init + vtable methods (DAT_022fa2f0 → vtable .rdata 0x746744) ---
+# --- Chat object init + vtable methods (DAT_022fa2f0 → vtable .rdata 0x747544) ---
 init	ChatObject_ctor	0x0040A840
 init	ChatObject_alloc_site	0x0040AD5D
 vtable	AdminChatMonitor_vfn_0x308	0x00595570
@@ -113,16 +113,20 @@ crypto	StreamCrypt_AltCtx	0x00401640
 crypto	AES_BlockKeystream	0x00404830
 crypto	Crypto_EnableGameCipher	0x00401310
 crypto	Crypto_DeriveSessionKeys	0x00401320
+init	Login_OnSubmitCredentials	0x004D2B50
+crypto	NetworkSendKeyFollowUp	0x005EC5A0
+crypto	NetworkSendKeyBlob	0x005EC610
 init	Network_ConnectAndBindWndMsg	0x005DE780
 recv	Network_SocketNotifyDispatch	0x005DE810
 recv	Network_OnSocketDisconnect	0x005DE820
 handlers	Handler_Packet_0502	0x005E0CF0
+handlers	EntityStateRefresh	0x004153C0
 vtable	ChatEntitySpawn_vfn_0xF0	0x00593970
 
 # --- Chat flow: GUI hub + whisper target + toggle ---
 ui	ChatWindow_MainGuiHandler	0x0047FE20
 ui	ChatWindow_SetWhisperTarget	0x0047C690
-ui	ChatWindow_ToggleOpenLayout	0x0047D203
+ui	ChatWindow_ToggleOpenLayout	0x0047D1F0
 
 # --- Chat flow: render text pipeline (Render → DrawText) ---
 ui	ChatWindow_DrawColoredText	0x00573E20

@@ -16,10 +16,10 @@ Address tables and decompiled files. Base: `0x00400000` · client MD5 `c1edd9663
 | Global | VA / value |
 |--------|------------|
 | Chat singleton | `DAT_022fa2f0` |
-| Vtable (`.rdata`) | `0x00746744` |
+| Vtable (`.rdata`) | `0x00747544` |
 | Regenerate `.c` | `./tools/ghidra/decompile-game-chat.sh` *(binaries in `bin/`)* |
 | Manifest (client) | `game-chat-native/game-chat-functions.manifest` |
-| Manifest (server) | `psgame-chat-native/psgame-chat-functions.manifest |
+| Manifest (server) | `psgame-chat-native/psgame-chat-functions.manifest` |
 
 ---
 
@@ -50,7 +50,7 @@ Routing source: `game-chat-native/recv/PacketDispatcher_005f1e10.c` (~L917).
 | `0x1105` | Party | `005E53D0` | `handlers/Handler_ChatParty_005e53d0.c` | `+0x324` / `0059C380` | `vtable/ChatNormalParty_vfn_0x324_0059c380.c` | Chat box + 3D balloon |
 | `0x1106` | Error | `005E5470` | `handlers/Handler_ChatError_005e5470.c` | `+0x340` / `0059ABA0` | `vtable/ChatError_vfn_0x340_0059aba0.c` | Chat box (fixed `SysMsg`) |
 | `0x1107` | Shout | `005E54A0` | `handlers/Handler_ChatShout_005e54a0.c` | `+0x32C` / `0059AA10` | `vtable/ChatShout_vfn_0x32C_0059aa10.c` | Chat box + 3D balloon |
-| `0x1108` | Megaphone | `005E5540` | `handlers/Handler_ChatMegaphone_005e5540.c` | `+0x328` case `3` | `vtable/ChatWhisperTradeGuildZoneMega…` | Chat box (`SysMsg`) |
+| `0x1108` | Megaphone | `005E5540` | `handlers/Handler_ChatMegaphone_005e5540.c` | `+0x328` case `3` | `vtable/ChatWhisperTradeGuildZoneMega_vfn_0x328_0059bdb0.c` | Chat box (`SysMsg`) |
 | `0x1109` | Zone | `005E5600` | `handlers/Handler_ChatZone_005e5600.c` | `+0x328` case `4`/`5` | same | Chat box (`DrawText`) |
 | `0x110A` | Union | `005E56F0` | `handlers/Handler_ChatUnion_005e56f0.c` | `+0x34C` / `0059A940` | `vtable/ChatUnion_vfn_0x34C_0059a940.c` | Chat box (`DrawText` + name) |
 | `0x110B` | Channel link | `005E5740` | `handlers/Handler_Chat_110B_005e5740.c` | `+0x350` / `0059A9D0` | `vtable/ChatChannel_vfn_0x350_0059a9d0.c` | Text → entity nameplate (`56C650`) |
@@ -75,8 +75,8 @@ Routing source: `game-chat-native/recv/PacketDispatcher_005f1e10.c` (~L917).
 
 | Offset | Symbol | VA | File | Used by (recv) |
 |--------|--------|-----|------|----------------|
-| `+0x308` | `AdminChatMonitor_vfn` | `00595570` | `vtable/AdminChatMonitor_vfn_0x308_00595570.c` | `0x0F02` |
 | `+0xF0` | `ChatEntitySpawn_vfn` | `00593970` | `vtable/ChatEntitySpawn_vfn_0xF0_00593970.c` | `0x0502` |
+| `+0x308` | `AdminChatMonitor_vfn` | `00595570` | `vtable/AdminChatMonitor_vfn_0x308_00595570.c` | `0x0F02` |
 | `+0x31C` | `ChatNotify_vfn` | `00595690` | `vtable/ChatNotify_vfn_0x31C_00595690.c` | `0x0E05` |
 | `+0x320` | `ChatNotify_vfn` | `005957E0` | `vtable/ChatNotify_vfn_0x320_005957e0.c` | `0x0E06` |
 | `+0x324` | `ChatNormalParty_vfn` | `0059C380` | `vtable/ChatNormalParty_vfn_0x324_0059c380.c` | `0x1101`, `0x1105`, `0xF101` |
@@ -160,7 +160,7 @@ Wire crypto: see [`WIRE_CRYPTO.md`](WIRE_CRYPTO.md) and `game-chat-native/crypto
 | `ChatWindow_InputCapture` | `0047E8B0` | `ui/ChatWindow_InputCapture_0047e8b0.c` |
 | `ChatWindow_SendMessage` | `0047A5F0` | `ui/ChatWindow_SendMessage_0047a5f0.c` |
 | `ChatWindow_MainGuiHandler` | `0047FE20` | `ui/ChatWindow_MainGuiHandler_0047fe20.c` |
-| `ChatWindow_ToggleOpenLayout` | `0047D203` | `ui/ChatWindow_ToggleOpenLayout_0047d203.c` |
+| `ChatWindow_ToggleOpenLayout` | `0047D1F0` | `ui/ChatWindow_ToggleOpenLayout_0047d1f0.c` |
 | `ChatWindow_MouseWheelScroll` | `0047BEA0` | `ui/ChatWindow_MouseWheelScroll_0047bea0.c` |
 | `ChatWindow_SetWhisperTarget` | `0047C690` | `ui/ChatWindow_SetWhisperTarget_0047c690.c` |
 | `ChatWindow_WhisperHighlight` | `0047F970` | `ui/ChatWindow_WhisperHighlight_0047f970.c` |

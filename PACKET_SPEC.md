@@ -114,7 +114,7 @@ Handler: `Handler_Packet_0502` @ `0x005E0CF0` → vtable `+0xF0` → `ChatEntity
 +0x0D  u16  field_e       // total body = 15 bytes after opcode
 ```
 
-Effect: resolves entity via world mgr (`0x7C4A68`); may attach FX (`0x459D30`), update `entity+0x1EC..0x1F4`, call `EntityStateRefresh` @ `0x4153C0`. **No chat box.**
+Effect: resolves entity via world mgr (`0x7C4A68`); may attach FX (`0x459D30`), update `entity+0x1EC..0x1F4`, call `EntityStateRefresh` @ `0x004153C0`. **No chat box.**
 
 Evidence: `game-chat-native/vtable/ChatEntitySpawn_vfn_0xF0_00593970.c`
 

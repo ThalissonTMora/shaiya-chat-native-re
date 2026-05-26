@@ -3,6 +3,10 @@
 
 pipeline	Recv_Wrapper	0x004748E0
 pipeline	Recv_PacketDecrypt	0x004E4180
+
+# --- Wire crypto — see WIRE_CRYPTO.md ---
+crypto	Connection_EnableSendCipher	0x00464F00
+
 pipeline	Recv_PreDispatchGuard	0x004EC930
 pipeline	Recv_PostDispatchCleanup	0x004F33A0
 pipeline	CUser_DispatchPacket_Main	0x00474940

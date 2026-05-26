@@ -9,6 +9,7 @@ crypto	PacketStream_XOR	0x004E4180
 crypto	AES_BlockKeystream	0x004E3450
 crypto	AES_KeyExpand	0x004E4350
 crypto	Crypto_CounterInit	0x004E4000
+crypto	Connection_EnableSendCipher	0x00464F00
 crypto	Connection_EncryptOutbound	0x00464F20
 crypto	Connection_DecryptInbound	0x00464FA0
 pipeline	Recv_PreDispatchGuard	0x004EC930
